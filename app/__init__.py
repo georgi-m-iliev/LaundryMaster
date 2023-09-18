@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from app.db import db
+from app.db import db, migrate
 
 from app.auth import auth
 from app.views import views
@@ -33,8 +33,6 @@ def create_app():
     app.register_blueprint(api, url_prefix='/api')
 
     db.init_app(app)
-
-    with app.app_context():
-        db.create_all()
+    migrate.init_app(app, db)
 
     return app
