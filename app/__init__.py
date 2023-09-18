@@ -6,6 +6,7 @@ from app.db import db
 
 from app.auth import auth
 from app.views import views
+from app.api import api
 
 
 def init_db():
@@ -29,6 +30,7 @@ def create_app():
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(api, url_prefix='/api')
 
     db.init_app(app)
 
