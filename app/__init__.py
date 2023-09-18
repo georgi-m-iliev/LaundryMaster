@@ -16,8 +16,7 @@ def init_db():
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config['SECRET_KEY'] = 'secret!'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://laundrymaster:password@130.61.155.188:5432/laundrymaster'
+    app.config.from_prefixed_env()
 
     test_config = None
 
