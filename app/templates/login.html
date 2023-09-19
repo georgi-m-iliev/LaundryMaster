@@ -22,6 +22,7 @@
         <div class="card shadow-lg o-hidden border-0 my-5">
             <div class="p-5">
                 <div class="text-center">
+                    <img class="fas fa-laugh-wink pb-3 h-50" src="static/assets/img/icons/icon-android-homescreen.png" alt="logo">
                     <h4 class="text-dark mb-4">Welcome Back!</h4>
                 </div>
                 {% if form.errors %}
@@ -31,6 +32,24 @@
                     {% endfor %}
                     </ul>
                 {% endif %}
+
+                <div>
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'message' %}
+                              <div class="alert alert-warning" role="alert">
+                            {% else %}
+                              <div class="alert alert-{{ category }}" role="alert">
+                            {% endif %}
+                              {{ message }}
+                            </div>
+                        {% endfor %}
+                      {% endif %}
+                  {% endwith %}
+                </div>
+
+
                 <form class="user" method="POST">
                     {{ form.csrf_token }}
                     <div class="mb-3">

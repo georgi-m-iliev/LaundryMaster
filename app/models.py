@@ -48,7 +48,7 @@ class WashingCycle(db.Model):
 
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[DataRequired()])
-    password = StringField('password', validators=[DataRequired(), Length(min=6, max=128)])
+    password = StringField('password', validators=[DataRequired(), Length(min=6, max=128)], render_kw={'type': 'password'})
 
 
 class EditProfileForm(FlaskForm):
