@@ -1,6 +1,11 @@
 from app import db
+
 from flask_login import UserMixin
 from sqlalchemy import func
+
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired, Length, Email
 
 
 class User(db.Model, UserMixin):
@@ -20,3 +25,15 @@ class WashingCycles(db.Model):
     end_timestamp = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref=db.backref('washing_cycles', lazy=True))
+
+
+class LoginForm(FlaskForm):
+    username = StringField('username', validators=[DataRequired()])
+    password = StringField('password', validators=[DataRequired(), Length(min=6, max=128)])
+
+
+class EditProfileForm(FlaskForm):
+    email = StringField('email', validators=[Email()])
+    username = StringField('username', validators=[])
+    password = StringField('password', validators=[Length(min=6, max=128)])
+    first_name = StringField('first_name', validators=[])
