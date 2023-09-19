@@ -1,9 +1,13 @@
 from flask import Blueprint, render_template, request, redirect
+from flask_security import SQLAlchemyUserDatastore
 
-from app.models import LoginForm, EditProfileForm
+from app.db import db
+
+from app.models import User, Role, LoginForm, EditProfileForm
 
 auth = Blueprint('auth', __name__)
 
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():

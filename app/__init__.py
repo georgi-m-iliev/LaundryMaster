@@ -1,16 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_security import Security
 
 from app.db import db, migrate
+from app.models import User, Role
 
-from app.auth import auth
+from app.auth import auth, user_datastore
 from app.views import views
 from app.api import api
-
-
-def init_db():
-    db.create_all()
 
 
 def create_app():
@@ -33,5 +31,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+
+    security = Security(app, user_datastore)
 
     return app
