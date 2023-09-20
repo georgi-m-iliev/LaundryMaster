@@ -18,6 +18,8 @@ def login():
         if user and verify_password(form.password.data, user.password):
             if login_user(User.query.filter_by(username=form.username.data).first(), authn_via=['password']):
                 # login is successful redirect to next argument from url
+                user.last_login = db.func.current_timestamp()
+                db.session.commit()
                 return redirect(request.args.get('next') or '/')
             else:
                 print("Login failed")

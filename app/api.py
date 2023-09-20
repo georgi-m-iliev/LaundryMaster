@@ -1,4 +1,4 @@
-import os
+import os, json
 
 from flask import Blueprint, request
 from flask_security.utils import hash_password
@@ -14,10 +14,15 @@ def index():
     return '<h1>API</h1>'
 
 
-@api.route('/adduser/>first_name>/<email>/<username>/<password>', methods=['POST'])
-def update(email, username, password):
+@api.route('/adduser', methods=['POST'])
+def update():
     if os.getenv('FLASK_API_SECRET_KEY') == request.headers.get('Authorization').split(' ')[1]:
-        user_datastore.create_user(email=email, username=username, password=hash_password(password))
+        user_datastore.create_user(
+            first_name=request.form['first_name'],
+            email=request.form['email'],
+            username=request.form['username'],
+            password=hash_password(request.form['password'])
+        )
         db.session.commit()
         return {'status': 'success'}
     return {'status': 'invalid authenticator'}
