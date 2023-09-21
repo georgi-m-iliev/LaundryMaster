@@ -40,6 +40,7 @@ class WashingCycle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     startkwh = db.Column(db.Float)
     endkwh = db.Column(db.Float)
+    cost = db.Column(db.Numeric(10, 2), default=0)
     start_timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
     end_timestamp = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
