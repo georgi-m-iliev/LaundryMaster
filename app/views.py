@@ -30,6 +30,10 @@ def handle_cycle_buttons():
 @login_required
 def index():
     return render_template('index.html', isDashboard=True)
+    return render_template(
+        'index.html',
+        is_dashboard=True,
+    )
 
 
 @views.route('/usage', methods=['GET', 'POST'])
@@ -46,10 +50,17 @@ def usage_view():
         end_parsed = datetime.datetime.strptime(usage.end_timestamp, "%d/%m/%Y, %H:%M:%S")
         start_parsed = datetime.datetime.strptime(usage.start_timestamp, "%d/%m/%Y, %H:%M:%S")
         usage.duration = end_parsed - start_parsed
-    return render_template('usage.html', isUsage=True, usages=usages)
+    return render_template(
+        'usage.html',
+        is_usage=True,
+        usages=usages
+    )
 
 
 @views.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('profile.html', isProfile=True)
+    return render_template(
+        'profile.html',
+        is_profile=True
+    )
