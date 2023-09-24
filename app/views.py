@@ -1,4 +1,4 @@
-import datetime
+import datetime, json
 
 from flask import Blueprint, render_template, request, redirect, session
 from flask_security import login_required, user_authenticated, current_user
@@ -29,12 +29,18 @@ def handle_cycle_buttons():
 @views.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+
+    statistics = calculate_monthly_statistics(current_user)
+
     return render_template(
         'index.html',
         is_dashboard=True,
         total_cost=calculate_charges(current_user),
         total_usage=calculate_usage(current_user),
-        stopwatch=calculate_running_time(current_user)
+        stopwatch=calculate_running_time(current_user),
+        monthly_statistics=calculate_monthly_statistics(current_user),
+        statistics_labels=json.dumps(statistics['labels']),
+        statistics_data=json.dumps(statistics['data']),
     )
 
 

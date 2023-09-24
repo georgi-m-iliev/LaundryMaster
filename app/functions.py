@@ -1,4 +1,4 @@
-import decimal, datetime
+import decimal, datetime, json
 
 from flask import session
 
@@ -82,3 +82,39 @@ def calculate_running_time(user: User) -> str:
             return "None"
     else:
         return "None"
+
+
+def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
+    """Calculate the monthly statistics for a user."""
+    if months > 0:
+        stat_labels: list[str] = []
+        stat_data: list[str] = []
+        year: int = datetime.datetime.now().year
+        month: int = datetime.datetime.now().month
+
+        for i in range(months):
+            # print("Month " + str(month) + " Year " + str(year))
+            cycles = WashingCycle.query.filter(
+                WashingCycle.user_id == user.id,
+                WashingCycle.end_timestamp.is_not(None),
+                db.func.extract('month', WashingCycle.end_timestamp) == month,
+                db.func.extract('year', WashingCycle.end_timestamp) == year,
+            ).all()
+
+            total_cost: decimal = 0
+
+            for cycle in cycles:
+                total_cost += cycle.cost
+
+            stat_labels.append(datetime.date(year=year, month=month, day=1).strftime("%B")[0:3])
+            stat_data.append(str(total_cost))
+
+            if month == 1:
+                month = 12
+                year -= 1
+            else:
+                month -= 1
+        stat_labels.reverse()
+        stat_data.reverse()
+        return {"labels": stat_labels, "data": stat_data}
+    return {"labels": [], "data": [0, 0, 0, 0, 0, 0]}
