@@ -38,13 +38,20 @@ class Role(db.Model, RoleMixin):
 class WashingCycle(db.Model):
     __tablename__ = 'washing_cycles'
     id = db.Column(db.Integer, primary_key=True)
-    startkwh = db.Column(db.Float)
-    endkwh = db.Column(db.Float)
-    cost = db.Column(db.Numeric(10, 2), default=0)
+    startkwh = db.Column(db.Numeric(20, 4))
+    endkwh = db.Column(db.Numeric(20, 4))
+    cost = db.Column(db.Numeric(10, 2))
     start_timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
     end_timestamp = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('washing_cycles', lazy=True))
+
+
+class WashingMachine(db.Model):
+    __tablename__ = 'washing_machine'
+    id = db.Column(db.Integer, primary_key=True)
+    currentkwh = db.Column(db.Numeric(20, 4))
+    costperkwh = db.Column(db.Numeric(10, 2))
 
 
 class LoginForm(FlaskForm):
