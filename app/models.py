@@ -45,6 +45,7 @@ class WashingCycle(db.Model):
     end_timestamp = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('washing_cycles', lazy=True))
+    paid = db.Column(db.Boolean(), default=False)
 
 
 class WashingMachine(db.Model):
