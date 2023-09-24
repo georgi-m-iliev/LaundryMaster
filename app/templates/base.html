@@ -22,8 +22,8 @@
     <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark">
         <div class="container-fluid d-flex flex-column p-0"><a
                 class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
-            <div class="sidebar-brand-icon rotate-n-15"><img class="fas fa-laugh-wink"
-                                                             src="static/assets/img/icons/icon-android-homescreen.png"></i>
+            <div class="sidebar-brand-icon rotate-n-15">
+                <img class="fas fa-laugh-wink" src="static/assets/img/icons/icon-android-homescreen.png" alt="logo">
             </div>
             <div class="sidebar-brand-text mx-3"><span>Laundry<br>master</span></div>
         </a>
@@ -51,9 +51,14 @@
                         <i class="fas fa-bars"></i>
                     </button>
                     <div>
-                        <span class="px-3 d-none d-md-inline-block">Washing Cycle</span>
-                        <button type="button" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
-                        <button type="button" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
+                        <form method="POST">
+                            <label class="px-3 d-none d-md-inline-block">Washing Cycle</label>
+                            {% if session['cycle_id'] %}
+                            <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
+                            {% else %}
+                            <button type="submit" name="start_cycle" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
+                            {% endif %}
+                        </form>
                     </div>
                     <ul class="navbar-nav flex-nowrap ms-auto">
                         <li class="nav-item dropdown no-arrow mx-1">
@@ -99,7 +104,7 @@
                                 </div>
                             </div>
                         </li>
-                        <div class="d-none d-sm-block topbar-divider"></div>
+                        <li class="d-none d-sm-block topbar-divider"></li>
                         <li class="nav-item dropdown no-arrow">
                             <div class="nav-item dropdown no-arrow">
                                 <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
