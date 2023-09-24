@@ -5,7 +5,7 @@ from flask_security import login_required, user_authenticated, current_user
 
 from app.db import db
 from app.models import User, WashingCycle
-from app.functions import start_cycle, stop_cycle, update_cycle
+from app.functions import *
 
 views = Blueprint('views', __name__)
 
@@ -29,10 +29,12 @@ def handle_cycle_buttons():
 @views.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    return render_template('index.html', isDashboard=True)
     return render_template(
         'index.html',
         is_dashboard=True,
+        total_cost=calculate_charges(current_user),
+        total_usage=calculate_usage(current_user),
+        stopwatch=calculate_running_time(current_user)
     )
 
 
