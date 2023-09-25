@@ -48,8 +48,9 @@ def index():
 @login_required
 def usage_view():
     usages = WashingCycle.query.filter(
-                WashingCycle.end_timestamp.is_not(None), WashingCycle.user_id == current_user.id
-    ).order_by(WashingCycle.start_timestamp).limit(10).all()
+        WashingCycle.end_timestamp.is_not(None),
+        WashingCycle.user_id == current_user.id
+    ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(10).all()
 
     for usage in usages:
         usage.usedkwh = usage.endkwh - usage.startkwh

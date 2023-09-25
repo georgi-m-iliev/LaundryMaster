@@ -39,6 +39,7 @@
                             <th>End</th>
                             <th>Duration</th>
                             <th>Cost</th>
+                            <th>Paid</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +53,11 @@
                             <td>{{ usage.end_timestamp }}</td>
                             <td>{{ usage.duration }}</td>
                             <td>{{ usage.cost }} lv.</td>
+                            {% if usage.paid %}
+                            <td><i class="fa fa-check"></i></td>
+                            {% else %}
+                            <td><i class="fa fa-times"></i></td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -65,6 +71,7 @@
                             <td><strong>End</strong></td>
                             <td><strong>Duration</strong></td>
                             <td><strong>Cost</strong></td>
+                            <th>Paid</th>
                         </tr>
                     </tfoot>
                 </table>
