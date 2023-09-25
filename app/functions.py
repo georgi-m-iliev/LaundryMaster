@@ -69,6 +69,22 @@ def calculate_usage(user: User) -> decimal:
     return result
 
 
+def calculate_unpaid_cycles_cost(user: User) -> decimal:
+    """Calculate the unpaid cycles for a user."""
+    unpaid: list[WashingCycle] = WashingCycle.query.filter(
+        WashingCycle.user_id == user.id,
+        WashingCycle.end_timestamp.is_not(None),
+        WashingCycle.paid.is_(False)
+    ).all()
+
+    result: decimal = 0
+    for unpaid_cycle in unpaid:
+        result += unpaid_cycle.cost
+
+    return result
+
+
+
 def calculate_running_time(user: User) -> str:
     """Calculate the running time of the current cycle."""
     if 'cycle_id' in session:
@@ -121,6 +137,7 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
 
 
 def get_unpaid_list(user: User) -> list[dict]:
+    """Get the unpaid cycles for a user."""
     cycles = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.user_id == user.id,
@@ -139,6 +156,7 @@ def get_unpaid_list(user: User) -> list[dict]:
 
 
 def get_usage_list(user: User, limit: int = 10) -> list[dict]:
+    """Get the usage list for a user."""
     cycles = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.user_id == user.id
