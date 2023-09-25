@@ -57,23 +57,11 @@ def usage_view():
     else:
         limit = select_form.items.data
 
-    usages = WashingCycle.query.filter(
-        WashingCycle.end_timestamp.is_not(None),
-        WashingCycle.user_id == current_user.id
-    ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(limit).all()
-
-    for usage in usages:
-        usage.usedkwh = usage.endkwh - usage.startkwh
-        usage.start_timestamp = usage.start_timestamp.strftime("%d/%m/%Y, %H:%M:%S")
-        usage.end_timestamp = usage.end_timestamp.strftime("%d/%m/%Y, %H:%M:%S")
-        end_parsed = datetime.datetime.strptime(usage.end_timestamp, "%d/%m/%Y, %H:%M:%S")
-        start_parsed = datetime.datetime.strptime(usage.start_timestamp, "%d/%m/%Y, %H:%M:%S")
-        usage.duration = end_parsed - start_parsed
     return render_template(
         'usage.html',
         is_usage=True,
         select_form=select_form,
-        usages=usages
+        usages=get_usage_list(current_user, limit)
     )
 
 

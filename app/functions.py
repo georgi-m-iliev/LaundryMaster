@@ -120,8 +120,6 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
     return {"labels": [], "data": [0, 0, 0, 0, 0, 0]}
 
 
-def get_unpaid_list(user: User) -> list[WashingCycle]:
-    return WashingCycle.query.filter(WashingCycle.paid.is_(False), WashingCycle.user_id == user.id).all()
 def get_unpaid_list(user: User) -> list[dict]:
     cycles = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
@@ -135,6 +133,27 @@ def get_unpaid_list(user: User) -> list[dict]:
         item['id'] = cycle.id
         item['start_timestamp'] = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
         item['end_timestamp'] = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        item['cost'] = round(cycle.cost, 2)
+        result.append(item)
+    return result
+
+
+def get_usage_list(user: User, limit: int = 10) -> list[dict]:
+    cycles = WashingCycle.query.filter(
+        WashingCycle.end_timestamp.is_not(None),
+        WashingCycle.user_id == user.id
+    ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(limit).all()
+
+    result = list()
+    for cycle in cycles:
+        item = dict()
+        item['id'] = cycle.id
+        item['startkwh'] = cycle.startkwh
+        item['endkwh'] = cycle.endkwh
+        item['usedkwh'] = round(cycle.endkwh - cycle.startkwh, 2)
+        item['start_timestamp'] = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        item['end_timestamp'] = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        item['duration'] = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
         item['cost'] = round(cycle.cost, 2)
         result.append(item)
     return result
