@@ -22,13 +22,12 @@ def login():
                 db.session.commit()
                 return redirect(request.args.get('next') or '/')
             else:
-                print("Login failed")
+                flash("Login failed")
         else:
             if user:
                 flash('Wrong password')
             else:
                 flash('User does not exist')
-            print("Login failed")
     return render_template('login.html', form=form)
 
 
