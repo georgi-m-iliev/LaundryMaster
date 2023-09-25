@@ -15,17 +15,23 @@
                 <div class="col-md-6 text-nowrap">
                     <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
                         <label class="form-label">Show&nbsp
-                            <select class="d-inline-block form-select form-select-sm">
+                            <!--<select class="d-inline-block form-select form-select-sm">
                                 <option value="10" selected="">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
-                            </select>&nbsp;</label>
+                            </select>&nbsp;-->
+                            <span class="form-group d-inline-block">
+                                {{ select_form.items(id="showCountSelect", class="form-control form-select form-select-sm") }}
+                            </span>
+                        </label>
                     </div>
                 </div>
+            <!--
                 <div class="col-md-6">
                     <div class="text-md-end dataTables_filter" id="dataTable_filter"><label class="form-label"><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"></label></div>
                 </div>
+                -->
             </div>
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
                 <table class="table my-0" id="dataTable">
@@ -98,4 +104,5 @@
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='usage_items_count.js') }}"></script>
 {% endblock %}

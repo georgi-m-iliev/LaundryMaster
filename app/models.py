@@ -4,9 +4,8 @@ from flask_security import UserMixin, RoleMixin
 from sqlalchemy import func
 
 from flask_wtf import FlaskForm
-from wtforms import StringField
+from wtforms import StringField, SelectField
 from wtforms.validators import DataRequired, Length, Email
-
 
 roles_users = db.Table(
     'roles_users',
@@ -57,7 +56,10 @@ class WashingMachine(db.Model):
 
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[DataRequired()])
-    password = StringField('password', validators=[DataRequired(), Length(min=6, max=128)], render_kw={'type': 'password'})
+    password = StringField('password',
+                           validators=[DataRequired(), Length(min=6, max=128)],
+                           render_kw={'type': 'password'}
+                           )
 
 
 class EditProfileForm(FlaskForm):
@@ -65,3 +67,7 @@ class EditProfileForm(FlaskForm):
     username = StringField('username', validators=[])
     password = StringField('password', validators=[Length(min=6, max=128)])
     first_name = StringField('first_name', validators=[])
+
+
+class UsageViewShowCountForm(FlaskForm):
+    items = SelectField('ShowCount', choices=[(10, '10'), (20, '20'), (50, '50'), (100, '100'), ('all', 'All')])

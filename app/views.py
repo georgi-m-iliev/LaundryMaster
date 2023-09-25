@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, session
 from flask_security import login_required, user_authenticated, current_user
 
 from app.db import db
-from app.models import User, WashingCycle
+from app.models import User, WashingCycle, UsageViewShowCountForm
 from app.functions import *
 
 views = Blueprint('views', __name__)
@@ -29,7 +29,6 @@ def handle_cycle_buttons():
 @views.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-
     statistics = calculate_monthly_statistics(current_user)
 
     return render_template(
@@ -47,10 +46,17 @@ def index():
 @views.route('/usage', methods=['GET', 'POST'])
 @login_required
 def usage_view():
+    select_form = UsageViewShowCountForm(items=request.args.get('items') or '10')
+
+    if select_form.items.data == 'all':
+        limit = None
+    else:
+        limit = select_form.items.data
+
     usages = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.user_id == current_user.id
-    ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(10).all()
+    ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(limit).all()
 
     for usage in usages:
         usage.usedkwh = usage.endkwh - usage.startkwh
@@ -62,6 +68,7 @@ def usage_view():
     return render_template(
         'usage.html',
         is_usage=True,
+        select_form=select_form,
         usages=usages
     )
 
