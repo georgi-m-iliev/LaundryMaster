@@ -118,3 +118,7 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
         stat_data.reverse()
         return {"labels": stat_labels, "data": stat_data}
     return {"labels": [], "data": [0, 0, 0, 0, 0, 0]}
+
+
+def get_unpaid_list(user: User) -> list[WashingCycle]:
+    return WashingCycle.query.filter(WashingCycle.paid.is_(False), WashingCycle.user_id == user.id).all()
