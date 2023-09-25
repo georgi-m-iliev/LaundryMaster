@@ -5,16 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>{% block title %}Home{% endblock %} - LaundryMaster</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="static/assets/img/icons/favicon.png">
-    <link rel="icon" type="image/png" sizes="32x31" href="static/assets/img/icons/favicon32.png">
-    <link rel="icon" type="image/png" sizes="180x176" href="static/assets/img/icons/icon-ios-homescreen.png">
-    <link rel="icon" type="image/png" sizes="192x188" href="static/assets/img/icons/icon-android-homescreen.png">
-    <link rel="icon" type="image/png" sizes="512x500" href="static/assets/img/icons/icon-android-splashscreen.png">
-    <link rel="stylesheet" href="static/assets/bootstrap/css/bootstrap.min.css">
-    <link rel="manifest" href="static/manifest.json">
-    <link rel="stylesheet" href="static/assets/css/Nunito.css">
-    <link rel="stylesheet" href="static/assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="static/assets/css/untitled.css">
+    <link rel="icon" type="image/png" sizes="16x16" href={{ url_for('static', filename='assets/img/icons/favicon.png') }}>
+    <link rel="icon" type="image/png" sizes="32x31" href={{ url_for('static', filename='assets/img/icons/favicon32.png') }}>
+    <link rel="icon" type="image/png" sizes="180x176" href={{ url_for('static', filename='assets/img/icons/icon-ios-homescreen.png') }}>
+    <link rel="icon" type="image/png" sizes="192x188" href={{ url_for('static', filename='assets/img/icons/icon-android-homescreen.png') }}>
+    <link rel="icon" type="image/png" sizes="512x500" href={{ url_for('static', filename='assets/img/icons/icon-android-splashscreen.png') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}>
+    <link rel="manifest" href={{ url_for('static', filename='manifest.json') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/Nunito.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='/assets/fonts/fontawesome-all.min.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='/assets/css/untitled.css') }}>
 </head>
 
 <body id="page-top">
@@ -23,7 +23,7 @@
         <div class="container-fluid d-flex flex-column p-0"><a
                 class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
             <div class="sidebar-brand-icon rotate-n-15">
-                <img class="fas fa-laugh-wink" src="static/assets/img/icons/icon-android-homescreen.png" alt="logo">
+                <img class="fas fa-laugh-wink" alt="logo" src={{ url_for('static', filename='assets/img/icons/icon-android-homescreen.png') }} alt="logo">
             </div>
             <div class="sidebar-brand-text mx-3"><span>Laundry<br>master</span></div>
         </a>
@@ -109,7 +109,7 @@
                             <div class="nav-item dropdown no-arrow">
                                 <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
                                     <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ current_user.first_name }}</span>
-                                    <img class="border rounded-circle img-profile" src="static/assets/img/avatars/avatar1.jpeg">
+                                    <i class="fa fa-solid fa-user-ninja"></i>
                                 </a>
                                 <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
 <!--
@@ -147,11 +147,11 @@
     </div>
     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
 </div>
-<script src="static/assets/js/jquery.min.js"></script>
-<script src="static/assets/bootstrap/js/bootstrap.min.js"></script>
-<script src="static/assets/js/chart.min.js"></script>
-<script src="static/assets/js/bs-init.js"></script>
-<script src="static/assets/js/theme.js"></script>
+<script src={{ url_for('static', filename='assets/js/jquery.min.js') }}></script>
+<script src={{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}></script>
+<script src={{ url_for('static', filename='assets/js/chart.min.js') }}></script>
+<script src={{ url_for('static', filename='assets/js/bs-init.js') }}></script>
+<script src={{ url_for('static', filename='assets/js/theme.js') }}></script>
 </body>
 
 </html>
