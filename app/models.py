@@ -5,7 +5,7 @@ from sqlalchemy import func
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 
 roles_users = db.Table(
     'roles_users',
@@ -64,10 +64,17 @@ class LoginForm(FlaskForm):
 
 
 class EditProfileForm(FlaskForm):
-    email = StringField('email', validators=[Email()])
-    username = StringField('username', validators=[])
-    password = StringField('password', validators=[Length(min=6, max=128)])
-    first_name = StringField('first_name', validators=[])
+    first_name = StringField('first_name', validators=[Optional()])
+    email = StringField('email', validators=[Email(), Optional()])
+    username = StringField('username', validators=[Optional()])
+    password = PasswordField('password',
+                             validators=[
+                                 Length(min=6, max=128),
+                                 EqualTo('password_confirm', message="Passwords don't match"),
+                                 Optional()
+                             ])
+    password_confirm = PasswordField('password_again', validators=[Length(min=6, max=128), Optional()])
+    submit = SubmitField('save')
 
 
 class UsageViewShowCountForm(FlaskForm):

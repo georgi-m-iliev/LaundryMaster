@@ -1,10 +1,10 @@
 import datetime, json
 
-from flask import Blueprint, render_template, request, redirect, session
-from flask_security import login_required, user_authenticated, current_user
+from flask import Blueprint, render_template, request, redirect, session, flash
+from flask_security import login_required, user_authenticated, current_user, hash_password
 
 from app.db import db
-from app.models import User, WashingCycle, UsageViewShowCountForm
+from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm
 from app.functions import *
 
 views = Blueprint('views', __name__)
@@ -16,9 +16,12 @@ def handle_cycle_buttons():
     if request.method == 'POST':
         if request.form.get('start_cycle') is not None:
             start_cycle(current_user)
-        if request.form.get('stop_cycle') is not None:
+            return redirect(request.path)
+        elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)
-        return redirect(request.path)
+            return redirect(request.path)
+        else:
+           pass
 
     # if request wasn't POST, then update the cycle information, to display proper buttons
     if current_user.is_authenticated:
@@ -76,7 +79,26 @@ def usage_view():
 @views.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    edit_form = EditProfileForm()
+    if edit_form.validate_on_submit():
+        if not edit_form.first_name.data and not edit_form.email.data and not edit_form.username.data and not edit_form.password.data:
+            flash('Nothing to update', 'warning')
+            return redirect(request.path)
+
+        if edit_form.first_name.data:
+            current_user.first_name = edit_form.first_name.data
+        if edit_form.email.data:
+            current_user.email = edit_form.email.data
+        if edit_form.username.data:
+            current_user.username = edit_form.username.data
+        if edit_form.password.data:
+            current_user.password = hash_password(edit_form.password.data)
+        db.session.commit()
+        flash('Profile updated successfully', 'success')
+        return redirect(request.path)
+
     return render_template(
         'profile.html',
-        is_profile=True
+        is_profile=True,
+        edit_form=edit_form
     )

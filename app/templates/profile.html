@@ -6,52 +6,7 @@
     <div class="container-fluid">
         <h3 class="text-dark mb-4">Profile</h3>
         <div class="row mb-3">
-            <div class="col-lg-4">
-                <div class="card mb-3">
-                    <div class="card-body text-center shadow">
-                        <img class="rounded-circle mb-3 mt-4"
-                             src="static/assets/img/dogs/image2.jpeg"
-                             width="160" height="160">
-                        <div class="mb-3">
-                            <button class="btn btn-primary btn-sm" type="button">Change Photo</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="row mb-3 d-none">
-                    <div class="col">
-                        <div class="card text-white bg-primary shadow">
-                            <div class="card-body">
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <p class="m-0">Peformance</p>
-                                        <p class="m-0"><strong>65.2%</strong></p>
-                                    </div>
-                                    <div class="col-auto"><i class="fas fa-rocket fa-2x"></i></div>
-                                </div>
-                                <p class="text-white-50 small m-0">
-                                    <i class="fas fa-arrow-up"></i>&nbsp;5% since last month
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card text-white bg-success shadow">
-                            <div class="card-body">
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <p class="m-0">Peformance</p>
-                                        <p class="m-0"><strong>65.2%</strong></p>
-                                    </div>
-                                    <div class="col-auto"><i class="fas fa-rocket fa-2x"></i></div>
-                                </div>
-                                <p class="text-white-50 small m-0">
-                                    <i class="fas fa-arrow-up"></i>&nbsp;5% since last month</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-xxl-5 col-xl-6 col-lg-8">
                 <div class="row">
                     <div class="col">
                         <div class="card shadow mb-3">
@@ -59,14 +14,55 @@
                                 <p class="text-primary m-0 fw-bold">User Settings</p>
                             </div>
                             <div class="card-body">
-                                <form>
-                                    <div class="row">
+                                <div class="messages">
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'message' %}
+                                                    <div class="alert alert-warning" role="alert">
+                                                {% else %}
+                                                    <div class="alert alert-{{ category }}" role="alert">
+                                                {% endif %}
+                                                {{ message }}
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                <div class="validation_errors">
+                                    {% for error in edit_form.errors %}
+                                        {% for message in edit_form[error].errors %}
+                                            <ul class="alert alert-danger px-5">
+                                                <li>{{ message }}</li>
+                                            </ul>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                                <form method="POST">
+                                    {{ edit_form.csrf_token }}
+                                    <div class="col">
+                                        <div class="col">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="name">
+                                                    <strong>Name</strong>
+                                                </label>
+                                                {{ edit_form.first_name(class_="form-control") }}
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="email">
+                                                    <strong>Email</strong>
+                                                </label>
+                                                {{ edit_form.email(class_="form-control", **{'autocomplete': 'off'}) }}
+                                            </div>
+                                        </div>
                                         <div class="col">
                                             <div class="mb-3">
                                                 <label class="form-label" for="username">
                                                     <strong>Username</strong>
                                                 </label>
-                                                <input class="form-control" type="text" id="username" name="username">
+                                                {{ edit_form.username(class_="form-control", **{'autocomplete': 'off'}) }}
                                             </div>
                                         </div>
                                         <div class="col">
@@ -74,7 +70,20 @@
                                                 <label class="form-label" for="password">
                                                     <strong>Password</strong>
                                                 </label>
-                                                <input class="form-control" type="password" id="password" name="password">
+                                                {{ edit_form.password(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="password_confirm">
+                                                    <strong>Confirm Password</strong>
+                                                </label>
+                                                {{ edit_form.password_confirm(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-3">
+                                                {{ edit_form.submit(class_="btn btn-primary", value="Save Changes") }}
                                             </div>
                                         </div>
                                     </div>
