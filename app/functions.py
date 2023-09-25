@@ -1,4 +1,4 @@
-import decimal, datetime, json
+import decimal, datetime, json, math
 
 from flask import session
 
@@ -122,3 +122,19 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
 
 def get_unpaid_list(user: User) -> list[WashingCycle]:
     return WashingCycle.query.filter(WashingCycle.paid.is_(False), WashingCycle.user_id == user.id).all()
+def get_unpaid_list(user: User) -> list[dict]:
+    cycles = WashingCycle.query.filter(
+        WashingCycle.end_timestamp.is_not(None),
+        WashingCycle.user_id == user.id,
+        WashingCycle.paid.is_(False)
+    ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).all()
+
+    result = list()
+    for cycle in cycles:
+        item = dict()
+        item['id'] = cycle.id
+        item['start_timestamp'] = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        item['end_timestamp'] = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        item['cost'] = round(cycle.cost, 2)
+        result.append(item)
+    return result

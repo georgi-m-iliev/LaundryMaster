@@ -43,6 +43,7 @@ def index():
         monthly_statistics=calculate_monthly_statistics(current_user),
         statistics_labels=json.dumps(statistics['labels']),
         statistics_data=json.dumps(statistics['data']),
+        unpaid_cycles=get_unpaid_list(current_user)
     )
 
 
