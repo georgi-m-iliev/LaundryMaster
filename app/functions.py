@@ -138,7 +138,7 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
     return {"labels": [], "data": [0, 0, 0, 0, 0, 0]}
 
 
-def get_unpaid_list(user: User) -> list[dict]:
+def get_unpaid_list(user: User) -> list[WashingCycle]:
     """Get the unpaid cycles for a user."""
     cycles: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
@@ -146,34 +146,24 @@ def get_unpaid_list(user: User) -> list[dict]:
         WashingCycle.paid.is_(False)
     ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).all()
 
-    result = list()
+    # result = list()
     for cycle in cycles:
-        item = dict()
-        item['id'] = cycle.id
-        item['start_timestamp'] = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
-        item['end_timestamp'] = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
-        item['cost'] = round(cycle.cost, 2)
-        result.append(item)
-    return result
+        cycle.start_timestamp_formatted = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+    return cycles
 
 
-def get_usage_list(user: User, limit: int = 10) -> list[dict]:
+def get_usage_list(user: User, limit: int = 10) -> list[WashingCycle]:
     """Get the usage list for a user."""
     cycles: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.user_id == user.id
     ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(limit).all()
 
-    result = list()
     for cycle in cycles:
-        item = dict()
-        item['id'] = cycle.id
-        item['startkwh'] = cycle.startkwh
-        item['endkwh'] = cycle.endkwh
-        item['usedkwh'] = round(cycle.endkwh - cycle.startkwh, 2)
-        item['start_timestamp'] = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
-        item['end_timestamp'] = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
-        item['duration'] = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
-        item['cost'] = round(cycle.cost, 2)
-        result.append(item)
-    return result
+        cycle.usedkwh = round(cycle.endkwh - cycle.startkwh, 2)
+        cycle.start_timestamp_formatted = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+        cycle.duration = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
+    return cycles
+
