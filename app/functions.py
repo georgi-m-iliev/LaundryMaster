@@ -166,4 +166,3 @@ def get_usage_list(user: User, limit: int = 10) -> list[WashingCycle]:
         cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
         cycle.duration = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
     return cycles
-

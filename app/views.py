@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, session, flash
 from flask_security import login_required, user_authenticated, current_user, hash_password
 
 from app.db import db
-from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm
+from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm
 from app.functions import *
 
 views = Blueprint('views', __name__)
@@ -21,7 +21,7 @@ def handle_cycle_buttons():
             stop_cycle(current_user)
             return redirect(request.path)
         else:
-           pass
+            pass
 
     # if request wasn't POST, then update the cycle information, to display proper buttons
     if current_user.is_authenticated:
@@ -33,6 +33,20 @@ def handle_cycle_buttons():
 @login_required
 def index():
     statistics = calculate_monthly_statistics(current_user)
+    unpaid_cycles = get_unpaid_list(current_user)
+    unpaid_cycles_form = UnpaidCyclesForm()
+
+    for _ in range(len(unpaid_cycles)):
+        unpaid_cycles_form.checkboxes.append_entry()
+
+    if unpaid_cycles_form.validate_on_submit():
+        for checkbox in unpaid_cycles_form.checkboxes:
+            if checkbox.data:
+                idx = int(checkbox.id.split('-')[1])
+                unpaid_cycles[idx].paid = True
+                db.session.commit()
+            # flash('Selected cycles were marked as paid', 'success')
+        return redirect(request.path)
 
     return render_template(
         'index.html',
@@ -44,7 +58,8 @@ def index():
         monthly_statistics=calculate_monthly_statistics(current_user),
         statistics_labels=json.dumps(statistics['labels']),
         statistics_data=json.dumps(statistics['data']),
-        unpaid_cycles=get_unpaid_list(current_user)
+        unpaid_cycles=unpaid_cycles,
+        unpaid_cycles_form=unpaid_cycles_form
     )
 
 

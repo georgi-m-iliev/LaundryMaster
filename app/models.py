@@ -4,7 +4,7 @@ from flask_security import UserMixin, RoleMixin
 from sqlalchemy import func
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, BooleanField, FieldList
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 
 roles_users = db.Table(
@@ -79,3 +79,8 @@ class EditProfileForm(FlaskForm):
 
 class UsageViewShowCountForm(FlaskForm):
     items = SelectField('ShowCount', choices=[(10, '10'), (20, '20'), (50, '50'), (100, '100'), ('all', 'All')])
+
+
+class UnpaidCyclesForm(FlaskForm):
+    checkboxes = FieldList(BooleanField('checkboxes', default=False), min_entries=0)
+    submit = SubmitField('submit')
