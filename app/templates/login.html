@@ -1,75 +1,22 @@
-<!DOCTYPE html>
-<html data-bs-theme="light" lang="en">
+{% extends "base_auth.html" %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Login - LaundryMaster</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="static/assets/img/icons/favicon.png">
-    <link rel="icon" type="image/png" sizes="32x31" href="static/assets/img/icons/favicon32.png">
-    <link rel="icon" type="image/png" sizes="180x176" href="static/assets/img/icons/icon-ios-homescreen.png">
-    <link rel="icon" type="image/png" sizes="192x188" href="static/assets/img/icons/icon-android-homescreen.png">
-    <link rel="icon" type="image/png" sizes="512x500" href="static/assets/img/icons/icon-android-splashscreen.png">
-    <link rel="stylesheet" href="static/assets/bootstrap/css/bootstrap.min.css">
-    <link rel="manifest" href="static/manifest.json">
-    <link rel="stylesheet" href="static/assets/css/Nunito.css">
-    <link rel="stylesheet" href="static/assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="static/assets/css/untitled.css">
-</head>
+{% block title %}Login{% endblock %}
 
-<body class="bg-gradient-primary">
-<div class="container" style="max-width: 500px;">
-    <div class="card shadow-lg o-hidden border-0 my-5">
-        <div class="p-5">
-            <div class="text-center">
-                <img class="fas fa-laugh-wink pb-3 h-50" src="static/assets/img/icons/icon-android-homescreen.png"
-                     alt="logo">
-                <h4 class="text-dark mb-4">Welcome Back!</h4>
-            </div>
-            {% if form.errors %}
-                <ul class="errors">
-                    {% for error in form.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+{% block message %}
+    <h4 class="text-dark mb-4">Welcome Back!</h4>
+{% endblock %}
 
-                <div>
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                {% if category == 'message' %}
-                                    <div class="alert alert-warning" role="alert">
-                                {% else %}
-                                    <div class="alert alert-{{ category }}" role="alert">
-                                {% endif %}
-                                {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                </div>
-                <form class="user" method="POST">
-                    {{ form.csrf_token }}
-                    <div class="mb-3">
-                        {{ form.username(class_="form-control form-control-user", placeholder="Username...") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.password(class_="form-control form-control-user", placeholder="Password") }}
-                    </div>
-                    {{ form.login(class_="btn btn-primary d-block btn-user w-100", value="Login") }}
-                </form>
-                <hr>
-                <div class="text-center"><a class="small" href="forgot-password.html">Forgot Password?</a></div>
-                <div class="text-center"></div>
-            </div>
+{% block content %}
+    <form class="user" method="POST">
+        {{ form.csrf_token }}
+        <div class="mb-3">
+            {{ form.username(class_="form-control form-control-user", placeholder="Username...") }}
         </div>
-    </div>
-    <script src="static/assets/js/jquery.min.js"></script>
-    <script src="static/assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="static/assets/js/bs-init.js"></script>
-    <script src="static/assets/js/theme.js"></script>
-</div>
-</body>
-
-</html>
+        <div class="mb-3">
+            {{ form.password(class_="form-control form-control-user", placeholder="Password") }}
+        </div>
+        {{ form.login(class_="btn btn-primary d-block btn-user w-100", value="Login") }}
+    </form>
+    <hr>
+    <div class="text-center"><a class="small" href="/password_reset">Forgot Password?</a></div>
+{% endblock %}
