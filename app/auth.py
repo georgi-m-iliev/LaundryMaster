@@ -3,7 +3,7 @@ from flask_security import SQLAlchemyUserDatastore, login_user, verify_password,
 
 from app.db import db
 
-from app.models import User, Role, LoginForm, EditProfileForm
+from app.models import User, Role, LoginForm, EditProfileForm, PasswordResetForm
 
 auth = Blueprint('auth', __name__)
 
@@ -35,3 +35,10 @@ def login():
 def logout():
     logout_user()
     return redirect('/login')
+
+
+@auth.route('/password_reset', methods=['GET', 'POST'])
+def password_reset():
+    reset_form = PasswordResetForm()
+    return render_template('password_reset.html', form=reset_form)
+

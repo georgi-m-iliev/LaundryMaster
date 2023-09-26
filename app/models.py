@@ -63,6 +63,11 @@ class LoginForm(FlaskForm):
     login = SubmitField('login')
 
 
+class PasswordResetForm(FlaskForm):
+    email = StringField('email', validators=[DataRequired(), Email()])
+    submit = SubmitField('submit')
+
+
 class EditProfileForm(FlaskForm):
     first_name = StringField('first_name', validators=[Optional()])
     email = StringField('email', validators=[Email(), Optional()])
