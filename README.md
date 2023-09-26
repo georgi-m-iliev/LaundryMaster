@@ -3,7 +3,7 @@
 ## Description
 
 This is a simple but useful web application made with the intention
-to help my fellow students and me to manage your shared washing machine
+to help my fellow students and me to manage our shared washing machine
 which we will be using in our dormitory.
 
 ## Environment
