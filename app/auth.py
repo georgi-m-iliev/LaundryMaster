@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, flash
 from flask_security import SQLAlchemyUserDatastore, login_user, verify_password, logout_user
+from flask_security import SQLAlchemyUserDatastore, Security, login_user, verify_password, logout_user, hash_password
+from flask_mail import Mail, Message
 
 from app.db import db
 
@@ -8,6 +10,8 @@ from app.models import User, Role, LoginForm, EditProfileForm, PasswordResetForm
 auth = Blueprint('auth', __name__)
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security()
+mail = Mail()
 
 
 @auth.route('/login', methods=['GET', 'POST'])
