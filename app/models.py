@@ -63,8 +63,18 @@ class LoginForm(FlaskForm):
     login = SubmitField('login')
 
 
-class PasswordResetForm(FlaskForm):
+class RequestPasswordResetForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
+    submit = SubmitField('submit')
+
+
+class PasswordResetForm(FlaskForm):
+    password = PasswordField('password', validators=[Length(min=6, max=128)])
+    password_confirm = PasswordField('password_again',
+                                     validators=[
+                                         Length(min=6, max=128),
+                                         EqualTo('password', message="Passwords don't match"),
+                                     ])
     submit = SubmitField('submit')
 
 
@@ -72,13 +82,13 @@ class EditProfileForm(FlaskForm):
     first_name = StringField('first_name', validators=[Optional()])
     email = StringField('email', validators=[Email(), Optional()])
     username = StringField('username', validators=[Optional()])
-    password = PasswordField('password',
-                             validators=[
-                                 Length(min=6, max=128),
-                                 EqualTo('password_confirm', message="Passwords don't match"),
-                                 Optional()
-                             ])
-    password_confirm = PasswordField('password_again', validators=[Length(min=6, max=128), Optional()])
+    password = PasswordField('password', validators=[Length(min=6, max=128), Optional()])
+    password_confirm = PasswordField('password_again',
+                                     validators=[
+                                         Length(min=6, max=128),
+                                         EqualTo('password', message="Passwords don't match"),
+                                         Optional()
+                                     ])
     submit = SubmitField('save')
 
 

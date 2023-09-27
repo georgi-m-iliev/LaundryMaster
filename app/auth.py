@@ -1,11 +1,12 @@
+import os
+
 from flask import Blueprint, render_template, request, redirect, flash
-from flask_security import SQLAlchemyUserDatastore, login_user, verify_password, logout_user
 from flask_security import SQLAlchemyUserDatastore, Security, login_user, verify_password, logout_user, hash_password
 from flask_mail import Mail, Message
+from itsdangerous import TimedSerializer
 
 from app.db import db
-
-from app.models import User, Role, LoginForm, EditProfileForm, PasswordResetForm
+from app.models import User, Role, LoginForm, EditProfileForm, RequestPasswordResetForm, PasswordResetForm
 
 auth = Blueprint('auth', __name__)
 
@@ -43,6 +44,42 @@ def logout():
 
 @auth.route('/password_reset', methods=['GET', 'POST'])
 def password_reset():
-    reset_form = PasswordResetForm()
-    return render_template('password_reset.html', form=reset_form)
+    serializer = TimedSerializer(os.getenv('FLASK_SECRET_KEY'))
 
+    if request.args.get('token') is None:
+        form = RequestPasswordResetForm()
+
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user is None:
+                flash('Email is wrong or user does not exist.')
+            else:
+                token = serializer.dumps({'user_id': user.id, 'email': user.email}).encode('utf-8').hex()
+                msg = Message()
+                msg.subject = 'Password Reset Request - LaundryMaster'
+                msg.recipients = [user.email]
+                msg.sender = os.getenv('FLASK_MAIL_USERNAME')
+                msg.body = ('To reset your password, visit the following link:\n'
+                            f'{request.url_root}password_reset?token={token}\n')
+                mail.send(msg)
+                flash('Email sent!')
+            return redirect(request.base_url)
+    else:
+        form = PasswordResetForm()
+        token = request.args.get('token')
+        try:
+            data = serializer.loads(bytes.fromhex(token), max_age=600)
+        except itsdangerous.exc.SignatureExpired:
+            flash('Token is invalid or expired.')
+            return redirect(request.base_url)
+        if form.validate_on_submit():
+            print(data['user_id'])
+            user = User.query.filter_by(id=data['user_id']).first()
+            if user is None:
+                flash('Password change failed! User does not exist.')
+            else:
+                user.password = hash_password(form.password.data)
+                login_user(user, authn_via=['email'])
+                db.session.commit()
+                return redirect('/')
+    return render_template('password_reset.html', form=form)
