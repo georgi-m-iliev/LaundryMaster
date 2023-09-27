@@ -58,7 +58,7 @@ def password_reset():
                 msg = Message()
                 msg.subject = 'Password Reset Request - LaundryMaster'
                 msg.recipients = [user.email]
-                msg.sender = os.getenv('FLASK_MAIL_USERNAME')
+                msg.sender = os.getenv('FLASK_MAIL_SENDER')
                 msg.body = ('To reset your password, visit the following link:\n'
                             f'{request.url_root}password_reset?token={token}\n')
                 mail.send(msg)
