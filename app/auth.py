@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint, render_template, request, redirect, flash
-from flask_security import SQLAlchemyUserDatastore, Security, login_user, verify_password, logout_user, hash_password
+from flask_security import SQLAlchemyUserDatastore, Security, login_user, verify_password, logout_user, hash_password, current_user
 from flask_mail import Mail, Message
 from itsdangerous import TimedSerializer
 
@@ -17,6 +17,9 @@ mail = Mail()
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect('/')
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -33,6 +36,7 @@ def login():
                 flash('Wrong password')
             else:
                 flash('User does not exist')
+
     return render_template('login.html', form=form)
 
 

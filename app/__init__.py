@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -27,6 +27,17 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(api, url_prefix='/api')
+
+    @app.route('/manifest.json')
+    def manifest():
+        return send_from_directory('static', 'manifest.json')
+
+    @app.route('/sw.js')
+    def service_worker():
+        response = make_response(send_from_directory('static', 'sw.js'))
+        response.headers['Content-Type'] = 'application/javascript'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
 
     db.init_app(app)
     migrate.init_app(app, db)
