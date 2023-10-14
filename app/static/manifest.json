@@ -1,6 +1,6 @@
 {
   "name": "LaundryMaster",
-  "short_name": "LM",
+  "short_name": "LaundryMaster",
   "description": "A PWA for managing Washing Machine in block 57B",
   "theme_color": "transparent",
   "background_color": "transparent",
