@@ -3,7 +3,7 @@ from flask import session, current_app
 from pywebpush import webpush, WebPushException
 
 from app.db import db
-from app.models import User, WashingCycle, WashingMachine
+from app.models import User, WashingCycle, WashingMachine, PushSubscription
 
 
 def start_cycle(user: User):
@@ -174,23 +174,21 @@ def trigger_push_notification(push_subscription, title, body):
             subscription_info=json.loads(push_subscription.subscription_json),
             data=json.dumps({"title": title, "body": body}),
             vapid_private_key=current_app.config["PUSH_PRIVATE_KEY"],
-            vapid_claims={
-                "sub": "mailto:{}".format(
-                    current_app.config["PUSH_CLAIM_EMAIL"])
-            }
+            vapid_claims={"sub": "mailto:{}".format(current_app.config["PUSH_CLAIM_EMAIL"])}
         )
         return response.ok
     except WebPushException as ex:
         if ex.response and ex.response.json():
             extra = ex.response.json()
-            print("Remote service replied with a {}:{}, {}",
-                  extra.code,
-                  extra.errno,
-                  extra.message
-                  )
+            print("Remote service replied with a {}:{}, {}", extra.code, extra.errno, extra.message)
         return False
 
 
-def trigger_push_notifications_for_subscriptions(subscriptions, title, body):
-    return [trigger_push_notification(subscription, title, body)
-            for subscription in subscriptions]
+def send_push_to_all(title, body):
+    subscriptions = PushSubscription.query.all()
+    return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]
+
+
+def send_push_to_user(user_id: int, title, body):
+    subscriptions = PushSubscription.query.filter_by(user_id=user_id).all()
+    return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]

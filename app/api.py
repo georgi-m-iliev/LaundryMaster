@@ -7,7 +7,7 @@ from app.db import db
 from app.auth import user_datastore
 
 from app.models import User, WashingMachine, PushSubscription
-from app.functions import trigger_push_notifications_for_subscriptions
+from app.functions import send_push_to_all
 
 api = Blueprint('api', __name__)
 
@@ -73,9 +73,7 @@ def push_subscriptions():
 @api.route('/trigger_push', methods=['POST'])
 def trigger_push():
     json_data = request.get_json()
-    subscriptions = PushSubscription.query.all()
-    results = trigger_push_notifications_for_subscriptions(
-        subscriptions,
+    send_push_to_all(
         json_data.get('title'),
         json_data.get('body')
     )
