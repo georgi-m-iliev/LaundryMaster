@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 
 from app.db import db, migrate
 from app.models import User, Role
+from app.tasks import celery_init_app
 
 from app.auth import auth, user_datastore, security, mail
 from app.views import views
@@ -44,5 +45,14 @@ def create_app():
 
     security.init_app(app, user_datastore)
     mail.init_app(app)
+
+    app.config.from_mapping(
+        CELERY=dict(
+            broker_url="redis://localhost",
+            result_backend="redis://localhost",
+            task_ignore_result=True,
+        ),
+    )
+    celery_init_app(app)
 
     return app
