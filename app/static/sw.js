@@ -50,11 +50,13 @@ self.addEventListener('push', function (event) {
         title = data.title;
         body = data.body;
     } catch (e) {
-        title = "Untitled";
+        title = "Error with retrieving notification";
         body = pushData;
     }
     const options = {
-        body: body
+        body: body,
+        badge: 'static/assets/img/icons/android-chrome-192x192.png',
+        icon: 'static/assets/img/icons/cycle-done-icon.png',
     };
     console.log(title, options);
 
