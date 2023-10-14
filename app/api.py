@@ -61,7 +61,10 @@ def push_subscriptions():
     json_data = request.get_json()
     subscription = PushSubscription.query.filter_by(subscription_json=json_data['subscription_json']).first()
     if subscription is None:
-        subscription = PushSubscription(subscription_json=json_data['subscription_json'])
+        subscription = PushSubscription(
+            subscription_json=json_data['subscription_json'],
+            user_id=json_data['user_id']
+        )
         db.session.add(subscription)
         db.session.commit()
     return {"status": "success"}

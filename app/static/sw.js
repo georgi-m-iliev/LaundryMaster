@@ -43,7 +43,7 @@ if (workbox) {
 self.addEventListener('push', function (event) {
     console.log('[Service Worker] Push Received.');
     const pushData = event.data.text();
-    console.log(`[Service Worker] Push received this data - "${pushData}"`);
+    // console.log(`[Service Worker] Push received this data - "${pushData}"`);
     let data, title, body;
     try {
         data = JSON.parse(pushData);
