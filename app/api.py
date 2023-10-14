@@ -48,3 +48,8 @@ def update_usage():
         db.session.commit()
         return {'status': 'success'}
     return {'status': 'invalid authenticator'}
+
+
+@api.route('/push_subscriptions', methods=['GET'])
+def push_subscriptions():
+    pass

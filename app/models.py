@@ -99,3 +99,8 @@ class UsageViewShowCountForm(FlaskForm):
 class UnpaidCyclesForm(FlaskForm):
     checkboxes = FieldList(BooleanField('checkboxes', default=False), min_entries=0)
     submit = SubmitField('submit')
+
+
+class PushSubscription(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    subscription_json = db.Column(db.Text, nullable=False)
