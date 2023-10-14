@@ -6,7 +6,8 @@ from flask_security.utils import hash_password
 from app.db import db
 from app.auth import user_datastore
 
-from app.models import User, WashingMachine
+from app.models import User, WashingMachine, PushSubscription
+from app.functions import trigger_push_notifications_for_subscriptions
 
 api = Blueprint('api', __name__)
 
@@ -50,7 +51,11 @@ def update_usage():
     return {'status': 'invalid authenticator'}
 
 
-@api.route('/push_subscriptions', methods=['GET'])
+@api.route('/get_usage', methods=['GET'])
+def get_usage():
+    return {'currentkwh': WashingMachine.query.first().currentkwh}
+
+
 @api.route('/push_subscriptions', methods=['POST'])
 def push_subscriptions():
     json_data = request.get_json()
