@@ -163,6 +163,9 @@
 <script src={{ url_for('static', filename='assets/js/bs-init.js') }}></script>
 <script src={{ url_for('static', filename='assets/js/theme.js') }}></script>
 <script src={{ url_for('static', filename='assets/js/service_worker.js') }}></script>
+<script type="text/javascript">
+    registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscriptions");
+</script>
 </body>
 
 </html>

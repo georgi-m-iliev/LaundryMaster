@@ -51,5 +51,24 @@ def update_usage():
 
 
 @api.route('/push_subscriptions', methods=['GET'])
+@api.route('/push_subscriptions', methods=['POST'])
 def push_subscriptions():
-    pass
+    json_data = request.get_json()
+    subscription = PushSubscription.query.filter_by(subscription_json=json_data['subscription_json']).first()
+    if subscription is None:
+        subscription = PushSubscription(subscription_json=json_data['subscription_json'])
+        db.session.add(subscription)
+        db.session.commit()
+    return {"status": "success"}
+
+
+@api.route('/trigger_push', methods=['POST'])
+def trigger_push():
+    json_data = request.get_json()
+    subscriptions = PushSubscription.query.all()
+    results = trigger_push_notifications_for_subscriptions(
+        subscriptions,
+        json_data.get('title'),
+        json_data.get('body')
+    )
+    return {"status": "success"}
