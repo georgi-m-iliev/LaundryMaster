@@ -57,13 +57,15 @@
                     <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div>
+                    <div style="display: inline;">
                         <form method="POST">
                             <label class="px-3 d-none d-md-inline-block">Washing Cycle</label>
-                            {% if session['cycle_id'] %}
+                            {% if session['cycle_state'] == 'running' %}
                             <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
-                            {% else %}
+                            {% elif session['cycle_state'] == 'available' %}
                             <button type="submit" name="start_cycle" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
+                            {% elif session['cycle_state'] == 'unavailable' %}
+                            <span class="text-warning">Washing Machine is busy!</span>
                             {% endif %}
                         </form>
                     </div>

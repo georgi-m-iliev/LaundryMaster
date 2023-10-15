@@ -33,12 +33,17 @@ def stop_cycle(user: User):
 
 
 def update_cycle(user: User):
-    if WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).all():
-        # Cycle belonging to current user was found, update view
-        session['cycle_id'] = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first().id
+    cycle = WashingCycle.query.filter_by(end_timestamp=None).first()
+    if cycle:
+        if cycle.user_id == user.id:
+            # Current user owns the cycle
+            session['cycle_state'] = 'running'
+            session['cycle_id'] = cycle.id
+        else:
+            # Current user does not own the cycle
+            session['cycle_state'] = 'unavailable'
     else:
-        # No cycle belonging to current user was found, remove session variable
-        session.pop('cycle_id', None)
+        session['cycle_state'] = 'available'
 
 
 def calculate_charges(user: User) -> decimal:
