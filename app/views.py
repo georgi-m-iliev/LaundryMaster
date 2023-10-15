@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, session, flash
 from flask_security import login_required, user_authenticated, current_user, hash_password
 
 from app.db import db
-from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm
+from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm, UserSettings
 from app.functions import *
 from app.tasks import watch_usage
 
@@ -18,7 +18,10 @@ def handle_cycle_buttons():
     if request.method == 'POST':
         if request.form.get('start_cycle') is not None:
             start_cycle(current_user)
-            watch_usage.delay(current_user.id)
+            watch_usage.delay(
+                current_user.id,
+                UserSettings.query.filter_by(user_id=current_user.id).first().terminate_cycle_on_usage
+            )
             return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)

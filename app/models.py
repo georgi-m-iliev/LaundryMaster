@@ -34,6 +34,13 @@ class Role(db.Model, RoleMixin):
     description = db.Column(db.String(512))
 
 
+class UserSettings(db.Model):
+    __tablename__ = 'user_settings'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    terminate_cycle_on_usage = db.Column(db.Boolean(), default=True)
+
+
 class WashingCycle(db.Model):
     __tablename__ = 'washing_cycles'
     id = db.Column(db.Integer, primary_key=True)
