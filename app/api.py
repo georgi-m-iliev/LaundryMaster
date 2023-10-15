@@ -6,7 +6,7 @@ from flask_security.utils import hash_password
 from app.db import db
 from app.auth import user_datastore
 
-from app.models import User, WashingMachine, PushSubscription
+from app.models import User, WashingMachine, PushSubscription, UserSettings
 from app.functions import send_push_to_all
 
 api = Blueprint('api', __name__)
@@ -26,6 +26,8 @@ def adduser():
             username=request.form['username'],
             password=hash_password(request.form['password'])
         )
+        settings = UserSettings(user_id=User.query.filter_by(username=request.form['username']).first().id)
+        db.session.add(settings)
         db.session.commit()
         return {'status': 'success'}
     return {'status': 'invalid authenticator'}
