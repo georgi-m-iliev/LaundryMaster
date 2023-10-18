@@ -2,9 +2,10 @@ import os
 import time
 from flask import Flask
 from celery import Celery, Task, shared_task
+from celery.schedules import crontab
 
 from app.models import User, WashingMachine
-from app.functions import send_push_to_user, stop_cycle
+from app.functions import send_push_to_user, stop_cycle, update_energy_consumption
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -17,6 +18,13 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.config_from_object(app.config["CELERY"])
     celery_app.set_default()
     app.extensions["celery"] = celery_app
+    app.config['CELERYBEAT_SCHEDULE'] = {
+        # Executes every minute
+        'update_usage_task': {
+            'task': 'update_usage',
+            'schedule': crontab(minute="*")
+        }
+    }
     return celery_app
 
 
@@ -45,3 +53,8 @@ def watch_usage(user_id: int, terminate_cycle: bool):
         stop_cycle(User.query.get(user_id))
 
     print("Ending task....")
+
+
+@shared_task(name="update_usage")
+def update_usage():
+    update_energy_consumption()
