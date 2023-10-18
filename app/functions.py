@@ -1,4 +1,5 @@
-import decimal, datetime, json, math
+import os, decimal, datetime, json, math, requests
+
 from flask import session, current_app
 from pywebpush import webpush, WebPushException
 
@@ -15,18 +16,25 @@ def start_cycle(user: User):
         new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
         db.session.add(new_cycle)
         db.session.commit()
+
         session['cycle_id'] = new_cycle.id
+
+        trigger_relay('on')
 
 
 def stop_cycle(user: User):
-    if WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).all():
+    cycle: WashingCycle = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first()
+    if cycle:
         # Cycle belonging to current user was found, stopping it
-        cycle: WashingCycle = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first()
+        update_energy_consumption()
         cycle.endkwh = WashingMachine.query.first().currentkwh
         cycle.end_timestamp = db.func.current_timestamp()
         cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
         db.session.commit()
+
         session.pop('cycle_id', None)
+
+        trigger_relay('off')
     else:
         # No cycle belonging to current user was found
         pass
@@ -197,3 +205,39 @@ def send_push_to_all(title, body):
 def send_push_to_user(user_id: int, title, body):
     subscriptions = PushSubscription.query.filter_by(user_id=user_id).all()
     return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]
+
+
+def trigger_relay(mode: str):
+    """Enable the relay on the Shelly device."""
+    response = requests.post(
+        url='{}/device/relay/control'.format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        data={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID'),
+            'channel': '0',
+            'turn': 'on' if mode == 'on' else 'off'
+        })
+    return response.status_code
+
+
+def get_energy_consumption():
+    """ Queries Shelly Cloud API for energy consumption data in Watt-minute and return in kWatt-hour """
+    consumption = requests.post(
+        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        params={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID')
+        }
+    )
+
+    if consumption.status_code != 200:
+        raise Exception('Failed to get power consumption data from Shelly Cloud API')
+
+    return consumption.json()['data']['device_status']['meters'][0]['total'] / 60000
+
+
+def update_energy_consumption():
+    """ Updates the energy consumption in the database """
+    washing_machine = WashingMachine.query.first()
+    washing_machine.currentkwh = get_energy_consumption()
+    db.session.commit()
