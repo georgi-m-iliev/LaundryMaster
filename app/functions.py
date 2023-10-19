@@ -13,28 +13,24 @@ def start_cycle(user: User):
         pass
     else:
         # No cycle running, create new cycle
+        trigger_relay('on')
         new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
         db.session.add(new_cycle)
         db.session.commit()
-
         session['cycle_id'] = new_cycle.id
-
-        trigger_relay('on')
 
 
 def stop_cycle(user: User):
     cycle: WashingCycle = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first()
     if cycle:
         # Cycle belonging to current user was found, stopping it
+        trigger_relay('off')
         update_energy_consumption()
         cycle.endkwh = WashingMachine.query.first().currentkwh
         cycle.end_timestamp = db.func.current_timestamp()
         cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
         db.session.commit()
-
         session.pop('cycle_id', None)
-
-        trigger_relay('off')
     else:
         # No cycle belonging to current user was found
         pass
@@ -234,6 +230,22 @@ def get_energy_consumption():
         raise Exception('Failed to get power consumption data from Shelly Cloud API')
 
     return consumption.json()['data']['device_status']['meters'][0]['total'] / 60000
+
+
+def get_realtime_energy_consumption():
+    """ Queries Shelly Cloud API for energy consumption data in Watt and return in kWatt """
+    consumption = requests.post(
+        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        params={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID')
+        }
+    )
+
+    if consumption.status_code != 200:
+        raise Exception('Failed to get power consumption data from Shelly Cloud API')
+
+    return consumption.json()['data']['device_status']['meters'][0]['power']
 
 
 def update_energy_consumption():

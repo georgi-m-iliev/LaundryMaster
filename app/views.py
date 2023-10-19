@@ -92,7 +92,9 @@ def usage_view():
 def profile():
     edit_form = EditProfileForm()
     if edit_form.validate_on_submit():
-        if not edit_form.first_name.data and not edit_form.email.data and not edit_form.username.data and not edit_form.password.data:
+        if True not in (
+            edit_form.first_name.data, edit_form.email.data, edit_form.username.data, edit_form.password.data
+        ):
             flash('Nothing to update', 'warning')
             return redirect(request.path)
 

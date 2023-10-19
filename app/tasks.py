@@ -5,7 +5,7 @@ from celery import Celery, Task, shared_task
 from celery.schedules import crontab
 
 from app.models import User, WashingMachine
-from app.functions import send_push_to_user, stop_cycle, update_energy_consumption
+from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_energy_consumption
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -31,25 +31,23 @@ def celery_init_app(app: Flask) -> Celery:
 @shared_task(ignore_result=False)
 def watch_usage(user_id: int, terminate_cycle: bool):
     print("Starting task...")
-    old_usage = WashingMachine.query.first().currentkwh
     while True:
-        time.sleep(os.getenv("FLASK_CYCLE_CHECK_INTERVAL", 60))
-        new_usage = WashingMachine.query.first().currentkwh
-        if abs(new_usage - old_usage) < 0.0001:
-            # Usage has not changed, cycle probably ended
-            # Wait 3 minutes and check again to make sure
+        usage = get_realtime_energy_consumption()
+        if usage < os.getenv('WASHING_MACHINE_WATT_THRESHOLD'):
+            # Usage has been under threshold for 1 minute
+            # Wait 3 more times and check again to make sure
             time.sleep(os.getenv("FLASK_CYCLE_CHECK_INTERVAL", 60) * 3)
-            new_usage = WashingMachine.query.first().currentkwh
-            if abs(new_usage - old_usage) < 0.0001:
+            usage = get_realtime_energy_consumption()
+            if usage < os.getenv('WASHING_MACHINE_WATT_THRESHOLD'):
                 # Cycle has ended for sure
                 break
-        old_usage = new_usage
+        time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60))
 
     # Cycle has ended, send push notification
     send_push_to_user(user_id, "Your cycle has ended!", "Go pick you laundry!")
 
     if terminate_cycle:
-        # Terminate cycle
+        # Terminate cycle if enabled in settings
         stop_cycle(User.query.get(user_id))
 
     print("Ending task....")
