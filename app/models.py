@@ -96,7 +96,12 @@ class EditProfileForm(FlaskForm):
                                          EqualTo('password', message="Passwords don't match"),
                                          Optional()
                                      ])
-    submit = SubmitField('save')
+    submit = SubmitField('Save Changes', id='profile-submit', name='profile-submit')
+
+
+class EditSettingsForm(FlaskForm):
+    automatic_stop = BooleanField(default=False)
+    submit = SubmitField('', id='settings-submit', name='settings-submit')
 
 
 class UsageViewShowCountForm(FlaskForm):

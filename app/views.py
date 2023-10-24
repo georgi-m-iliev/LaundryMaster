@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, session, flash
 from flask_security import login_required, user_authenticated, current_user, hash_password
 
 from app.db import db
-from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm, UserSettings
+from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm, UserSettings, EditSettingsForm
 from app.functions import *
 from app.tasks import watch_usage
 
@@ -91,11 +91,13 @@ def usage_view():
 @login_required
 def profile():
     edit_form = EditProfileForm()
-    if edit_form.validate_on_submit():
+    settings_form = EditSettingsForm()
+
+    if 'profile-submit' in request.form and edit_form.validate_on_submit():
         if True not in (
             edit_form.first_name.data, edit_form.email.data, edit_form.username.data, edit_form.password.data
         ):
-            flash('Nothing to update', 'warning')
+            flash('Nothing to update', category='profile')
             return redirect(request.path)
 
         if edit_form.first_name.data:
@@ -110,8 +112,17 @@ def profile():
         flash('Profile updated successfully', 'success')
         return redirect(request.path)
 
+    user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
+    if 'settings-submit' in request.form and settings_form.validate_on_submit():
+        print('New setting is {}'.format(settings_form.automatic_stop.data))
+        user_settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
+        db.session.commit()
+    else:
+        settings_form.automatic_stop.data = user_settings.terminate_cycle_on_usage
+
     return render_template(
         'profile.html',
         is_profile=True,
-        edit_form=edit_form
+        edit_form=edit_form,
+        settings_form=settings_form
     )

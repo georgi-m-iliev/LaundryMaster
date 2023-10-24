@@ -11,19 +11,15 @@
                     <div class="col">
                         <div class="card shadow mb-3">
                             <div class="card-header py-3">
-                                <p class="text-primary m-0 fw-bold">User Settings</p>
+                                <p class="text-primary m-0 fw-bold">Profile Settings</p>
                             </div>
                             <div class="card-body">
                                 <div class="messages">
                                     {% with messages = get_flashed_messages(with_categories=true) %}
                                         {% if messages %}
                                             {% for category, message in messages %}
-                                                {% if category == 'message' %}
+                                                {% if category == 'profile' %}
                                                     <div class="alert alert-warning" role="alert">
-                                                        {{ message }}
-                                                    </div>
-                                                {% else %}
-                                                    <div class="alert alert-{{ category }}" role="alert">
                                                         {{ message }}
                                                     </div>
                                                 {% endif %}
@@ -85,7 +81,7 @@
                                         </div>
                                         <div class="col">
                                             <div class="mb-3">
-                                                {{ edit_form.submit(class_="btn btn-primary", value="Save Changes") }}
+                                                {{ edit_form.submit(class_="btn btn-primary") }}
                                             </div>
                                         </div>
                                     </div>
@@ -94,6 +90,53 @@
                         </div>
                         <div class="card shadow"></div>
                     </div>
+                    <div class="col">
+                        <div class="card shadow mb-3">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 fw-bold">User Settings</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="messages">
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'settings' %}
+                                                    <div class="alert alert-warning" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                <div class="validation_errors">
+                                    {% for error in settings_form.errors %}
+                                        {% for message in settings_form[error].errors %}
+                                            <ul class="alert alert-danger px-5">
+                                                <li>{{ message }}</li>
+                                            </ul>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                                <form method="POST" id="settings_form">
+                                    {{ settings_form.csrf_token }}
+                                    <div class="col">
+                                        <div class="col">
+                                            <div class="mb-3 form-check form-switch">
+                                                {{ settings_form.automatic_stop(class_="form-check-input", onchange="document.getElementById('settings-submit').click();") }}
+                                                {{ settings_form.submit(class_="d-none") }}
+                                                <label class="form-label" for="name">
+                                                    <strong>Automatic Cycle Stop</strong>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card shadow"></div>
+                    </div>
+
                 </div>
             </div>
         </div>
