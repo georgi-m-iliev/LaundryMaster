@@ -7,7 +7,7 @@ from app.db import db
 from app.auth import user_datastore
 
 from app.models import User, WashingMachine, PushSubscription, UserSettings
-from app.functions import send_push_to_all
+from app.functions import send_push_to_all, send_push_to_user
 
 api = Blueprint('api', __name__)
 
@@ -78,5 +78,16 @@ def trigger_push():
     send_push_to_all(
         json_data.get('title'),
         json_data.get('body')
+    )
+    return {"status": "success"}
+
+
+@api.route('/trigger_push/<user_id>', methods=['POST'])
+def trigger_push_by_id(user_id: int):
+    json_data = request.get_json()
+    send_push_to_user(
+        user_id=user_id,
+        title=json_data.get('title'),
+        body=json_data.get('body')
     )
     return {"status": "success"}
