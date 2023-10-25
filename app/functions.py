@@ -14,6 +14,7 @@ def start_cycle(user: User):
     else:
         # No cycle running, create new cycle
         trigger_relay('on')
+        update_energy_consumption()
         new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
         db.session.add(new_cycle)
         db.session.commit()
