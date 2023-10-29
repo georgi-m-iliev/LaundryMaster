@@ -56,9 +56,10 @@
                     <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div style="display: inline;">
+                    {% if request.path != '/' %}
+                    <div>
                         <form method="POST">
-                            <label class="px-3 d-none d-md-inline-block">Washing Cycle</label>
+                            <img style="max-height: 7vh;" class="rounded-5 px-3 d-none d-md-inline-block align-middle" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
                             {% if session['cycle_state'] == 'running' %}
                             <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
                             {% elif session['cycle_state'] == 'available' %}
@@ -68,6 +69,7 @@
                             {% endif %}
                         </form>
                     </div>
+                    {% endif %}
                     <ul class="navbar-nav flex-nowrap ms-auto">
 {#                        <li class="nav-item dropdown no-arrow mx-1">#}
 {#                            <div class="nav-item dropdown no-arrow">#}

@@ -8,6 +8,37 @@
             <h3 class="text-dark mb-0">Dashboard</h3>
         </div>
         <div class="row">
+            <div class="col mb-4">
+                <div class="card shadow border-start-primary py-2" style="width: fit-content;">
+                    <div class="card-body">
+                        <div class="row align-items-center no-gutters">
+                            <div class="col-xl-auto col d-flex justify-content-center mb-4 mb-xl-0">
+                {#                <label class="px-3 d-none d-md-inline-block">Washing</label>#}
+                                <img class="h-75 rounded-4 align-self-md-center" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
+                            </div>
+                            <div class="col-xl-auto col h-auto d-flex justify-content-center ">
+                                <form method="POST" class="">
+                                    {% if session['cycle_state'] != 'running' %}
+                                    <button type="submit" name="stop_cycle" class="btn btn-danger">
+                                        <i class="fas fa-solid fa-stop"></i>
+                                        Terminate Cycle
+                                    </button>
+                                    {% elif session['cycle_state'] == 'available' %}
+                                    <button type="submit" name="start_cycle" class="btn text-light btn-success">
+                                        <i class="fas fa-solid fa-play"></i>
+                                        Start cycle
+                                    </button>
+                                    {% elif session['cycle_state'] == 'unavailable' %}
+                                    <p class="text-warning text-break m-0">Washing Machine is busy!</p>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-6 col-xl-3 mb-4">
                 <div class="card shadow border-start-primary py-2">
                     <div class="card-body">
