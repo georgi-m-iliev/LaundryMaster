@@ -60,6 +60,7 @@ def index():
         total_cost=calculate_charges(current_user),
         total_usage=calculate_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
+        savings=calculate_savings(current_user),
         stopwatch=calculate_running_time(current_user),
         monthly_statistics=calculate_monthly_statistics(current_user),
         statistics_labels=json.dumps(statistics['labels']),

@@ -96,6 +96,23 @@ def calculate_unpaid_cycles_cost(user: User) -> decimal:
     return result
 
 
+def calculate_savings(user: User) -> decimal:
+    """Calculate the savings from having personal washing machine."""
+    cycles: list[WashingCycle] = WashingCycle.query.filter(
+        WashingCycle.user_id == user.id,
+        WashingCycle.end_timestamp.is_not(None),
+        db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
+    ).all()
+
+    public_wash_cost = WashingMachine.query.first().public_wash_cost
+
+    result: decimal = 0
+    for cycle in cycles:
+        result += public_wash_cost - cycle.cost
+
+    return result
+
+
 def calculate_running_time(user: User) -> str:
     """Calculate the running time of the current cycle."""
     if 'cycle_id' in session:

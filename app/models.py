@@ -59,6 +59,7 @@ class WashingMachine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     currentkwh = db.Column(db.Numeric(20, 4))
     costperkwh = db.Column(db.Numeric(10, 2))
+    public_wash_cost = db.Column(db.Numeric(10, 2))
 
 
 class LoginForm(FlaskForm):
