@@ -18,7 +18,7 @@
                             </div>
                             <div class="col-xl-auto col h-auto d-flex justify-content-center ">
                                 <form method="POST" class="">
-                                    {% if session['cycle_state'] != 'running' %}
+                                    {% if session['cycle_state'] == 'running' %}
                                     <button type="submit" name="stop_cycle" class="btn btn-danger">
                                         <i class="fas fa-solid fa-stop"></i>
                                         Terminate Cycle
