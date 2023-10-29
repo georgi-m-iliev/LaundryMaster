@@ -82,12 +82,11 @@ def calculate_usage(user: User) -> decimal:
 
 
 def calculate_unpaid_cycles_cost(user: User) -> decimal:
-    """Calculate the monthly unpaid cycles for a user."""
+    """Calculate the unpaid cycles for a user."""
     unpaid: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.user_id == user.id,
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.paid.is_(False),
-        db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
     ).all()
 
     result: decimal = 0
