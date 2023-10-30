@@ -33,12 +33,12 @@ def watch_usage(user_id: int, terminate_cycle: bool):
     print("Starting task...")
     while True:
         usage = get_realtime_energy_consumption()
-        if usage < os.getenv('WASHING_MACHINE_WATT_THRESHOLD'):
+        if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
             # Usage has been under threshold for 1 minute
             # Wait 3 more times and check again to make sure
-            time.sleep(os.getenv("FLASK_CYCLE_CHECK_INTERVAL", 60) * 3)
+            time.sleep(int(os.getenv("FLASK_CYCLE_CHECK_INTERVAL", 60)) * 3)
             usage = get_realtime_energy_consumption()
-            if usage < os.getenv('WASHING_MACHINE_WATT_THRESHOLD'):
+            if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 # Cycle has ended for sure
                 break
         time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60))
