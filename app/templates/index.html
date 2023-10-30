@@ -11,31 +11,25 @@
             <div class="col-md-5 col-xl-auto mb-4">
                 <div class="row">
                     <div class="col mb-4">
-                        <div class="card shadow border-start-primary py-2" style="width: fit-content;">
-                            <div class="card-body">
-                                <div class="row align-items-center no-gutters">
-                                    <div class="col-xl-auto col d-flex justify-content-center mb-4 mb-md-0">
-                        {#              <label class="px-3 d-none d-md-inline-block">Washing</label>#}
-                                        <img class="rounded-4 align-self-md-center" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
-                                    </div>
-                                    <div class="col-xl-auto col h-auto d-flex justify-content-center ">
-                                        <form method="POST" class="">
-                                            {% if session['cycle_state'] == 'running' %}
-                                            <button type="submit" name="stop_cycle" class="btn btn-danger">
-                                                <i class="fas fa-solid fa-stop"></i>
-                                                Terminate Cycle
-                                            </button>
-                                            {% elif session['cycle_state'] == 'available' %}
-                                            <button type="submit" name="start_cycle" class="btn text-light btn-success">
-                                                <i class="fas fa-solid fa-play"></i>
-                                                Start cycle
-                                            </button>
-                                            {% elif session['cycle_state'] == 'unavailable' %}
-                                            <p class="text-warning text-break m-0">Washing Machine is busy!</p>
-                                            {% endif %}
-                                        </form>
-                                    </div>
-                                </div>
+                        <div class="card shadow border-start-primary py-2">
+                            <div class="card-body d-flex flex-wrap gap-3">
+                {#              <label class="px-3 d-none d-md-inline-block">Washing</label>#}
+                                <img class="w-auto rounded-4 align-self-center mx-auto" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
+                                <form method="POST" class="w-auto align-self-center center mx-auto">
+                                    {% if session['cycle_state'] == 'running' %}
+                                    <button type="submit" name="stop_cycle" class="btn btn-danger">
+                                        <i class="fas fa-solid fa-stop"></i>
+                                        Terminate Cycle
+                                    </button>
+                                    {% elif session['cycle_state'] == 'available' %}
+                                    <button type="submit" name="start_cycle" class="btn text-light btn-success">
+                                        <i class="fas fa-solid fa-play"></i>
+                                        Start cycle
+                                    </button>
+                                    {% elif session['cycle_state'] == 'unavailable' %}
+                                    <p class="text-warning text-break m-0">Washing Machine is busy!</p>
+                                    {% endif %}
+                                </form>
                             </div>
                         </div>
                     </div>
