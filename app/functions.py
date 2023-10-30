@@ -113,11 +113,10 @@ def calculate_savings(user: User) -> decimal:
     return result
 
 
-def calculate_running_time(user: User) -> str:
+def calculate_running_time() -> str:
     """Calculate the running time of the current cycle."""
     if 'cycle_id' in session:
         cycle: WashingCycle = WashingCycle.query.filter(
-            WashingCycle.id == session['cycle_id'],
             WashingCycle.end_timestamp.is_(None)
         ).first()
         if cycle is not None:

@@ -61,7 +61,6 @@ def index():
         total_usage=calculate_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
         savings=calculate_savings(current_user),
-        stopwatch=calculate_running_time(current_user),
         monthly_statistics=calculate_monthly_statistics(current_user),
         statistics_labels=json.dumps(statistics['labels']),
         statistics_data=json.dumps(statistics['data']),
@@ -126,4 +125,18 @@ def profile():
         is_profile=True,
         edit_form=edit_form,
         settings_form=settings_form
+    )
+
+
+@views.route('/washing-machine', methods=['GET', 'POST'])
+@login_required
+def washing_machine():
+
+    return render_template(
+        'washing-machine.html',
+        is_washer=True,
+        stopwatch=calculate_running_time(),
+        current_usage=get_realtime_energy_consumption(),
+        candy_user=os.getenv('CANDY_USER'),
+        candy_password=os.getenv('CANDY_PASSWORD')
     )
