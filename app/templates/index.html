@@ -8,94 +8,101 @@
             <h3 class="text-dark mb-0">Dashboard</h3>
         </div>
         <div class="row">
-            <div class="col mb-4">
-                <div class="card shadow border-start-primary py-2" style="width: fit-content;">
-                    <div class="card-body">
-                        <div class="row align-items-center no-gutters">
-                            <div class="col-xl-auto col d-flex justify-content-center mb-4 mb-xl-0">
-                {#                <label class="px-3 d-none d-md-inline-block">Washing</label>#}
-                                <img class="h-75 rounded-4 align-self-md-center" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
-                            </div>
-                            <div class="col-xl-auto col h-auto d-flex justify-content-center ">
-                                <form method="POST" class="">
-                                    {% if session['cycle_state'] == 'running' %}
-                                    <button type="submit" name="stop_cycle" class="btn btn-danger">
-                                        <i class="fas fa-solid fa-stop"></i>
-                                        Terminate Cycle
-                                    </button>
-                                    {% elif session['cycle_state'] == 'available' %}
-                                    <button type="submit" name="start_cycle" class="btn text-light btn-success">
-                                        <i class="fas fa-solid fa-play"></i>
-                                        Start cycle
-                                    </button>
-                                    {% elif session['cycle_state'] == 'unavailable' %}
-                                    <p class="text-warning text-break m-0">Washing Machine is busy!</p>
-                                    {% endif %}
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-xl-3 mb-4">
-                <div class="card shadow border-start-primary py-2">
-                    <div class="card-body">
-                        <div class="row align-items-center no-gutters">
-                            <div class="col me-2">
-                                <div class="text-uppercase text-primary fw-bold text-xs mb-1"><span>Total Cost Of Washing (Monthly)</span>
+            <div class="col-md-5 col-xl-auto mb-4">
+                <div class="row">
+                    <div class="col mb-4">
+                        <div class="card shadow border-start-primary py-2" style="width: fit-content;">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters">
+                                    <div class="col-xl-auto col d-flex justify-content-center mb-4 mb-md-0">
+                        {#              <label class="px-3 d-none d-md-inline-block">Washing</label>#}
+                                        <img class="rounded-4 align-self-md-center" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
+                                    </div>
+                                    <div class="col-xl-auto col h-auto d-flex justify-content-center ">
+                                        <form method="POST" class="">
+                                            {% if session['cycle_state'] == 'running' %}
+                                            <button type="submit" name="stop_cycle" class="btn btn-danger">
+                                                <i class="fas fa-solid fa-stop"></i>
+                                                Terminate Cycle
+                                            </button>
+                                            {% elif session['cycle_state'] == 'available' %}
+                                            <button type="submit" name="start_cycle" class="btn text-light btn-success">
+                                                <i class="fas fa-solid fa-play"></i>
+                                                Start cycle
+                                            </button>
+                                            {% elif session['cycle_state'] == 'unavailable' %}
+                                            <p class="text-warning text-break m-0">Washing Machine is busy!</p>
+                                            {% endif %}
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="text-dark fw-bold h5 mb-0"><span>{{ total_cost }} lv.</span></div>
                             </div>
-                            <div class="col-auto"><i class="fas fa-dollar-sign fa-2x text-gray-300"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-xl-3 mb-4">
-                <div class="card shadow border-start-success py-2">
-                    <div class="card-body">
-                        <div class="row align-items-center no-gutters">
-                            <div class="col me-2">
-                                <div class="text-uppercase text-success fw-bold text-xs mb-1">
-                                    <span>Used kWh (monthly)</span></div>
-                                <div class="text-dark fw-bold h5 mb-0"><span>{{ total_usage }}</span></div>
+            <div class="col-md col-xl">
+                <div class="row">
+                    <div class="col-xl-3 mb-4">
+                        <div class="card shadow border-start-primary py-2 h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters h-100">
+                                    <div class="col me-2">
+                                        <div class="text-uppercase text-primary fw-bold text-xs mb-1"><span>Total Cost Of Washing (Monthly)</span>
+                                        </div>
+                                        <div class="text-dark fw-bold h5 mb-0"><span>{{ total_cost }} lv.</span></div>
+                                    </div>
+                                    <div class="col-auto"><i class="fas fa-dollar-sign fa-2x text-gray-300"></i></div>
+                                </div>
                             </div>
-                            <div class="col-auto"><i class="fas fa-bolt fa-2x text-gray-300"></i></div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-3 mb-4">
-                <div class="card shadow border-start-success py-2">
-                    <div class="card-body">
-                        <div class="row align-items-center no-gutters">
-                            <div class="col me-2">
-                                <div class="text-uppercase text-danger fw-bold text-xs mb-1">
-                                    <span>Unpaid Cycles Total</span></div>
-                                <div class="text-dark fw-bold h5 mb-0"><span>{{ unpaid_cycles_cost }} lv.</span></div>
+                    <div class="col-xl-3 mb-4">
+                        <div class="card shadow border-start-success py-2 h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters h-100">
+                                    <div class="col me-2">
+                                        <div class="text-uppercase text-success fw-bold text-xs mb-1">
+                                            <span>Used kWh (monthly)</span></div>
+                                        <div class="text-dark fw-bold h5 mb-0"><span>{{ total_usage }}</span></div>
+                                    </div>
+                                    <div class="col-auto"><i class="fas fa-bolt fa-2x text-gray-300"></i></div>
+                                </div>
                             </div>
-                            <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i></div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-3 mb-4">
-                <div class="card shadow border-start-success py-2">
-                    <div class="card-body">
-                        <div class="row align-items-center no-gutters">
-                            <div class="col me-2">
-                                <div class="text-uppercase text-info fw-bold text-xs mb-1">
-                                    <span>Saved From Public Washers (Monthly)</span></div>
-                                <div class="text-dark fw-bold h5 mb-0"><span>{{ savings }} lv.</span></div>
+                    <div class="col-xl-3 mb-4">
+                        <div class="card shadow border-start-success py-2 h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters h-100">
+                                    <div class="col me-2">
+                                        <div class="text-uppercase text-danger fw-bold text-xs mb-1">
+                                            <span>Unpaid Cycles Total</span></div>
+                                        <div class="text-dark fw-bold h5 mb-0"><span>{{ unpaid_cycles_cost }} lv.</span></div>
+                                    </div>
+                                    <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i></div>
+                                </div>
                             </div>
-                            <div class="col-auto"><i class="fas fa-piggy-bank fa-2x text-gray-300"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 mb-4">
+                        <div class="card shadow border-start-success py-2 h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters h-100">
+                                    <div class="col me-2">
+                                        <div class="text-uppercase text-info fw-bold text-xs mb-1">
+                                            <span>Saved From Public Washers (Monthly)</span></div>
+                                        <div class="text-dark fw-bold h5 mb-0"><span>{{ savings }} lv.</span></div>
+                                    </div>
+                                    <div class="col-auto"><i class="fas fa-piggy-bank fa-2x text-gray-300"></i></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-lg-7 col-xl-8">
                 <div class="card shadow mb-4">
