@@ -38,7 +38,7 @@ class UserSettings(db.Model):
     __tablename__ = 'user_settings'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    terminate_cycle_on_usage = db.Column(db.Boolean(), default=True)
+    terminate_cycle_on_usage = db.Column(db.Boolean(), default=False)
 
 
 class WashingCycle(db.Model):
