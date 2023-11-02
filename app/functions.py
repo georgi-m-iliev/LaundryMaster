@@ -115,14 +115,11 @@ def calculate_savings(user: User) -> decimal:
 
 def calculate_running_time() -> str:
     """Calculate the running time of the current cycle."""
-    if 'cycle_id' in session:
-        cycle: WashingCycle = WashingCycle.query.filter(
-            WashingCycle.end_timestamp.is_(None)
-        ).first()
-        if cycle is not None:
-            return str(datetime.datetime.now(datetime.timezone.utc) - cycle.start_timestamp).split('.')[0].zfill(8)
-        else:
-            return "None"
+    cycle: WashingCycle = WashingCycle.query.filter(
+        WashingCycle.end_timestamp.is_(None)
+    ).first()
+    if cycle is not None:
+        return str(datetime.datetime.now(datetime.timezone.utc) - cycle.start_timestamp).split('.')[0].zfill(8)
     else:
         return "None"
 
