@@ -12,11 +12,11 @@ function updateTime() {
             hours++;
         }
     }
-    updateDisplay();
+    updateTimeDisplay();
 }
 
-function updateDisplay() {
-    const display = document.getElementById('display');
+function updateTimeDisplay() {
+    const display = document.getElementById('time-elapsed');
     display.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(seconds)}`;
 }
 
@@ -25,7 +25,7 @@ function formatTime(value) {
 }
 
 function setStartingTime() {
-    const timeParts = document.getElementById('display').textContent.split(':');
+    const timeParts = document.getElementById('time-elapsed').textContent.split(':');
     if (timeParts.length === 3) {
         hours = parseInt(timeParts[0]);
         minutes = parseInt(timeParts[1]);
@@ -36,9 +36,9 @@ function setStartingTime() {
 
 function initStopwatch() {
     console.log("Initializing stopwatch...")
-    if(document.getElementById('display').textContent === "None") {
+    if(document.getElementById('time-elapsed').textContent === "None") {
         console.log("No stopwatch to initialize");
-        document.getElementById('display').textContent = "00:00:00";
+        document.getElementById('time-elapsed').textContent = "00:00:00";
         return;
     }
     setStartingTime();

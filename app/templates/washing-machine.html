@@ -14,9 +14,12 @@
                     <div class="card-body">
                         <div class="row align-items-center no-gutters">
                             <div class="col me-2">
-                                <div class="text-uppercase text-danger fw-bold text-xs mb-1"><span>Current Usage</span>
+                                <div class="text-uppercase text-danger fw-bold text-xs mb-1">
+                                    <span>Current Usage</span>
                                 </div>
-                                <div class="text-dark fw-bold h5 mb-0"><span>{{ current_usage }} W</span></div>
+                                <div class="text-dark fw-bold h5 mb-0">
+                                    <div id="current-usage" onload="initCurrentUsage()">{{ current_usage }} W</div>
+                                </div>
                             </div>
                             <div class="col-auto"><i class="fas fa-plug fa-2x text-gray-300"></i></div>
                         </div>
@@ -32,7 +35,7 @@
                                     <span>Time Elapsed</span>
                                 </div>
                                 <div class="text-dark fw-bold h5 mb-0">
-                                    <div id="display" onload="initStopwatch()">{{ stopwatch }}</div>
+                                    <div id="time-elapsed" onload="initStopwatch()">{{ stopwatch }}</div>
                                 </div>
                             </div>
                             <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
@@ -139,4 +142,6 @@
 {#        </div>#}
     </div>
     <script src="{{ url_for('static', filename='assets/js/stopwatch.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/currentusage.js') }}"></script>
+    </div>
 {% endblock %}

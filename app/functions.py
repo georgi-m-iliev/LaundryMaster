@@ -120,7 +120,7 @@ def calculate_running_time() -> str:
             WashingCycle.end_timestamp.is_(None)
         ).first()
         if cycle is not None:
-            return str(datetime.datetime.now(datetime.timezone.utc) - cycle.start_timestamp).split('.')[0]
+            return str(datetime.datetime.now(datetime.timezone.utc) - cycle.start_timestamp).split('.')[0].zfill(8)
         else:
             return "None"
     else:
