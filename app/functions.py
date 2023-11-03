@@ -106,6 +106,7 @@ def calculate_savings(user: User) -> decimal:
     cycles: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.user_id == user.id,
         WashingCycle.end_timestamp.is_not(None),
+        WashingCycle.cost > 0.20,
         db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
     ).all()
 
