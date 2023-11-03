@@ -54,6 +54,7 @@ def index():
         'index.html',
         is_dashboard=True,
         cycle_data=update_cycle(current_user),
+        stopwatch=calculate_running_time(),
         total_cost=calculate_charges(current_user),
         total_usage=calculate_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
