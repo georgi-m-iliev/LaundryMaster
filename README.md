@@ -10,14 +10,18 @@ which we will be using in our dormitory.
 
 This application is written in Python 3.11 and uses PostgreSQL as a database.
 The full list of dependencies can be found in the `requirements.txt` file.
+The app integrates a Celery worker and beat scheduler to handle asynchronous
+tasks, for which you would need to install Redis and start at least one worker
+and one scheduler.
 
 ## Setting up the environment
 
-1. Install and set up your Python environment and PostgreSQL DBMS.
+1. Install and set up your Python environment, PostgreSQL DBMS and Redis server.
 2. Clone this repository.
 3. Run `pip install -r requirements.txt` to install all the dependencies.
-4. Migrate the database by running `flask db migrate` and then upgrade it by running `flask db upgrade`.
-5. You are ready to go! Run `python main.py` to start the application.
+4. Fill a copy of the .env.example files with your own values and rename it to .env.
+5. Migrate the database by running `flask db migrate` and then upgrade it by running `flask db upgrade`.
+6. You are ready to go! Run `python main.py` to start the application.
 
 ## Usage
 
