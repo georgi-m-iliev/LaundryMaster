@@ -29,10 +29,6 @@ def handle_cycle_buttons():
         else:
             pass
 
-    # if request wasn't POST, then update the cycle information, to display proper buttons
-    if current_user.is_authenticated:
-        update_cycle(current_user)
-
 
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/index', methods=['GET', 'POST'])
@@ -57,6 +53,7 @@ def index():
     return render_template(
         'index.html',
         is_dashboard=True,
+        cycle_data=update_cycle(current_user),
         total_cost=calculate_charges(current_user),
         total_usage=calculate_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
@@ -82,6 +79,7 @@ def usage_view():
     return render_template(
         'usage.html',
         is_usage=True,
+        cycle_data=update_cycle(current_user),
         select_form=select_form,
         usages=get_usage_list(current_user, limit)
     )
@@ -123,6 +121,7 @@ def profile():
     return render_template(
         'profile.html',
         is_profile=True,
+        cycle_data=update_cycle(current_user),
         edit_form=edit_form,
         settings_form=settings_form
     )
@@ -135,6 +134,7 @@ def washing_machine():
     return render_template(
         'washing-machine.html',
         is_washer=True,
+        cycle_data=update_cycle(current_user),
         stopwatch=calculate_running_time(),
         current_usage=get_realtime_energy_consumption(),
         candy_user=os.getenv('CANDY_USER'),

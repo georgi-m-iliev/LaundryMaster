@@ -9,31 +9,33 @@ from app.models import User, WashingCycle, WashingMachine, PushSubscription
 
 def start_cycle(user: User):
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
-        # Cycle already running, display error
+        # TODO: Cycle already running, display error
         pass
     else:
         # No cycle running, create new cycle
-        trigger_relay('on')
+        if trigger_relay('on') != 200:
+            # TODO: Handle error
+            raise Exception('Failed to trigger relay on Shelly Cloud API')
         update_energy_consumption()
         new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
         db.session.add(new_cycle)
         db.session.commit()
-        session['cycle_id'] = new_cycle.id
 
 
 def stop_cycle(user: User):
     cycle: WashingCycle = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first()
     if cycle:
         # Cycle belonging to current user was found, stopping it
-        trigger_relay('off')
+        if trigger_relay('off') != 200:
+            # TODO: Handle error
+            raise Exception('Failed to trigger relay on Shelly Cloud API')
         update_energy_consumption()
         cycle.endkwh = WashingMachine.query.first().currentkwh
         cycle.end_timestamp = db.func.current_timestamp()
         cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
         db.session.commit()
-        session.pop('cycle_id', None)
     else:
-        # No cycle belonging to current user was found
+        # TODO: No cycle belonging to current user was found, display error
         pass
 
 
@@ -42,13 +44,16 @@ def update_cycle(user: User):
     if cycle:
         if cycle.user_id == user.id:
             # Current user owns the cycle
-            session['cycle_state'] = 'running'
-            session['cycle_id'] = cycle.id
+            # session['cycle_state'] = 'running'
+            # session['cycle_id'] = cycle.id
+            return {'state': 'running', 'id': cycle.id}
         else:
             # Current user does not own the cycle
-            session['cycle_state'] = 'unavailable'
+            # session['cycle_state'] = 'unavailable'
+            return {'state': 'unavailable', 'id': None}
     else:
-        session['cycle_state'] = 'available'
+        # session['cycle_state'] = 'available'
+        return {'state': 'available', 'id': None}
 
 
 def calculate_charges(user: User) -> decimal:

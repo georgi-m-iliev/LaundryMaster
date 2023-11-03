@@ -16,17 +16,17 @@
                 {#              <label class="px-3 d-none d-md-inline-block">Washing</label>#}
                                 <img class="w-auto rounded-4 align-self-center mx-auto" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
                                 <form method="POST" class="w-auto align-self-center center mx-auto">
-                                    {% if session['cycle_state'] == 'running' %}
+                                    {% if cycle_data['state'] == 'running' %}
                                     <button type="submit" name="stop_cycle" class="btn btn-danger">
                                         <i class="fas fa-solid fa-stop"></i>
                                         Terminate Cycle
                                     </button>
-                                    {% elif session['cycle_state'] == 'available' %}
+                                    {% elif cycle_data['state'] == 'available' %}
                                     <button type="submit" name="start_cycle" class="btn text-light btn-success">
                                         <i class="fas fa-solid fa-play"></i>
                                         Start cycle
                                     </button>
-                                    {% elif session['cycle_state'] == 'unavailable' %}
+                                    {% elif cycle_data['state'] == 'unavailable' %}
                                     <p class="text-warning text-break m-0">Washing Machine is busy!</p>
                                     {% endif %}
                                 </form>

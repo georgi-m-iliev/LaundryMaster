@@ -75,11 +75,11 @@
                     <div>
                         <form method="POST">
                             <img style="max-height: 7vh;" class="rounded-5 px-3 d-none d-md-inline-block align-middle" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
-                            {% if session['cycle_state'] == 'running' %}
+                            {% if cycle_data['state'] == 'running' %}
                             <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
-                            {% elif session['cycle_state'] == 'available' %}
+                            {% elif cycle_data['state'] == 'available' %}
                             <button type="submit" name="start_cycle" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
-                            {% elif session['cycle_state'] == 'unavailable' %}
+                            {% elif cycle_data['state'] == 'unavailable' %}
                             <span class="text-warning">Washing Machine is busy!</span>
                             {% endif %}
                         </form>
