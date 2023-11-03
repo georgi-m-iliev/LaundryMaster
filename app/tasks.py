@@ -31,16 +31,25 @@ def celery_init_app(app: Flask) -> Celery:
 @shared_task(ignore_result=False)
 def watch_usage(user_id: int, terminate_cycle: bool):
     print("Starting task...")
+    counter = 0
     while True:
         usage = get_realtime_energy_consumption()
         if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
-            # Usage has been under threshold for 1 minute
-            # Wait 3 more times and check again to make sure
-            time.sleep(int(os.getenv("FLASK_CYCLE_CHECK_INTERVAL", 60)) * 3)
-            usage = get_realtime_energy_consumption()
-            if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
-                # Cycle has ended for sure
-                break
+            # Usage is under threshold, start cycle end detection
+            while True:
+                usage = get_realtime_energy_consumption()
+                if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
+                    # Usage has gone over threshold, cycle hasn't ended
+                    counter = 0
+                    break
+                if counter == 10:
+                    # Usage has been under threshold for 5 minutes Cycle has ended
+                    break
+                counter += 1
+                time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60) / 2)
+        if counter == 10:
+            # Cycle has ended
+            break
         time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60))
 
     # Cycle has ended, send push notification
