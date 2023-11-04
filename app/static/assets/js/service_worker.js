@@ -79,3 +79,21 @@ function registerServiceWorker(serviceWorkerUrl, applicationServerPublicKey, api
     }
     return swRegistration;
 }
+
+let deferredPrompt;
+
+self.addEventListener('beforeinstallprompt', (e) => {
+    deferredPrompt = e;
+});
+
+const installApp = document.getElementById('install-button');
+installApp.addEventListener('click', async () => {
+    console.log("Install button clicked!");
+    if (deferredPrompt !== null) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            deferredPrompt = null;
+        }
+    }
+});
