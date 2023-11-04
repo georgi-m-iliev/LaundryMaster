@@ -60,6 +60,7 @@ function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, 
 }
 
 function registerServiceWorker(serviceWorkerUrl, applicationServerPublicKey, apiEndpoint, user_id) {
+    console.log("Register service worker called!");
     let swRegistration = null;
     if ('serviceWorker' in navigator && 'PushManager' in window) {
         console.log('Service Worker and Push is supported');
@@ -79,21 +80,3 @@ function registerServiceWorker(serviceWorkerUrl, applicationServerPublicKey, api
     }
     return swRegistration;
 }
-
-let deferredPrompt;
-
-self.addEventListener('beforeinstallprompt', (e) => {
-    deferredPrompt = e;
-});
-
-const installApp = document.getElementById('install-button');
-installApp.addEventListener('click', async () => {
-    console.log("Install button clicked!");
-    if (deferredPrompt !== null) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            deferredPrompt = null;
-        }
-    }
-});
