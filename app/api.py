@@ -8,7 +8,7 @@ from app.db import db
 from app.auth import user_datastore
 
 from app.models import User, WashingMachine, PushSubscription, UserSettings
-from app.functions import send_push_to_all, send_push_to_user, get_realtime_energy_consumption
+from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
 
 api = Blueprint('api', __name__)
 
@@ -97,4 +97,4 @@ def trigger_push_by_id(user_id: int):
 @api.route('/washing_machine/current_energy_consumption', methods=['GET'])
 @login_required
 def current_energy_consumption():
-    return {'value': get_realtime_energy_consumption()}
+    return {'value': get_realtime_current_usage()}

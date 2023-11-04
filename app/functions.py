@@ -36,6 +36,8 @@ def stop_cycle(user: User):
         cycle.endkwh = WashingMachine.query.first().currentkwh
         cycle.end_timestamp = db.func.current_timestamp()
         cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
+        if cycle.cost == 0:
+            db.session.delete(cycle)
         db.session.commit()
     else:
         # TODO: No cycle belonging to current user was found, display error
@@ -123,7 +125,7 @@ def calculate_savings(user: User) -> decimal:
     return result
 
 
-def calculate_running_time() -> str:
+def get_running_time() -> str:
     """Calculate the running time of the current cycle."""
     cycle: WashingCycle = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_(None)
@@ -241,7 +243,7 @@ def trigger_relay(mode: str):
 
 
 def get_energy_consumption():
-    """ Queries Shelly Cloud API for energy consumption data in Watt-minute and return in kWatt-hour """
+    """ Queries Shelly Cloud API for energy consumption data in Watt-minute and return in kWatt-hour."""
     consumption = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -257,8 +259,8 @@ def get_energy_consumption():
     return consumption.json()['data']['device_status']['meters'][0]['total'] / 60000
 
 
-def get_realtime_energy_consumption():
-    """ Queries Shelly Cloud API for energy consumption data in Watt and return in kWatt """
+def get_realtime_current_usage():
+    """ Queries Shelly Cloud API for current usage data in Watt."""
     consumption = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -268,7 +270,6 @@ def get_realtime_energy_consumption():
     )
 
     if consumption.status_code != 200:
-        raise Exception('Failed to get power consumption data from Shelly Cloud API')
         current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
         raise Exception('Failed to get current usage data from Shelly Cloud API')
 

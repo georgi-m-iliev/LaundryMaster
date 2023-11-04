@@ -5,7 +5,7 @@ from celery import Celery, Task, shared_task
 from celery.schedules import crontab
 
 from app.models import User, WashingMachine
-from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_energy_consumption
+from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -35,11 +35,11 @@ def watch_usage(user_id: int, terminate_cycle: bool):
     time.sleep(10 * 60)
     counter = 0
     while True:
-        usage = get_realtime_energy_consumption()
+        usage = get_realtime_current_usage()
         if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
             # Usage is under threshold, start cycle end detection
             while True:
-                usage = get_realtime_energy_consumption()
+                usage = get_realtime_current_usage()
                 if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                     # Usage has gone over threshold, cycle hasn't ended
                     counter = 0

@@ -1,6 +1,6 @@
 import datetime, json
 
-from flask import Blueprint, render_template, request, redirect, session, flash
+from flask import current_app, Blueprint, render_template, request, redirect, session, flash
 from flask_security import login_required, user_authenticated, current_user, hash_password
 
 from app.db import db
@@ -54,7 +54,7 @@ def index():
         'index.html',
         is_dashboard=True,
         cycle_data=update_cycle(current_user),
-        stopwatch=calculate_running_time(),
+        stopwatch=get_running_time(),
         total_cost=calculate_charges(current_user),
         total_usage=calculate_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
@@ -136,8 +136,8 @@ def washing_machine():
         'washing-machine.html',
         is_washer=True,
         cycle_data=update_cycle(current_user),
-        stopwatch=calculate_running_time(),
-        current_usage=get_realtime_energy_consumption(),
+        stopwatch=get_running_time(),
+        current_usage=get_realtime_current_usage(),
         candy_user=os.getenv('CANDY_USER'),
         candy_password=os.getenv('CANDY_PASSWORD')
     )
