@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask, send_from_directory, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -12,12 +14,14 @@ from app.api import api
 
 
 def create_app():
-    app = Flask(__name__, instance_relative_config=True)
 
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_prefixed_env()
 
-    test_config = None
+    if not app.debug:
+        logging.basicConfig(filename='latest.log', level=logging.INFO)
 
+    test_config = None
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)

@@ -10,11 +10,13 @@ from app.models import User, WashingCycle, WashingMachine, PushSubscription
 def start_cycle(user: User):
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # TODO: Cycle already running, display error
+        current_app.logger.warning(f"User {user.username} tried to start a cycle, but one was already active.")
         pass
     else:
         # No cycle running, create new cycle
         if trigger_relay('on') != 200:
             # TODO: Handle error
+            current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
             raise Exception('Failed to trigger relay on Shelly Cloud API')
         update_energy_consumption()
         new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
@@ -28,6 +30,7 @@ def stop_cycle(user: User):
         # Cycle belonging to current user was found, stopping it
         if trigger_relay('off') != 200:
             # TODO: Handle error
+            current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
             raise Exception('Failed to trigger relay on Shelly Cloud API')
         update_energy_consumption()
         cycle.endkwh = WashingMachine.query.first().currentkwh
@@ -36,6 +39,7 @@ def stop_cycle(user: User):
         db.session.commit()
     else:
         # TODO: No cycle belonging to current user was found, display error
+        current_app.logger.warning(f"User {user.username} tried to stop a cycle, but they didn't start one.")
         pass
 
 
@@ -206,6 +210,7 @@ def trigger_push_notification(push_subscription, title, body):
         )
         return response.ok
     except WebPushException as ex:
+        current_app.logger.error('Error trying to send notification.')
         if ex.response and ex.response.json():
             extra = ex.response.json()
             print("Remote service replied with a {}:{}, {}", extra.code, extra.errno, extra.message)
@@ -246,6 +251,7 @@ def get_energy_consumption():
     )
 
     if consumption.status_code != 200:
+        current_app.logger.error('Failed to get power consumption data from Shelly Cloud API')
         raise Exception('Failed to get power consumption data from Shelly Cloud API')
 
     return consumption.json()['data']['device_status']['meters'][0]['total'] / 60000
@@ -263,6 +269,8 @@ def get_realtime_energy_consumption():
 
     if consumption.status_code != 200:
         raise Exception('Failed to get power consumption data from Shelly Cloud API')
+        current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
+        raise Exception('Failed to get current usage data from Shelly Cloud API')
 
     return consumption.json()['data']['device_status']['meters'][0]['power']
 
