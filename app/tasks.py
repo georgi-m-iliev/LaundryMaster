@@ -31,6 +31,8 @@ def celery_init_app(app: Flask) -> Celery:
 @shared_task(ignore_result=False)
 def watch_usage(user_id: int, terminate_cycle: bool):
     print("Starting task...")
+    # Give a time window of 10 minutes to start a washing cycle
+    time.sleep(10 * 60)
     counter = 0
     while True:
         usage = get_realtime_energy_consumption()
