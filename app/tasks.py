@@ -55,7 +55,7 @@ def watch_usage(user_id: int, terminate_cycle: bool):
         time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60))
 
     # Cycle has ended, send push notification
-    send_push_to_user(user_id, "Your cycle has ended!", "Go pick you laundry!")
+    send_push_to_user(user_id, "Your cycle has ended!", "Go pick your laundry!")
 
     if terminate_cycle:
         # Terminate cycle if enabled in settings
