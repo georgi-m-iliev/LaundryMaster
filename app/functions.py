@@ -1,6 +1,7 @@
 import os, decimal, datetime, json, math, requests
+from requests.exceptions import RequestException
 
-from flask import session, current_app
+from flask import session, current_app, flash
 from pywebpush import webpush, WebPushException
 
 from app.db import db
@@ -9,53 +10,60 @@ from app.models import User, WashingCycle, WashingMachine, PushSubscription
 
 def start_cycle(user: User):
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
-        # TODO: Cycle already running, display error
-        current_app.logger.warning(f"User {user.username} tried to start a cycle, but one was already active.")
-        pass
+        current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
+        flash(message='You already have a cycle running!', category='toast-warning')
     else:
         # No cycle running, create new cycle
+        current_app.logger.info(f'User {user.username} is starting a new cycle.')
         if trigger_relay('on') != 200:
-            # TODO: Handle error
             current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
-            raise Exception('Failed to trigger relay on Shelly Cloud API')
-        update_energy_consumption()
-        new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
-        db.session.add(new_cycle)
-        db.session.commit()
+            flash('Request to turn on the relay failed!\nPlease try again!', category='toast-error')
+            return
+        try:
+            update_energy_consumption()
+            new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
+            db.session.add(new_cycle)
+            db.session.commit()
+            current_app.logger.info(f'User {user.username} successfully started a new cycle.')
+            flash('Cycle successfully started!', category='toast-success')
+        except RequestException:
+            current_app.logger.error(f'Error with initialising a cycle for user {user.username}.')
+            flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
 
 
 def stop_cycle(user: User):
     cycle: WashingCycle = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first()
     if cycle:
         # Cycle belonging to current user was found, stopping it
+        current_app.logger.info(f'User {user.username} is stopping their cycle.')
         if trigger_relay('off') != 200:
-            # TODO: Handle error
             current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
-            raise Exception('Failed to trigger relay on Shelly Cloud API')
-        update_energy_consumption()
-        cycle.endkwh = WashingMachine.query.first().currentkwh
-        cycle.end_timestamp = db.func.current_timestamp()
-        cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
-        if cycle.cost == 0:
-            db.session.delete(cycle)
-        db.session.commit()
+            flash('Request to turn off the relay failed!\nPlease try again!', category='toast-error')
+            return
+        try:
+            update_energy_consumption()
+            cycle.endkwh = WashingMachine.query.first().currentkwh
+            cycle.end_timestamp = db.func.current_timestamp()
+            cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
+            if cycle.cost == 0:
+                db.session.delete(cycle)
+            db.session.commit()
+            current_app.logger.info(f'User {user.username} successfully stopped their cycle.')
+            flash('Cycle successfully terminated!', category='toast-success')
+        except RequestException:
+            current_app.logger.error(f'Error with terminating a cycle for user {user.username}.')
+            flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
     else:
-        # TODO: No cycle belonging to current user was found, display error
-        current_app.logger.warning(f"User {user.username} tried to stop a cycle, but they didn't start one.")
-        pass
+        current_app.logger.error(f"User {user.username} tried to stop a cycle, but they didn't start one.")
+        flash('You do not have a running cycle!', category='toast-warning')
 
 
 def update_cycle(user: User):
     cycle = WashingCycle.query.filter_by(end_timestamp=None).first()
     if cycle:
         if cycle.user_id == user.id:
-            # Current user owns the cycle
-            # session['cycle_state'] = 'running'
-            # session['cycle_id'] = cycle.id
             return {'state': 'running', 'id': cycle.id}
         else:
-            # Current user does not own the cycle
-            # session['cycle_state'] = 'unavailable'
             return {'state': 'unavailable', 'id': None}
     else:
         # session['cycle_state'] = 'available'
@@ -203,6 +211,10 @@ def get_usage_list(user: User, limit: int = 10) -> list[WashingCycle]:
 
 def trigger_push_notification(push_subscription, title, body, user=None):
     try:
+        if user:
+            current_app.logger.info(f'Sending push notification to {user.username}.')
+        else:
+            current_app.logger.info('Sending push notification to all users.')
         response = webpush(
             subscription_info=json.loads(push_subscription.subscription_json),
             data=json.dumps({"title": title, "body": body}),
@@ -211,7 +223,7 @@ def trigger_push_notification(push_subscription, title, body, user=None):
         )
         return response.ok
     except WebPushException as ex:
-        current_app.logger.error('Error trying to send notification.')
+        current_app.logger.error(f'Error trying to send notification to {user.username}.')
         if ex.response and ex.response.json():
             extra = ex.response.json()
             print("Remote service replied with a {}:{}, {}", extra.code, extra.errno, extra.message)
@@ -230,6 +242,7 @@ def send_push_to_user(user: User, title, body):
 
 def trigger_relay(mode: str):
     """Enable the relay on the Shelly device."""
+    current_app.logger.info(f'Triggering relay through Shelly API to be {mode}.')
     response = requests.post(
         url='{}/device/relay/control'.format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         data={
@@ -253,7 +266,7 @@ def get_energy_consumption():
 
     if consumption.status_code != 200:
         current_app.logger.error('Failed to get power consumption data from Shelly Cloud API')
-        raise Exception('Failed to get power consumption data from Shelly Cloud API')
+        raise RequestException('Failed to get power consumption data from Shelly Cloud API')
 
     return consumption.json()['data']['device_status']['meters'][0]['total'] / 60000
 
@@ -270,7 +283,7 @@ def get_realtime_current_usage():
 
     if consumption.status_code != 200:
         current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
-        raise Exception('Failed to get current usage data from Shelly Cloud API')
+        raise RequestException('Failed to get current usage data from Shelly Cloud API')
 
     return consumption.json()['data']['device_status']['meters'][0]['power']
 
