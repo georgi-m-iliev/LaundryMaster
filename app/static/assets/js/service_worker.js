@@ -37,7 +37,6 @@ function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, 
     })
         .then(function (subscription) {
             console.log('User is subscribed.');
-
             return updateSubscriptionOnServer(subscription, apiEndpoint, user_id);
 
         })
@@ -48,14 +47,12 @@ function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, 
             return response.json();
         })
         .then(function (responseData) {
-            console.log(responseData);
             if (responseData.status !== "success") {
                 throw new Error('Bad response from server.');
             }
         })
         .catch(function (err) {
             console.log('Failed to subscribe the user: ', err);
-            console.log(err.stack);
         });
 }
 
@@ -69,7 +66,6 @@ function registerServiceWorker(serviceWorkerUrl, applicationServerPublicKey, api
             .then(function (swReg) {
                 console.log('Service Worker is registered', swReg);
                 subscribeUser(swReg, applicationServerPublicKey, apiEndpoint, user_id);
-
                 swRegistration = swReg;
             })
             .catch(function (error) {

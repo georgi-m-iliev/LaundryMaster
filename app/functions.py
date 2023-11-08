@@ -180,7 +180,6 @@ def get_unpaid_list(user: User) -> list[WashingCycle]:
         WashingCycle.paid.is_(False)
     ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).all()
 
-    # result = list()
     for cycle in cycles:
         cycle.start_timestamp_formatted = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
         cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
@@ -202,7 +201,7 @@ def get_usage_list(user: User, limit: int = 10) -> list[WashingCycle]:
     return cycles
 
 
-def trigger_push_notification(push_subscription, title, body):
+def trigger_push_notification(push_subscription, title, body, user=None):
     try:
         response = webpush(
             subscription_info=json.loads(push_subscription.subscription_json),
@@ -224,9 +223,9 @@ def send_push_to_all(title, body):
     return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]
 
 
-def send_push_to_user(user_id: int, title, body):
-    subscriptions = PushSubscription.query.filter_by(user_id=user_id).all()
-    return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]
+def send_push_to_user(user: User, title, body):
+    subscriptions = PushSubscription.query.filter_by(user_id=user.id).all()
+    return [trigger_push_notification(subscription, title, body, user) for subscription in subscriptions]
 
 
 def trigger_relay(mode: str):

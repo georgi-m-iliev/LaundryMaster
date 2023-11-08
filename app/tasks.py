@@ -33,7 +33,12 @@ def watch_usage(user_id: int, terminate_cycle: bool):
     print("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
+    user = User.query.filter_by(id=user_id).first()
     counter = 0
+    # TODO: Make it smarter, first wait for increase in usage
+    # TODO: if no increase is detected, notify for something wrong
+    # TODO: If increase is detected, wait for decrease in usage
+
     while True:
         usage = get_realtime_current_usage()
         if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
@@ -55,11 +60,11 @@ def watch_usage(user_id: int, terminate_cycle: bool):
         time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60))
 
     # Cycle has ended, send push notification
-    send_push_to_user(user_id, "Your cycle has ended!", "Go pick your laundry!")
+    send_push_to_user(user, "Your cycle has ended!", "Go pick your laundry!")
 
     if terminate_cycle:
         # Terminate cycle if enabled in settings
-        stop_cycle(User.query.get(user_id))
+        stop_cycle(user)
 
     print("Ending task....")
 

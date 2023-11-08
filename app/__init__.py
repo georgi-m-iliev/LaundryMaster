@@ -14,12 +14,16 @@ from app.api import api
 
 
 def create_app():
-
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_prefixed_env()
 
     if not app.debug:
-        logging.basicConfig(filename='latest.log', level=logging.INFO)
+        logging.basicConfig(
+            filename='latest.log',
+            format='%(asctime)s %(levelname)-8s %(message)s',
+            level=logging.INFO,
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
 
     test_config = None
     if test_config is None:

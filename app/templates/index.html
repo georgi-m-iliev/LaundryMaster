@@ -36,6 +36,7 @@
                                         <i class="fas fa-clock fa-2x text-warning"></i>
                                         <span id="time-elapsed" class="align-self-center text-warning fw-bold" onload="initStopwatch()">{{ stopwatch }}</span>
                                     </div>
+                                    <script src="{{ url_for('static', filename='assets/js/stopwatch.js') }}"></script>
                                     {% endif %}
                                 </div>
                             </div>
@@ -224,5 +225,4 @@
             -->
         </div>
     </div>
-    <script src="{{ url_for('static', filename='assets/js/stopwatch.js') }}"></script>
 {% endblock %}

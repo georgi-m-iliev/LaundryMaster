@@ -21,6 +21,13 @@
     <link rel="stylesheet" href={{ url_for('static', filename='assets/css/Nunito.css') }}>
     <link rel="stylesheet" href={{ url_for('static', filename='/assets/fonts/fontawesome-all.min.css') }}>
     <link rel="stylesheet" href={{ url_for('static', filename='/assets/css/untitled.css') }}>
+
+    <script src={{ url_for('static', filename='assets/js/jquery.min.js') }}></script>
+    <script src={{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}></script>
+    <script src={{ url_for('static', filename='assets/js/chart.min.js') }}></script>
+    <script src={{ url_for('static', filename='assets/js/bs-init.js') }}></script>
+    <script src={{ url_for('static', filename='assets/js/theme.js') }}></script>
+    <script src={{ url_for('static', filename='assets/js/service_worker.js') }}></script>
 </head>
 
 <body id="page-top">
@@ -176,12 +183,6 @@
     </div>
     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
 </div>
-<script src={{ url_for('static', filename='assets/js/jquery.min.js') }}></script>
-<script src={{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}></script>
-<script src={{ url_for('static', filename='assets/js/chart.min.js') }}></script>
-<script src={{ url_for('static', filename='assets/js/bs-init.js') }}></script>
-<script src={{ url_for('static', filename='assets/js/theme.js') }}></script>
-<script src={{ url_for('static', filename='assets/js/service_worker.js') }}></script>
 <script type="text/javascript">
     registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscriptions", "{{ current_user.id }}");
 </script>
