@@ -87,11 +87,17 @@ def trigger_push():
 def trigger_push_by_id(user_id: int):
     json_data = request.get_json()
     send_push_to_user(
-        user_id=user_id,
+        user=User.query.get(user_id),
         title=json_data.get('title'),
         body=json_data.get('body')
     )
     return {"status": "success"}
+
+
+@api.route('/washing_machine/running_time', methods=['GET'])
+@login_required
+def running_time():
+    return {'value': get_running_time()}
 
 
 @api.route('/washing_machine/current_energy_consumption', methods=['GET'])
