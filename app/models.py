@@ -60,6 +60,7 @@ class WashingMachine(db.Model):
     currentkwh = db.Column(db.Numeric(20, 4))
     costperkwh = db.Column(db.Numeric(10, 2))
     public_wash_cost = db.Column(db.Numeric(10, 2))
+    notification_task_id = db.Column(db.String(512))
 
 
 class LoginForm(FlaskForm):

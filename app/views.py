@@ -18,10 +18,11 @@ def handle_cycle_buttons():
     if request.method == 'POST':
         if request.form.get('start_cycle') is not None:
             start_cycle(current_user)
-            watch_usage.delay(
+            WashingMachine.query.first().notification_task_id = watch_usage.delay(
                 current_user.id,
                 UserSettings.query.filter_by(user_id=current_user.id).first().terminate_cycle_on_usage
-            )
+            ).id
+            db.session.commit()
             return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)
@@ -47,7 +48,7 @@ def index():
                 idx = int(checkbox.id.split('-')[1])
                 unpaid_cycles[idx].paid = True
                 db.session.commit()
-            # flash('Selected cycles were marked as paid', 'success')
+        # flash('Selected cycles were marked as paid', 'success')
         return redirect(request.path)
 
     return render_template(

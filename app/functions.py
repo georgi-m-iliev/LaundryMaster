@@ -2,6 +2,7 @@ import os, decimal, datetime, json, math, requests
 from requests.exceptions import RequestException
 
 from flask import session, current_app, flash
+from celery.result import AsyncResult
 from pywebpush import webpush, WebPushException
 
 from app.db import db
@@ -10,15 +11,18 @@ from app.models import User, WashingCycle, WashingMachine, PushSubscription
 
 def start_cycle(user: User):
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
+        # User has an already running cycle
         current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
         flash(message='You already have a cycle running!', category='toast-warning')
     else:
         # No cycle running, create new cycle
         current_app.logger.info(f'User {user.username} is starting a new cycle.')
+
         if trigger_relay('on') != 200:
             current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
             flash('Request to turn on the relay failed!\nPlease try again!', category='toast-error')
             return
+
         try:
             update_energy_consumption()
             new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
@@ -36,10 +40,12 @@ def stop_cycle(user: User):
     if cycle:
         # Cycle belonging to current user was found, stopping it
         current_app.logger.info(f'User {user.username} is stopping their cycle.')
+
         if trigger_relay('off') != 200:
             current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
             flash('Request to turn off the relay failed!\nPlease try again!', category='toast-error')
             return
+
         try:
             update_energy_consumption()
             cycle.endkwh = WashingMachine.query.first().currentkwh
@@ -47,6 +53,11 @@ def stop_cycle(user: User):
             cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
             if cycle.cost == 0:
                 db.session.delete(cycle)
+
+            if notification_task_id := WashingMachine.query.first().notification_task_id:
+                AsyncResult(notification_task_id).revoke(terminate=True)
+                WashingMachine.query.first().notification_task_id = None
+
             db.session.commit()
             current_app.logger.info(f'User {user.username} successfully stopped their cycle.')
             flash('Cycle successfully terminated!', category='toast-success')
