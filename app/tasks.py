@@ -33,31 +33,36 @@ def watch_usage(user_id: int, terminate_cycle: bool):
     print("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
-    user = User.query.filter_by(id=user_id).first()
-    counter = 0
-    # TODO: Make it smarter, first wait for increase in usage
-    # TODO: if no increase is detected, notify for something wrong
-    # TODO: If increase is detected, wait for decrease in usage
 
+    # When using celery we must provide the bare minimum of required data,
+    # so we fetch the user by the id provided
+    user = User.query.filter_by(id=user_id).first()
+
+    # Wait until usage is over threshold
+    while True:
+        usage = get_realtime_current_usage()
+        if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
+            break
+        time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
+
+    # Usage is over threshold, monitor it until it falls under threshold
+    counter = 0
     while True:
         usage = get_realtime_current_usage()
         if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
             # Usage is under threshold, start cycle end detection
-            while True:
+            while counter < 10:
                 usage = get_realtime_current_usage()
                 if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                     # Usage has gone over threshold, cycle hasn't ended
                     counter = 0
                     break
-                if counter == 10:
-                    # Usage has been under threshold for 5 minutes Cycle has ended
-                    break
                 counter += 1
-                time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60) / 2)
+                time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
         if counter == 10:
-            # Cycle has ended
+            # Usage has been under threshold for 5 minutes, cycle has probably ended
             break
-        time.sleep(os.getenv("CYCLE_CHECK_INTERVAL", 60))
+        time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)))
 
     # Cycle has ended, send push notification
     send_push_to_user(user, "Your cycle has ended!", "Go pick your laundry!")
