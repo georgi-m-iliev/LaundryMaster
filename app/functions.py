@@ -51,7 +51,11 @@ def stop_cycle(user: User):
             current_app.logger.info(f'User {user.username} successfully stopped their cycle.')
             flash('Cycle successfully terminated!', category='toast-success')
         except RequestException:
-            current_app.logger.error(f'Error with terminating a cycle for user {user.username}.')
+            current_app.logger.error(
+                f'Error with terminating a cycle for user {user.username} due to failure of energy consumption update.')
+            flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
+        except Exception as e:
+            current_app.logger.error(f'Error with terminating a cycle for user {user.username}. {e.__str__()}')
             flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
     else:
         current_app.logger.error(f"User {user.username} tried to stop a cycle, but they didn't start one.")
