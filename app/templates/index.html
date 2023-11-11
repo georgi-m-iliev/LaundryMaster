@@ -16,7 +16,7 @@
                 {#              <label class="px-3 d-none d-md-inline-block">Washing</label>#}
                                 <img class="w-auto rounded-4 align-self-center mx-auto" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
                                 <div class="d-flex flex-column gap-3 m-auto">
-                                    <form method="POST" class="w-auto align-self-center center mx-auto">
+                                    <form method="POST" class="w-auto align-self-center mx-auto">
                                         {% if cycle_data['state'] == 'running' %}
                                         <button type="submit" name="stop_cycle" class="btn btn-danger">
                                             <i class="fas fa-solid fa-stop"></i>
@@ -31,6 +31,14 @@
                                         <p class="text-warning text-break m-0">Washing Machine is busy!</p>
                                         {% endif %}
                                     </form>
+                                    {% if cycle_data['state'] == 'available' %}
+                                    <form method="POST" class="w-auto align-self-center mx-auto">
+                                        <button type="submit" name="release_door" class="btn text-light btn-info">
+                                            <i class="fas fa-solid fa-lock-open"></i>
+                                            Open door
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     {% if stopwatch != "None" %}
                                     <div class="d-flex gap-2 m-auto">
                                         <i class="fas fa-clock fa-2x text-warning"></i>

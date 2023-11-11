@@ -6,7 +6,7 @@ from flask_security import login_required, user_authenticated, current_user, has
 from app.db import db
 from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm, UserSettings, EditSettingsForm
 from app.functions import *
-from app.tasks import watch_usage_and_notify_cycle_end
+from app.tasks import watch_usage_and_notify_cycle_end, release_door
 
 
 views = Blueprint('views', __name__)
@@ -23,12 +23,15 @@ def handle_cycle_buttons():
                 UserSettings.query.filter_by(user_id=current_user.id).first().terminate_cycle_on_usage
             ).id
             db.session.commit()
-            return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)
-            return redirect(request.path)
+        elif request.form.get('release_door') is not None:
+            release_door.delay(current_user.username)
+            flash('Powering the machine for 30 seconds!', category='toast-info')
+
         else:
             pass
+        return redirect(request.path)
 
 
 @views.route('/', methods=['GET', 'POST'])

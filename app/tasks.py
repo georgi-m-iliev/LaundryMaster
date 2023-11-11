@@ -3,11 +3,11 @@ import time
 import logging
 
 from flask import Flask
-from celery import Celery, Task, shared_task
+from celery import Celery, Task, shared_task, current_app
 from celery.schedules import crontab
 
 from app.models import User, WashingMachine
-from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage
+from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage, trigger_relay
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -87,3 +87,21 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
 @shared_task(name="update_energy_consumption")
 def update_energy_consumption_task():
     update_energy_consumption()
+
+
+@shared_task(ignore_result=True)
+def release_door(user_username: str):
+    current_app.logger.info(f"Starting task to release the door for {user_username}...")
+
+    current_app.logger.info("Sending request to turn on the relay through Shelly Cloud API...")
+    if trigger_relay('on') != 200:
+        current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
+        return
+    current_app.logger.info("Washing machine should be on. Waiting some time...")
+    time.sleep(30)
+
+    current_app.logger.info("Sending request to turn off the relay through Shelly Cloud API...")
+    if trigger_relay('off') != 200:
+        current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
+
+    current_app.logger.info("Task to release the door ended.")

@@ -87,9 +87,11 @@
                             <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
                             {% elif cycle_data['state'] == 'available' %}
                             <button type="submit" name="start_cycle" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
+                            <button type="submit" name="release_door" class="btn text-light btn-info"><i class="fas fa-solid fa-lock-open"></i></button>
                             {% elif cycle_data['state'] == 'unavailable' %}
                             <span class="text-warning">Washing Machine is busy!</span>
                             {% endif %}
+
                         </form>
                     </div>
                     {% endif %}
