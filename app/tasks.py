@@ -1,5 +1,7 @@
 import os
 import time
+import logging
+
 from flask import Flask
 from celery import Celery, Task, shared_task
 from celery.schedules import crontab
@@ -17,6 +19,14 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app = Celery(app.name, task_cls=FlaskTask)
     celery_app.config_from_object(app.config["CELERY"])
     celery_app.set_default()
+    celery_app.conf.update(
+        task_track_started=True,
+        worker_log_format='%(asctime)s %(levelname)-8s %(message)s',
+        worker_task_log_format='%(asctime)s %(levelname)-8s - Task %(task_id)s - %(message)s',
+        worker_log_file='latest.log'  # Use the same log file as Flask
+    )
+    celery_app.logger = logging.getLogger(__name__)
+
     app.extensions["celery"] = celery_app
     app.config['CELERYBEAT_SCHEDULE'] = {
         # Executes every minute
@@ -29,7 +39,7 @@ def celery_init_app(app: Flask) -> Celery:
 
 
 @shared_task(ignore_result=False)
-def watch_usage(user_id: int, terminate_cycle: bool):
+def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     print("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
@@ -74,6 +84,6 @@ def watch_usage(user_id: int, terminate_cycle: bool):
     print("Ending task....")
 
 
-@shared_task(name="update_usage")
-def update_usage():
+@shared_task(name="update_energy_consumption")
+def update_energy_consumption_task():
     update_energy_consumption()
