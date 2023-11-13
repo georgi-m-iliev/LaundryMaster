@@ -16,35 +16,40 @@
                 {#              <label class="px-3 d-none d-md-inline-block">Washing</label>#}
                                 <img class="w-auto rounded-4 align-self-center mx-auto" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
                                 <div class="d-flex flex-column gap-3 m-auto">
+                                    {% if cycle_data['state'] == 'unavailable' %}
+                                        <div>
+                                            <p class="text-warning text-center text-break m-0">Washing Machine is busy!</p>
+                                            <p class="text-warning text-center text-break m-0">{{ cycle_data['user'] }} is using it 😊</p>
+                                        </div>
+                                    {% else %}
                                     <form method="POST" class="w-auto align-self-center mx-auto">
                                         {% if cycle_data['state'] == 'running' %}
-                                        <button type="submit" name="stop_cycle" class="btn btn-danger">
-                                            <i class="fas fa-solid fa-stop"></i>
-                                            Terminate Cycle
-                                        </button>
+                                            <button type="submit" name="stop_cycle" class="btn btn-danger">
+                                                <i class="fas fa-solid fa-stop"></i>
+                                                Terminate Cycle
+                                            </button>
                                         {% elif cycle_data['state'] == 'available' %}
-                                        <button type="submit" name="start_cycle" class="btn text-light btn-success">
-                                            <i class="fas fa-solid fa-play"></i>
-                                            Start cycle
-                                        </button>
-                                        {% elif cycle_data['state'] == 'unavailable' %}
-                                        <p class="text-warning text-break m-0">Washing Machine is busy!</p>
+                                            <button type="submit" name="start_cycle" class="btn text-light btn-success">
+                                                <i class="fas fa-solid fa-play"></i>
+                                                Start cycle
+                                            </button>
                                         {% endif %}
                                     </form>
+                                    {% endif %}
                                     {% if cycle_data['state'] == 'available' %}
-                                    <form method="POST" class="w-auto align-self-center mx-auto">
-                                        <button type="submit" name="release_door" class="btn text-light btn-info">
-                                            <i class="fas fa-solid fa-lock-open"></i>
-                                            Open door
-                                        </button>
-                                    </form>
+                                        <form method="POST" class="w-auto align-self-center mx-auto">
+                                            <button type="submit" name="release_door" class="btn text-light btn-info">
+                                                <i class="fas fa-solid fa-lock-open"></i>
+                                                Open door
+                                            </button>
+                                        </form>
                                     {% endif %}
                                     {% if stopwatch != "None" %}
-                                    <div class="d-flex gap-2 m-auto">
-                                        <i class="fas fa-clock fa-2x text-warning"></i>
-                                        <span id="time-elapsed" class="align-self-center text-warning fw-bold" onload="initStopwatch()">{{ stopwatch }}</span>
-                                    </div>
-                                    <script src="{{ url_for('static', filename='assets/js/stopwatch.js') }}"></script>
+                                        <div class="d-flex gap-2 m-auto">
+                                            <i class="fas fa-clock fa-2x text-warning"></i>
+                                            <span id="time-elapsed" class="align-self-center text-warning fw-bold" onload="initStopwatch()">{{ stopwatch }}</span>
+                                        </div>
+                                        <script src="{{ url_for('static', filename='assets/js/stopwatch.js') }}"></script>
                                     {% endif %}
                                 </div>
                             </div>

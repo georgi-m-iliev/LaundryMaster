@@ -74,14 +74,13 @@ def stop_cycle(user: User):
 
 
 def update_cycle(user: User):
-    cycle = WashingCycle.query.filter_by(end_timestamp=None).first()
+    cycle = WashingCycle.query.filter_by(end_timestamp=None).join(User).filter(WashingCycle.user_id == User.id).first()
     if cycle:
         if cycle.user_id == user.id:
             return {'state': 'running', 'id': cycle.id}
         else:
-            return {'state': 'unavailable', 'id': None}
+            return {'state': 'unavailable', 'id': None, 'user': cycle.user.first_name}
     else:
-        # session['cycle_state'] = 'available'
         return {'state': 'available', 'id': None}
 
 
