@@ -111,7 +111,7 @@ class UsageViewShowCountForm(FlaskForm):
 
 
 class UnpaidCyclesForm(FlaskForm):
-    checkboxes = FieldList(BooleanField('checkboxes', default=False), min_entries=0)
+    checkboxes = FieldList(BooleanField('checkboxes', default=False, validators=[Optional()]), min_entries=0)
     submit = SubmitField('submit')
 
 

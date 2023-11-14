@@ -23,15 +23,14 @@ def handle_cycle_buttons():
                 UserSettings.query.filter_by(user_id=current_user.id).first().terminate_cycle_on_usage
             ).id
             db.session.commit()
+            return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)
+            return redirect(request.path)
         elif request.form.get('release_door') is not None:
             release_door.delay(current_user.username)
             flash('Powering the machine for 30 seconds!', category='toast-info')
-
-        else:
-            pass
-        return redirect(request.path)
+            return redirect(request.path)
 
 
 @views.route('/', methods=['GET', 'POST'])
@@ -45,13 +44,13 @@ def index():
     for _ in range(len(unpaid_cycles)):
         unpaid_cycles_form.checkboxes.append_entry()
 
-    if unpaid_cycles_form.validate_on_submit():
+    if request.form.get('unpaid-submit') is not None and unpaid_cycles_form.validate_on_submit():
         for checkbox in unpaid_cycles_form.checkboxes:
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
                 unpaid_cycles[idx].paid = True
                 db.session.commit()
-        # flash('Selected cycles were marked as paid', 'success')
+        flash('Selected cycles were marked as paid', 'toast-success')
         return redirect(request.path)
 
     return render_template(
