@@ -44,19 +44,21 @@ self.addEventListener('push', function (event) {
     console.log('[Service Worker] Push Received.');
     const pushData = event.data.text();
     // console.log(`[Service Worker] Push received this data - "${pushData}"`);
-    let data, title, body;
+    let data, title, body, icon;
     try {
         data = JSON.parse(pushData);
         title = data.title;
         body = data.body;
+        icon = data.icon;
     } catch (e) {
         title = "Error with retrieving notification";
         body = pushData;
+        icon = null;
     }
     const options = {
         body: body,
         badge: 'static/assets/img/icons/android-chrome-192x192.png',
-        icon: 'static/assets/img/icons/cycle-done-icon.png',
+        icon: `static/assets/img/icons/${icon}`,
     };
     console.log(title, options);
 

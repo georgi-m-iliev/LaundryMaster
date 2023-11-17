@@ -223,7 +223,7 @@ def get_usage_list(user: User, limit: int = 10) -> list[WashingCycle]:
     return cycles
 
 
-def trigger_push_notification(push_subscription, title, body, user=None):
+def trigger_push_notification(push_subscription, title, body, icon=None, user=None):
     try:
         if user:
             current_app.logger.info(f'Sending push notification to {user.username}.')
@@ -231,7 +231,7 @@ def trigger_push_notification(push_subscription, title, body, user=None):
             current_app.logger.info('Sending push notification to all users.')
         response = webpush(
             subscription_info=json.loads(push_subscription.subscription_json),
-            data=json.dumps({"title": title, "body": body}),
+            data=json.dumps({"title": title, "body": body, "icon": icon}),
             vapid_private_key=current_app.config["PUSH_PRIVATE_KEY"],
             vapid_claims={"sub": "mailto:{}".format(current_app.config["PUSH_CLAIM_EMAIL"])}
         )
@@ -249,9 +249,9 @@ def send_push_to_all(title, body):
     return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]
 
 
-def send_push_to_user(user: User, title, body):
+def send_push_to_user(user: User, title, body, icon=None):
     subscriptions = PushSubscription.query.filter_by(user_id=user.id).all()
-    return [trigger_push_notification(subscription, title, body, user) for subscription in subscriptions]
+    return [trigger_push_notification(subscription, title, body, icon=icon, user=user) for subscription in subscriptions]
 
 
 def trigger_relay(mode: str):
