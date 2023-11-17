@@ -85,6 +85,21 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     if terminate_cycle:
         # Terminate cycle if enabled in settings
         stop_cycle(user)
+    else:
+        # Allowing a time window of 10 minutes to go pick up the laundry
+        print("Waiting 10 minutes before reminding user to pick up laundry...")
+        # time.sleep(10 * 60)
+
+        # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
+        for _ in range(10):
+            time.sleep(5 * 60)
+            print("Sending reminder to user...")
+            send_push_to_user(
+                user,
+                "Your cycle is still running...",
+                "Did you forget to terminate it?",
+                icon="reminder-icon.png"
+            )
 
     print("Ending task....")
 
