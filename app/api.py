@@ -9,6 +9,7 @@ from app.auth import user_datastore
 
 from app.models import User, WashingMachine, PushSubscription, UserSettings
 from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
+from app.functions import get_relay_temperature, get_relay_wifi_rssi
 
 api = Blueprint('api', __name__)
 
@@ -104,3 +105,15 @@ def running_time():
 @login_required
 def current_energy_consumption():
     return {'value': get_realtime_current_usage()}
+
+
+@api.route('/washing_machine/relay_temperature', methods=['GET'])
+@login_required
+def relay_temperature():
+    return {'value': get_relay_temperature()}
+
+
+@api.route('/washing_machine/relay_wifi_rssi', methods=['GET'])
+@login_required
+def relay_wifi_rssi():
+    return {'value': get_relay_wifi_rssi()}

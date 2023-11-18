@@ -270,7 +270,7 @@ def trigger_relay(mode: str):
 
 def get_energy_consumption():
     """ Queries Shelly Cloud API for energy consumption data in Watt-minute and return in kWatt-hour."""
-    consumption = requests.post(
+    data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -278,16 +278,16 @@ def get_energy_consumption():
         }
     )
 
-    if consumption.status_code != 200:
+    if data.status_code != 200:
         current_app.logger.error('Failed to get power consumption data from Shelly Cloud API')
         raise RequestException('Failed to get power consumption data from Shelly Cloud API')
 
-    return consumption.json()['data']['device_status']['meters'][0]['total'] / 60000
+    return data.json()['data']['device_status']['meters'][0]['total'] / 60000
 
 
 def get_realtime_current_usage():
     """ Queries Shelly Cloud API for current usage data in Watt."""
-    consumption = requests.post(
+    data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -295,11 +295,11 @@ def get_realtime_current_usage():
         }
     )
 
-    if consumption.status_code != 200:
+    if data.status_code != 200:
         current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
         raise RequestException('Failed to get current usage data from Shelly Cloud API')
 
-    return consumption.json()['data']['device_status']['meters'][0]['power']
+    return data.json()['data']['device_status']['meters'][0]['power']
 
 
 def update_energy_consumption():
@@ -307,3 +307,33 @@ def update_energy_consumption():
     washing_machine = WashingMachine.query.first()
     washing_machine.currentkwh = get_energy_consumption()
     db.session.commit()
+
+
+def get_relay_temperature():
+    data = requests.post(
+        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        params={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID')
+        }
+    )
+
+    if data.status_code != 200:
+        raise RequestException('Failed to get data from Shelly Cloud API')
+
+    return data.json()['data']['device_status']['temperature']
+
+
+def get_relay_wifi_rssi():
+    data = requests.post(
+        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        params={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID')
+        }
+    )
+
+    if data.status_code != 200:
+        raise RequestException('Failed to get data from Shelly Cloud API')
+
+    return data.json()['data']['device_status']['wifi_sta']['rssi']

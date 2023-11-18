@@ -141,6 +141,8 @@ def washing_machine():
         cycle_data=update_cycle(current_user),
         stopwatch=get_running_time(),
         current_usage=get_realtime_current_usage(),
+        relay_temperature=get_relay_temperature(),
+        relay_wifi_rssi=get_relay_wifi_rssi(),
         candy_user=os.getenv('CANDY_USER'),
         candy_password=os.getenv('CANDY_PASSWORD')
     )
