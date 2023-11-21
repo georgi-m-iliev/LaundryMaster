@@ -89,7 +89,7 @@
                     {% if request.path != '/' %}
                     <div>
                         <form method="POST">
-                            <img style="max-height: 7vh;" class="rounded-5 px-3 d-none d-md-inline-block align-middle" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
+                            <img style="max-height: 6vh;" class="rounded-5 px-3 d-none d-md-inline-block align-middle" src={{ url_for('static', filename='assets/img/washing-machine.png') }} alt="" alt="graphic">
                             {% if cycle_data['state'] == 'running' %}
                             <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
                             {% elif cycle_data['state'] == 'available' %}
@@ -98,7 +98,6 @@
                             {% elif cycle_data['state'] == 'unavailable' %}
                             <span class="text-warning">Washing Machine is busy!</span>
                             {% endif %}
-
                         </form>
                     </div>
                     {% endif %}
