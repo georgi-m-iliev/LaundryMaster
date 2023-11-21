@@ -40,6 +40,40 @@ def celery_init_app(app: Flask) -> Celery:
 
 @shared_task(ignore_result=False)
 def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
+    def wait_usage_over_threshold():
+        while True:
+            usage = get_realtime_current_usage()
+            if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
+                break
+            time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
+
+    def watch_usage():
+        counter = 0
+        while True:
+            usage = get_realtime_current_usage()
+            if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
+                # Usage is under threshold, start cycle end detection
+                while counter < 10:
+                    usage = get_realtime_current_usage()
+                    if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
+                        # Usage has gone over threshold, cycle hasn't ended
+                        counter = 0
+                        break
+                    counter += 1
+                    time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
+            if counter == 20:
+                # Usage has been under threshold for 10 minutes, cycle has probably ended
+                break
+            time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)))
+
+        # Cycle has ended, send push notification
+        send_push_to_user(
+            user,
+            "Your cycle has ended!",
+            "Go pick your laundry!",
+            icon="cycle-done-icon.png"
+        )
+
     print("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
@@ -49,38 +83,10 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     user = User.query.filter_by(id=user_id).first()
 
     # Wait until usage is over threshold
-    while True:
-        usage = get_realtime_current_usage()
-        if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
-            break
-        time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
+    wait_usage_over_threshold()
 
     # Usage is over threshold, monitor it until it falls under threshold
-    counter = 0
-    while True:
-        usage = get_realtime_current_usage()
-        if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
-            # Usage is under threshold, start cycle end detection
-            while counter < 10:
-                usage = get_realtime_current_usage()
-                if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
-                    # Usage has gone over threshold, cycle hasn't ended
-                    counter = 0
-                    break
-                counter += 1
-                time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
-        if counter == 10:
-            # Usage has been under threshold for 5 minutes, cycle has probably ended
-            break
-        time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)))
-
-    # Cycle has ended, send push notification
-    send_push_to_user(
-        user,
-        "Your cycle has ended!",
-        "Go pick your laundry!",
-        icon="cycle-done-icon.png"
-    )
+    watch_usage()
 
     if terminate_cycle:
         # Terminate cycle if enabled in settings
@@ -91,8 +97,15 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
         # time.sleep(10 * 60)
 
         # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
-        for _ in range(10):
+        i = 0
+        while i < 10:
             time.sleep(5 * 60)
+            if get_realtime_current_usage() > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
+                # Usage is over threshold again, start detection all over again
+                watch_usage()
+                i = 0
+                continue
+
             print("Sending reminder to user...")
             send_push_to_user(
                 user,
@@ -100,6 +113,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
                 "Did you forget to terminate it?",
                 icon="reminder-icon.png"
             )
+            i += 1
 
     print("Ending task....")
 
