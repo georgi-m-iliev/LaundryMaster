@@ -1,7 +1,7 @@
 import datetime, json
 
 from flask import current_app, Blueprint, render_template, request, redirect, session, flash
-from flask_security import login_required, user_authenticated, current_user, hash_password
+from flask_security import login_required, user_authenticated, current_user, hash_password, roles_required
 
 from app.db import db
 from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm, UserSettings, EditSettingsForm
@@ -72,6 +72,7 @@ def index():
 
 @views.route('/usage', methods=['GET', 'POST'])
 @login_required
+@roles_required('user')
 def usage_view():
     select_form = UsageViewShowCountForm(items=request.args.get('items') or '10')
 
@@ -91,6 +92,7 @@ def usage_view():
 
 @views.route('/profile', methods=['GET', 'POST'])
 @login_required
+@roles_required('user')
 def profile():
     edit_form = EditProfileForm()
     settings_form = EditSettingsForm()
@@ -133,6 +135,7 @@ def profile():
 
 @views.route('/washing-machine', methods=['GET', 'POST'])
 @login_required
+@roles_required('user')
 def washing_machine():
 
     return render_template(
