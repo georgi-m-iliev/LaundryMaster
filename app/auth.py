@@ -30,7 +30,10 @@ def login():
                 db.session.commit()
                 return redirect(request.args.get('next') or '/')
             else:
-                flash("Login failed")
+                if not user.active:
+                    flash('Your account is not active!')
+                else:
+                    flash('Login failed')
         else:
             if user:
                 flash('Wrong password')
