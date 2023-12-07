@@ -41,27 +41,27 @@ def celery_init_app(app: Flask) -> Celery:
 @shared_task(ignore_result=False)
 def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     def wait_usage_over_threshold():
-        current_app.logging.info('Watching energy consumption and waiting it to get over threshold...')
+        current_app.logger.info('Watching energy consumption and waiting it to get over threshold...')
         while True:
             usage = get_realtime_current_usage()
             if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 break
             time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
-        current_app.logging.info('Usage is over threshold!')
+        current_app.logger.info('Usage is over threshold!')
 
     def watch_usage():
-        current_app.logging.info('Watching energy consumption and waiting it to get under threshold...')
+        current_app.logger.info('Watching energy consumption and waiting it to get under threshold...')
         counter = 0
         while True:
             usage = get_realtime_current_usage()
             if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 # Usage is under threshold, start cycle end detection
                 while counter < 10:
-                    current_app.logging.info('Usage under threshold, checking if it stays under...')
+                    current_app.logger.info('Usage under threshold, checking if it stays under...')
                     usage = get_realtime_current_usage()
                     if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                         # Usage has gone over threshold, cycle hasn't ended
-                        current_app.logging.info9('Usage went over threshold, cycle has not ended yet.')
+                        current_app.logger.info9('Usage went over threshold, cycle has not ended yet.')
                         counter = 0
                         break
                     counter += 1
@@ -70,7 +70,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
                 # Usage has been under threshold for 10 minutes, cycle has probably ended
                 break
             time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)))
-        current_app.logging.info('Usage is under threshold for enough time and cycle should be completed!')
+        current_app.logger.info('Usage is under threshold for enough time and cycle should be completed!')
 
         # Cycle has ended, send push notification
         send_push_to_user(
@@ -83,7 +83,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     print("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
-    current_app.logging.info("Grace period for starting the program ended.")
+    current_app.logger.info("Grace period for starting the program ended.")
 
     # When using celery we must provide the bare minimum of required data,
     # so we fetch the user by the id provided
@@ -107,13 +107,13 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
         )
     else:
         # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
-        current_app.logging.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
+        current_app.logger.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
         i = 0
         while i < 10:
             time.sleep(5 * 60)
             if get_realtime_current_usage() > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 # Usage is over threshold again, start detection all over again
-                current_app.logging.warning('Usage went over threshold again, starting detection all over again.')
+                current_app.logger.warning('Usage went over threshold again, starting detection all over again.')
                 watch_usage()
                 i = 0
                 continue
