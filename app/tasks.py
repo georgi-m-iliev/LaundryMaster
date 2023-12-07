@@ -41,22 +41,27 @@ def celery_init_app(app: Flask) -> Celery:
 @shared_task(ignore_result=False)
 def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     def wait_usage_over_threshold():
+        current_app.logging.info('Watching energy consumption and waiting it to get over threshold...')
         while True:
             usage = get_realtime_current_usage()
             if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 break
             time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
+        current_app.logging.info('Usage is over threshold!')
 
     def watch_usage():
+        current_app.logging.info('Watching energy consumption and waiting it to get under threshold...')
         counter = 0
         while True:
             usage = get_realtime_current_usage()
             if usage < int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 # Usage is under threshold, start cycle end detection
                 while counter < 10:
+                    current_app.logging.info('Usage under threshold, checking if it stays under...')
                     usage = get_realtime_current_usage()
                     if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                         # Usage has gone over threshold, cycle hasn't ended
+                        current_app.logging.info9('Usage went over threshold, cycle has not ended yet.')
                         counter = 0
                         break
                     counter += 1
@@ -65,6 +70,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
                 # Usage has been under threshold for 10 minutes, cycle has probably ended
                 break
             time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)))
+        current_app.logging.info('Usage is under threshold for enough time and cycle should be completed!')
 
         # Cycle has ended, send push notification
         send_push_to_user(
@@ -77,6 +83,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     print("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
+    current_app.logging.info("Grace period for starting the program ended.")
 
     # When using celery we must provide the bare minimum of required data,
     # so we fetch the user by the id provided
@@ -91,17 +98,22 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
     if terminate_cycle:
         # Terminate cycle if enabled in settings
         stop_cycle(user)
+        print("Sending reminder to user...")
+        send_push_to_user(
+            user,
+            "Your cycle is still running...",
+            "Did you forget to terminate it?",
+            icon="reminder-icon.png"
+        )
     else:
-        # Allowing a time window of 10 minutes to go pick up the laundry
-        print("Waiting 10 minutes before reminding user to pick up laundry...")
-        # time.sleep(10 * 60)
-
         # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
+        current_app.logging.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
         i = 0
         while i < 10:
             time.sleep(5 * 60)
             if get_realtime_current_usage() > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                 # Usage is over threshold again, start detection all over again
+                current_app.logging.warning('Usage went over threshold again, starting detection all over again.')
                 watch_usage()
                 i = 0
                 continue
@@ -128,14 +140,26 @@ def release_door(user_username: str):
     current_app.logger.info(f"Starting task to release the door for {user_username}...")
 
     current_app.logger.info("Sending request to turn on the relay through Shelly Cloud API...")
-    if trigger_relay('on') != 200:
-        current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
-        return
+    counter = 0
+    while trigger_relay('on') != 200:
+        current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED! Retrying...")
+        if counter == 10:
+            current_app.logger.warning("Tried to turn on the relay 10 times. Failed :(")
+            return
+        time.sleep(2)
+        counter += 1
+
     current_app.logger.info("Washing machine should be on. Waiting some time...")
     time.sleep(30)
 
     current_app.logger.info("Sending request to turn off the relay through Shelly Cloud API...")
-    if trigger_relay('off') != 200:
-        current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
+    counter = 0
+    while trigger_relay('off') != 200:
+        current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED! Trying again...")
+        if counter == 10:
+            current_app.logger.warning("Tried to turn off the relay 10 times. Failed :(")
+            return
+        time.sleep(2)
+        counter += 1
 
     current_app.logger.info("Task to release the door ended.")
