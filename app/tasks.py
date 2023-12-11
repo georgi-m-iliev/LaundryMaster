@@ -66,10 +66,11 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
                         break
                     counter += 1
                     time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)) / 2)
-            if counter == 20:
-                # Usage has been under threshold for 10 minutes, cycle has probably ended
-                break
+                if counter == 10:
+                    # Usage has been under threshold for 5 minutes and hadn't gone over, cycle has probably ended
+                    break
             time.sleep(int(os.getenv("CYCLE_CHECK_INTERVAL", 60)))
+
         current_app.logger.info('Usage is under threshold for enough time and cycle should be completed!')
 
         # Cycle has ended, send push notification
