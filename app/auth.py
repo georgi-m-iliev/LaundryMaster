@@ -40,7 +40,7 @@ def login():
             else:
                 flash('User does not exist')
 
-    return render_template('login.html', form=form)
+    return render_template('auth/login.html', form=form)
 
 
 @auth.route('/logout')
@@ -89,4 +89,4 @@ def password_reset():
                 login_user(user, authn_via=['email'])
                 db.session.commit()
                 return redirect('/')
-    return render_template('password_reset.html', form=form)
+    return render_template('auth/password_reset.html', form=form)

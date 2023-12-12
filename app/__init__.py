@@ -11,6 +11,7 @@ from app.tasks import celery_init_app
 from app.auth import auth, user_datastore, security, mail
 from app.views import views
 from app.api import api
+from app.admin import admin
 
 
 def create_app():
@@ -36,6 +37,7 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(api, url_prefix='/api')
+    app.register_blueprint(admin, url_prefix='/admin')
 
     @app.route('/manifest.json')
     def manifest():
