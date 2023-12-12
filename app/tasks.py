@@ -61,7 +61,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
                     usage = get_realtime_current_usage()
                     if usage > int(os.getenv('WASHING_MACHINE_WATT_THRESHOLD')):
                         # Usage has gone over threshold, cycle hasn't ended
-                        current_app.logger.info9('Usage went over threshold, cycle has not ended yet.')
+                        current_app.logger.info('Usage went over threshold, cycle has not ended yet.')
                         counter = 0
                         break
                     counter += 1
