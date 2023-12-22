@@ -3,6 +3,7 @@ import os, json
 from flask import Blueprint, request
 from flask_security import login_required
 from flask_security.utils import hash_password
+from flask_sock import Sock
 
 from app.db import db
 from app.auth import user_datastore
@@ -12,6 +13,7 @@ from app.functions import send_push_to_all, send_push_to_user, get_realtime_curr
 from app.functions import get_relay_temperature, get_relay_wifi_rssi
 
 api = Blueprint('api', __name__)
+sock = Sock()
 
 
 @api.route('/')

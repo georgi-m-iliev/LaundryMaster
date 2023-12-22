@@ -10,7 +10,7 @@ from app.tasks import celery_init_app
 
 from app.auth import auth, user_datastore, security, mail
 from app.views import views
-from app.api import api
+from app.api import api, sock
 from app.admin import admin
 
 
@@ -64,5 +64,7 @@ def create_app():
         ),
     )
     celery_init_app(app)
+
+    sock.init_app(app)
 
     return app
