@@ -155,7 +155,7 @@ def get_running_time() -> str:
     if cycle is not None:
         return str(datetime.datetime.now(datetime.timezone.utc) - cycle.start_timestamp).split('.')[0].zfill(8)
     else:
-        return "None"
+        return '00:00:00'
 
 
 def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
@@ -337,3 +337,30 @@ def get_relay_wifi_rssi():
         raise RequestException('Failed to get data from Shelly Cloud API')
 
     return data.json()['data']['device_status']['wifi_sta']['rssi']
+
+
+def get_washer_info():
+    """ Returns a dict with washing machine information """
+
+    shelly_request = requests.post(
+        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        params={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID')
+        }
+    )
+
+    if shelly_request.status_code != 200:
+        current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
+        raise RequestException('Failed to get current usage data from Shelly Cloud API')
+
+    shelly_data = shelly_request.json()
+
+    result = {
+        "running_time": get_running_time(),
+        "current_usage": shelly_data['data']['device_status']['meters'][0]['power'],
+        "relay_temperature": shelly_data['data']['device_status']['temperature'],
+        "relay_wifi_rssi": shelly_data['data']['device_status']['wifi_sta']['rssi']
+    }
+
+    return result

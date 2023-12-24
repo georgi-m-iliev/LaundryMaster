@@ -1,4 +1,4 @@
-import os, json
+import os, json, time
 
 from flask import Blueprint, request
 from flask_security import login_required
@@ -9,7 +9,7 @@ from app.db import db
 from app.auth import user_datastore
 
 from app.models import User, WashingMachine, PushSubscription, UserSettings
-from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
+from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time, get_washer_info
 from app.functions import get_relay_temperature, get_relay_wifi_rssi
 
 api = Blueprint('api', __name__)
@@ -119,3 +119,10 @@ def relay_temperature():
 @login_required
 def relay_wifi_rssi():
     return {'value': get_relay_wifi_rssi()}
+
+
+@sock.route('/api/washing_machine_infos')
+def websocket(ws):
+    while True:
+        ws.send(json.dumps(get_washer_info()))
+        time.sleep(1)
