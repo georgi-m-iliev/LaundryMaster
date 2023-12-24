@@ -25,18 +25,22 @@
                 <div class="col-md-6 text-nowrap">
                     <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
                         <label class="form-label">Show&nbsp
-                            <!--<select class="d-inline-block form-select form-select-sm">
-                                <option value="10" selected="">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>&nbsp;-->
                             <span class="form-group d-inline-block">
                                 {{ select_form.items(id="showCountSelect", class="form-control form-select form-select-sm") }}
                             </span>
                         </label>
                     </div>
                 </div>
+
+                <script>
+                    // JavaScript code to automatically select the label based on the URL parameter
+                    document.getElementById("showCountSelect").addEventListener("change", function() {
+                        // Update the URL with the selected option as a query parameter
+                        const currentURL = new URL(window.location.href);
+                        currentURL.searchParams.set("items", this.value);
+                        window.location.href = currentURL.toString();
+                    });
+                </script>
             <!--
                 <div class="col-md-6">
                     <div class="text-md-end dataTables_filter" id="dataTable_filter"><label class="form-label"><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"></label></div>
@@ -93,6 +97,7 @@
                 </table>
             </div>
 <!---
+{# Pagination - maybe someday #}
             <div class="row">
                 <div class="col-md-6 align-self-center">
                     <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite">Showing 1 to 10 of 27</p>
@@ -113,6 +118,4 @@
         </div>
     </div>
 </div>
-
-<script src="{{ url_for('static', filename='assets/js/usage_items_count.js') }}"></script>
 {% endblock %}

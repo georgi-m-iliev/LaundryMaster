@@ -138,14 +138,16 @@ def profile():
 @roles_required('user')
 def washing_machine():
 
+    washing_machine_info = get_washer_info()
+
     return render_template(
         'washing-machine.html',
         is_washer=True,
         cycle_data=update_cycle(current_user),
-        stopwatch=get_running_time(),
-        current_usage=get_realtime_current_usage(),
-        relay_temperature=get_relay_temperature(),
-        relay_wifi_rssi=get_relay_wifi_rssi(),
+        stopwatch=washing_machine_info['running_time'],
+        current_usage=washing_machine_info['current_usage'],
+        relay_temperature=washing_machine_info['relay_temperature'],
+        relay_wifi_rssi=washing_machine_info['relay_wifi_rssi'],
         candy_user=os.getenv('CANDY_USER'),
         candy_password=os.getenv('CANDY_PASSWORD')
     )
