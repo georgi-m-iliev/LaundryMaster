@@ -30,6 +30,9 @@
                 {#scheduler.config.last_hour = 19;#}
 
                 scheduler.init('scheduler_here', new Date(), "week");
+                scheduler.plugins({
+                    tooltip: true
+                });
                 scheduler.parse('{{ schedule_requests | safe }}');
                 scheduler.config.icons_select = [
                    "icon_delete"
@@ -41,6 +44,12 @@
 
                 scheduler.renderEvent = function(container, ev) {
                     scheduler.editStop(container.id);
+                };
+
+                scheduler.templates.tooltip_text = function(start,end,ev){
+                    return "<b>Event:</b> "+ev.text+"<br/><b>Start date:</b> " +
+                    scheduler.templates.tooltip_date_format(start)+
+                    "<br/><b>End date:</b> "+scheduler.templates.tooltip_date_format(end);
                 };
             </script>
         </div>
