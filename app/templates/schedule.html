@@ -11,14 +11,18 @@
             <p class="text-primary m-0 fw-bold">Washing Requests Schedule</p>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">New Request</button>
         </div>
-        <div class="card-body">
-            <div id='scheduler_here' class='dhx_cal_container' style='width:100%; height:600px;'>
+        <div class="card-body overflow-scroll">
+            <div id="scheduler_here" class="dhx_cal_container" style="min-width:1400px; min-height:800px;">
                 <div class="dhx_cal_navline">
                     <div class="dhx_cal_date"></div>
                 </div>
+                    <div class="w-100 bg-info rounded-2 px-1 mb-3 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
+
                 <div class="dhx_cal_header"></div>
                 <div class="dhx_cal_data"></div>
             </div>
+            <div class="w-100 bg-info rounded-2 px-1 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
+
             <script>
                 scheduler.config.drag_resize = false;
                 scheduler.config.drag_move = false;
