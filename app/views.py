@@ -26,6 +26,11 @@ def handle_cycle_buttons():
                 UserSettings.query.filter_by(user_id=current_user.id).first().terminate_cycle_on_usage
             ).id
             db.session.commit()
+
+            user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
+            if user_settings.launch_candy_on_cycle_start:
+                return redirect(request.path + '?candy=true')
+
             return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)
@@ -208,8 +213,9 @@ def profile():
 
     user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
     if 'settings-submit' in request.form and settings_form.validate_on_submit():
-        print('New setting is {}'.format(settings_form.automatic_stop.data))
+        # print('New setting is {}'.format(settings_form.automatic_stop.data))
         user_settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
+        user_settings.launch_candy_on_cycle_start = settings_form.automaitc_open_candy.data
         db.session.commit()
     else:
         settings_form.automatic_stop.data = user_settings.terminate_cycle_on_usage

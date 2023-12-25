@@ -120,6 +120,29 @@
                         </form>
                     </div>
                     {% endif %}
+                    <script>
+                        const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+                        const redirectToCandy = async() => {
+                            const params = new URLSearchParams(window.location.search);
+                            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+                            if(params.has('candy') && params.get('candy') === 'true') {
+                                if (/android/i.test(userAgent)) {
+                                    console.log("Android detected! Redirecting to Candy app")
+                                    await sleep(1000);
+                                    window.location = "it.candy.simplyfi://main";
+                                }
+                                // iOS detection from: http://stackoverflow.com/a/9039885/177710
+                                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+
+                                }
+                                await sleep(1000);
+                                window.location.replace(window.location.pathname);
+                            }
+                        }
+
+                        redirectToCandy();
+                    </script>
                     <ul class="navbar-nav flex-nowrap ms-auto">
 {#                        <li class="nav-item dropdown no-arrow mx-1">#}
 {#                            <div class="nav-item dropdown no-arrow">#}

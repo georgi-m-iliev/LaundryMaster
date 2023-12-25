@@ -129,6 +129,13 @@
                                                     <strong>Automatic Cycle Stop</strong>
                                                 </label>
                                             </div>
+                                            <div class="mb-3 form-check form-switch">
+                                                {{ settings_form.automaitc_open_candy(class_="form-check-input", onchange="document.getElementById('settings-submit').click();") }}
+                                                {{ settings_form.submit(class_="d-none") }}
+                                                <label class="form-label" for="name">
+                                                    <strong>Launch simpli-Fi on cycle start</strong>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
