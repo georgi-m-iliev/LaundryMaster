@@ -160,8 +160,8 @@ def schedule():
     day_of_week = datetime.datetime.today().weekday()
 
     events = ScheduleEvent.query.filter(
-        ScheduleEvent.start_timestamp >= datetime.datetime.now() - datetime.timedelta(days=day_of_week),
-        ScheduleEvent.start_timestamp <= datetime.datetime.now() + datetime.timedelta(days=7 - day_of_week),
+        ScheduleEvent.start_timestamp >= datetime.datetime.now().date() - datetime.timedelta(days=day_of_week),
+        ScheduleEvent.start_timestamp <= datetime.datetime.now().date() + datetime.timedelta(days=7 - day_of_week),
     ).all()
 
     events_json = []
