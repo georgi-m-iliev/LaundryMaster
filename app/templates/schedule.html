@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Usage{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <h3 class="text-dark mb-4">Weekly Schedule</h3>
+    <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <p class="text-primary m-0 fw-bold">Washing Requests Schedule</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">New Request</button>
+        </div>
+        <div class="card-body">
+            <div id='scheduler_here' class='dhx_cal_container' style='width:100%; height:600px;'>
+                <div class="dhx_cal_navline">
+                    <div class="dhx_cal_date"></div>
+                </div>
+                <div class="dhx_cal_header"></div>
+                <div class="dhx_cal_data"></div>
+            </div>
+            <script>
+                scheduler.config.drag_resize = false;
+                scheduler.config.drag_move = false;
+                scheduler.config.drag_create = false;
+                scheduler.config.details_on_dblclick  = false;
+                scheduler.config.dblclick_create = false;
+                scheduler.config.edit = false;
+                scheduler.config.first_hour = 8;
+                {#scheduler.config.last_hour = 19;#}
+
+                scheduler.init('scheduler_here', new Date(), "week");
+                scheduler.parse('{{ schedule_requests | safe }}');
+                scheduler.config.icons_select = [
+                   "icon_delete"
+                ];
+
+                scheduler._click.buttons.delete = function(id){
+                   location.replace(location.pathname + "?delete=" + id);
+                };
+
+                scheduler.renderEvent = function(container, ev) {
+                    scheduler.editStop(container.id);
+                };
+            </script>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">New Washing Request</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="POST">
+                {{ schedule_request_form.csrf_token }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">When do you want to wash?</label>
+                        {{ schedule_request_form.start_timestamp(type="datetime-local", class_="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="message-text" class="col-form-label">Select what kind of cycle you'll be running!</label>
+                        {{ schedule_request_form.cycle_type(class_="form-select") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{ schedule_request_form.submit(class_="btn btn-primary", value="Send") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

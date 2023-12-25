@@ -1,10 +1,14 @@
+import os, datetime
+
 from app import db
 
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy import func
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, BooleanField, FieldList
+from wtforms import ValidationError
+from wtforms import (StringField, PasswordField, SubmitField, SelectField,
+                     BooleanField, FieldList, DateTimeLocalField, SelectMultipleField)
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 
 roles_users = db.Table(
@@ -39,6 +43,7 @@ class UserSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     terminate_cycle_on_usage = db.Column(db.Boolean(), default=False)
+    launch_candy_on_cycle_start = db.Column(db.Boolean(), default=True)
 
 
 class WashingCycle(db.Model):
@@ -74,7 +79,7 @@ class LoginForm(FlaskForm):
 
 class RequestPasswordResetForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
-    submit = SubmitField('submit')
+    submit = SubmitField('Send email')
 
 
 class PasswordResetForm(FlaskForm):
@@ -84,7 +89,7 @@ class PasswordResetForm(FlaskForm):
                                          Length(min=6, max=128),
                                          EqualTo('password', message="Passwords don't match"),
                                      ])
-    submit = SubmitField('submit')
+    submit = SubmitField('Save password')
 
 
 class EditProfileForm(FlaskForm):
@@ -103,7 +108,14 @@ class EditProfileForm(FlaskForm):
 
 class EditSettingsForm(FlaskForm):
     automatic_stop = BooleanField(default=False)
+    automaitc_open_candy = BooleanField(default=True)
     submit = SubmitField('', id='settings-submit', name='settings-submit')
+
+
+class EditRolesForm(FlaskForm):
+    roles_to_add = SelectMultipleField('roles_to_add', choices=[])
+    roles_to_remove = SelectMultipleField('roles_to_remove', choices=[])
+    submit = SubmitField('submit', id='roles-submit', name='roles-submit')
 
 
 class UsageViewShowCountForm(FlaskForm):
@@ -119,3 +131,30 @@ class PushSubscription(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     subscription_json = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+
+class ScheduleEvent(db.Model):
+    __tablename__ = 'schedule'
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
+    start_timestamp = db.Column(db.DateTime(timezone=True))
+    end_timestamp = db.Column(db.DateTime(timezone=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('User', backref=db.backref('schedule_events', lazy=True))
+
+
+class ScheduleEventRequestForm(FlaskForm):
+    start_timestamp = DateTimeLocalField('start_timestamp', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
+    cycle_type = SelectField(
+        'cycle_type',
+        choices=[('both', 'Washing & Drying'), ('wash', 'Washing'), ('dry', 'Drying')]
+    )
+    submit = SubmitField('submit')
+
+    def validate_start_timestamp(self, field):
+        if field.data < datetime.datetime.now():
+            raise ValidationError('Start time must be in the future!')
+        start_hour = int(os.getenv('SCHEDULE_MIN_HOUR', 8))
+        end_hour = int(os.getenv('SCHEDULE_MAX_HOUR', 23))
+        if field.data.hour < start_hour or field.data.hour > end_hour:
+            raise ValidationError(f'Start time must be between {start_hour} and {end_hour}')

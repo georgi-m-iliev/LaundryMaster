@@ -2,9 +2,12 @@ import datetime, json
 
 from flask import current_app, Blueprint, render_template, request, redirect, session, flash
 from flask_security import login_required, user_authenticated, current_user, hash_password, roles_required
+from sqlalchemy import or_, and_
 
 from app.db import db
-from app.models import User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm, UserSettings, EditSettingsForm
+from app.models import (User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm,
+                        UserSettings, EditSettingsForm, ScheduleEvent, ScheduleEventRequestForm)
+
 from app.functions import *
 from app.tasks import watch_usage_and_notify_cycle_end, release_door
 
@@ -87,6 +90,93 @@ def usage_view():
         cycle_data=update_cycle(current_user),
         select_form=select_form,
         usages=get_usage_list(current_user, limit)
+    )
+
+
+@views.route('/schedule', methods=['GET', 'POST'])
+@login_required
+@roles_required('user')
+def schedule():
+    schedule_request_form = ScheduleEventRequestForm()
+
+    if schedule_request_form.validate_on_submit():
+        start_timestamp = schedule_request_form.start_timestamp.data
+        duration = 0
+        if schedule_request_form.cycle_type.data == 'both':
+            duration = float(os.getenv('SCHEDULE_WASH_DRY_DURATION', 4.5))
+        elif schedule_request_form.cycle_type.data == 'wash':
+            duration = float(os.getenv('SCHEDULE_WASH_DURATION', 1.5))
+        elif schedule_request_form.cycle_type.data == 'dry':
+            duration = float(os.getenv('SCHEDULE_DRY_DURATION', 3.5))
+
+        new_event = ScheduleEvent(
+            start_timestamp=start_timestamp,
+            end_timestamp=start_timestamp + datetime.timedelta(hours=duration),
+            user_id=current_user.id
+        )
+        # overlapping_events_start = ScheduleEvent.query.filter(
+        #     new_event.start_timestamp >= ScheduleEvent.start_timestamp,
+        #     new_event.start_timestamp <= ScheduleEvent.end_timestamp
+        # ).all()
+        # overlapping_events_end = ScheduleEvent.query.filter(
+        #     new_event.end_timestamp >= ScheduleEvent.start_timestamp,
+        #     new_event.end_timestamp <= ScheduleEvent.end_timestamp
+        # ).all()
+        #
+        # overlapping_events = overlapping_events_start + overlapping_events_end
+        overlapping_events = ScheduleEvent.query.filter(
+            or_(and_(new_event.start_timestamp >= ScheduleEvent.start_timestamp,
+                     new_event.start_timestamp <= ScheduleEvent.end_timestamp),
+                and_(new_event.end_timestamp >= ScheduleEvent.start_timestamp,
+                     new_event.end_timestamp <= ScheduleEvent.end_timestamp))).all()
+        if overlapping_events:
+            flash('Timeslot is already reserved! Please request another one!', category='toast-warning')
+        else:
+            db.session.add(new_event)
+            db.session.commit()
+
+        return redirect(request.path)
+    else:
+        for field, errors in schedule_request_form.errors.items():
+            for error in errors:
+                flash(error, category='toast-error')
+
+    if request.args.get('delete'):
+        # deleting event if delete parameter is present in URL
+        event = ScheduleEvent.query.filter_by(id=request.args.get('delete')).first()
+        if event.user != current_user:
+            flash('You can only delete your own events', category='toast-error')
+        else:
+            db.session.delete(event)
+            db.session.commit()
+        return redirect(request.path)
+
+    # get events for current week
+    day_of_week = datetime.datetime.today().weekday()
+
+    events = ScheduleEvent.query.filter(
+        ScheduleEvent.start_timestamp >= datetime.datetime.now() - datetime.timedelta(days=day_of_week),
+        ScheduleEvent.start_timestamp <= datetime.datetime.now() + datetime.timedelta(days=7 - day_of_week),
+    ).all()
+
+    events_json = []
+    for event in events:
+        events_json.append({
+            'id': event.id,
+            'start_date': event.start_timestamp.strftime('%Y-%m-%d %H:%M'),
+            'end_date': event.end_timestamp.strftime('%Y-%m-%d %H:%M'),
+            'text': f'Timeslot {event.start_timestamp.strftime("%Y-%m-%d %H:%M")} - '
+                    f'{event.end_timestamp.strftime("%Y-%m-%d %H:%M")} reserved by {event.user.first_name} on '
+                    f'{event.timestamp.strftime("%Y-%m-%d %H:%M")}',
+            'color': '7fc2d1'
+        })
+
+    return render_template(
+        'schedule.html',
+        is_schedule=True,
+        cycle_data=update_cycle(current_user),
+        schedule_requests=json.dumps(events_json),
+        schedule_request_form=schedule_request_form
     )
 
 
