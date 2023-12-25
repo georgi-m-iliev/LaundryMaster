@@ -114,13 +114,19 @@ def calculate_usage(user: User) -> decimal:
     return result
 
 
-def calculate_unpaid_cycles_cost(user: User) -> decimal:
-    """Calculate the unpaid cycles for a user."""
-    unpaid: list[WashingCycle] = WashingCycle.query.filter(
-        WashingCycle.user_id == user.id,
-        WashingCycle.end_timestamp.is_not(None),
-        WashingCycle.paid.is_(False),
-    ).all()
+def calculate_unpaid_cycles_cost(user: User = None) -> decimal:
+    """Calculate the unpaid cycles for a user or at all."""
+    if user is None:
+        unpaid: list[WashingCycle] = WashingCycle.query.filter(
+            WashingCycle.end_timestamp.is_not(None),
+            WashingCycle.paid.is_(False),
+        ).all()
+    else:
+        unpaid: list[WashingCycle] = WashingCycle.query.filter(
+            WashingCycle.user_id == user.id,
+            WashingCycle.end_timestamp.is_not(None),
+            WashingCycle.paid.is_(False),
+        ).all()
 
     result: decimal = 0
     for unpaid_cycle in unpaid:

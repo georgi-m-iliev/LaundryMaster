@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <h3 class="text-dark mb-4">Monthly Schedule</h3>
+    <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <p class="text-danger m-0 fw-bold">Washing Requests Schedule</p>
+            <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">New Request</button>
+            -->
+        </div>
+        <div class="card-body overflow-scroll">
+            <div id="scheduler_here" class="dhx_cal_container" style="min-width:1400px; min-height:800px;">
+                <div class="dhx_cal_navline">
+                    <div class="dhx_cal_date"></div>
+                </div>
+                    <div class="w-100 bg-info rounded-2 px-1 mb-3 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
+
+                <div class="dhx_cal_header"></div>
+                <div class="dhx_cal_data"></div>
+            </div>
+            <div class="w-100 bg-info rounded-2 px-1 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
+
+            <script>
+                scheduler.config.drag_resize = false;
+                scheduler.config.drag_move = false;
+                scheduler.config.drag_create = false;
+                scheduler.config.details_on_dblclick  = false;
+                scheduler.config.dblclick_create = false;
+                scheduler.config.edit = false;
+                scheduler.config.first_hour = 8;
+                {#scheduler.config.last_hour = 19;#}
+
+                scheduler.init('scheduler_here', new Date(), "month");
+                scheduler.plugins({
+                    tooltip: true
+                });
+                scheduler.parse('{{ schedule_requests | safe }}');
+                scheduler.config.icons_select = [
+                   "icon_delete"
+                ];
+
+                scheduler._click.buttons.delete = function(id){
+                   location.replace(location.pathname + "?delete=" + id);
+                };
+
+                scheduler.renderEvent = function(container, ev) {
+                    scheduler.editStop(container.id);
+                };
+
+                scheduler.templates.tooltip_text = function(start,end,ev){
+                    return "<b>Event:</b> "+ev.text+"<br/><b>Start date:</b> " +
+                    scheduler.templates.tooltip_date_format(start)+
+                    "<br/><b>End date:</b> "+scheduler.templates.tooltip_date_format(end);
+                };
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}

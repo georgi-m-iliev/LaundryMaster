@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3 class="text-dark mb-4">Washing Cycles</h3>
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                <table class="table my-0" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Start kWh</th>
+                            <th>End kWh</th>
+                            <th>Used kWh</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Duration</th>
+                            <th>Cost</th>
+                            <th>Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cycle in cycles %}
+                        <tr>
+                            <td>{{ cycle.id }}</td>
+                            <td>{{ cycle.user.username }}</td>
+                            <td>{{ cycle.startkwh }}</td>
+                            <td>{{ cycle.endkwh }}</td>
+                            <td>{{ cycle.endkwh - cycle.startkwh }}</td>
+                            <td>{{ cycle.start_timestamp_formatted }}</td>
+                            <td>{{ cycle.end_timestamp_formatted }}</td>
+                            <td>{{ cycle.duration }}</td>
+                            <td>{{ cycle.cost }} lv.</td>
+                            {% if cycle.paid %}
+                            <td><i class="fa fa-check"></i></td>
+                            {% else %}
+                            <td><i class="fa fa-times"></i></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td><strong>ID</strong></td>
+                            <td><strong>User</strong></td>
+                            <td><strong>Start kWh</strong></td>
+                            <td><strong>End kWh</strong></td>
+                            <td><strong>Used kWh</strong></td>
+                            <td><strong>Start</strong></td>
+                            <td><strong>End</strong></td>
+                            <td><strong>Duration</strong></td>
+                            <td><strong>Cost</strong></td>
+                            <th>Paid</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

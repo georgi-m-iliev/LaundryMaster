@@ -1,0 +1,177 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3 class="text-dark mb-4">Users</h3>
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                <table class="table my-0" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>First Name</th>
+                            <th>Last Login</th>
+                            <th>Roles</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr id="{{ user.id }}">
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_login }}</td>
+                            <td>
+                                {% for role in user.roles %}
+                                    {{ role.name }}
+                                {% endfor %}
+                            </td>
+                            {% if user.active %}
+                            <td><i class="fa fa-check"></i></td>
+                            {% else %}
+                            <td><i class="fa fa-times"></i></td>
+                            {% endif %}
+                            <td>
+                                <button class="btn btn-outline-warning" type="button" title="Edit"
+                                        data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                        onclick="window.history.replaceState(document.html, document.pageTitle, window.location.pathname + '?user_id=' + this.parentNode.parentNode.id);">
+                                    <i class="fas fa-solid fa-user-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" type="button" title="Delete"
+                                        onclick="window.location += '?delete=' + this.parentNode.parentNode.id;">
+                                    <i class="fas fa-solid fa-eraser"></i>
+                                </button>
+                                <button class="btn btn-outline-success" type="button" title="Activate"
+                                        onclick="window.location += '?activate=' + this.parentNode.parentNode.id;">
+                                    <i class="fas fa-solid fa-play-circle"></i>
+                                </button>
+                                <button class="btn btn-outline-dark" type="button" title="Deactivate"
+                                        onclick=" window.location += '?deactivate=' + this.parentNode.parentNode.id;">
+                                    <i class="fas fa-solid fa-stop-circle"></i>
+                                </button>
+                                <button class="btn btn-outline-primary" type="button" title="Roles"
+                                        data-bs-toggle="modal" data-bs-target="#changeRolesModal"
+                                        onclick="window.history.replaceState(document.html, document.pageTitle, window.location.pathname + '?user_id=' + this.parentNode.parentNode.id);">
+                                    <i class="fas fa-solid fa-user-tag"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td><strong>ID</strong></td>
+                            <td><strong>Email</strong></td>
+                            <td><strong>Username</strong></td>
+                            <td><strong>First Name</strong></td>
+                            <td><strong>Last Login</strong></td>
+                            <td><strong>Roles</strong></td>
+                            <td><strong>Active</strong></td>
+                            <td><strong>Actions</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Edit User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <form method="POST">
+                    {{ edit_user_form.csrf_token }}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="name">
+                                <strong>Name</strong>
+                            </label>
+                            {{ edit_user_form.first_name(class_="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="email">
+                                <strong>Email</strong>
+                            </label>
+                            {{ edit_user_form.email(class_="form-control", **{'autocomplete': 'off'}) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="username">
+                                <strong>Username</strong>
+                            </label>
+                            {{ edit_user_form.username(class_="form-control", **{'autocomplete': 'off'}) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="password">
+                                <strong>Password</strong>
+                            </label>
+                            {{ edit_user_form.password(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="password_confirm">
+                                <strong>Confirm Password</strong>
+                            </label>
+                            {{ edit_user_form.password_confirm(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {{ edit_user_form.submit(class_="btn btn-warning", value="Edit") }}
+                    </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changeRolesModal" tabindex="-1" aria-labelledby="changeRolesModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Role Change</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {{ edit_roles_form.csrf_token }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <span class="fw-bold">Currently available roles:</span>
+                        <em class="fw-bold text-warning">{{ roles }}</em>
+                    </div>
+                    <div class="mb-3">
+                        <div class="col-form-label">Which roles do you want to add to the user?</div>
+                        {{ edit_roles_form.roles_to_add(class_="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        <div class="col-form-label">Which roles do you want to remove from the user?</div>
+                        {{ edit_roles_form.roles_to_remove(class_="form-select") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{ edit_roles_form.submit(class_="btn btn-success text-light", value="Execute") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $("#editUserModal").on("hidden.bs.modal", function () {
+            window.history.replaceState(document.html, document.pageTitle, window.location.pathname);
+        });
+        $("#changeRolesModal").on("hidden.bs.modal", function () {
+            window.history.replaceState(document.html, document.pageTitle, window.location.pathname);
+        });
+
+    </script>
+</div>
+{% endblock %}

@@ -1,12 +1,9 @@
-import os, datetime
-
 from app import db
 
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy import func
 
 from flask_wtf import FlaskForm
-from wtforms import ValidationError
 from wtforms import (StringField, PasswordField, SubmitField, SelectField,
                      BooleanField, FieldList, DateTimeLocalField, SelectMultipleField)
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
@@ -79,7 +76,7 @@ class LoginForm(FlaskForm):
 
 class RequestPasswordResetForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Send email')
+    submit = SubmitField('submit')
 
 
 class PasswordResetForm(FlaskForm):
@@ -89,7 +86,7 @@ class PasswordResetForm(FlaskForm):
                                          Length(min=6, max=128),
                                          EqualTo('password', message="Passwords don't match"),
                                      ])
-    submit = SubmitField('Save password')
+    submit = SubmitField('submit')
 
 
 class EditProfileForm(FlaskForm):
@@ -150,11 +147,3 @@ class ScheduleEventRequestForm(FlaskForm):
         choices=[('both', 'Washing & Drying'), ('wash', 'Washing'), ('dry', 'Drying')]
     )
     submit = SubmitField('submit')
-
-    def validate_start_timestamp(self, field):
-        if field.data < datetime.datetime.now():
-            raise ValidationError('Start time must be in the future!')
-        start_hour = int(os.getenv('SCHEDULE_MIN_HOUR', 8))
-        end_hour = int(os.getenv('SCHEDULE_MAX_HOUR', 23))
-        if field.data.hour < start_hour or field.data.hour > end_hour:
-            raise ValidationError(f'Start time must be between {start_hour} and {end_hour}')

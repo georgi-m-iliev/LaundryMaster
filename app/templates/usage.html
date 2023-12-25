@@ -52,8 +52,6 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Start kWh</th>
-                            <th>End kWh</th>
                             <th>Used kWh</th>
                             <th>Start</th>
                             <th>End</th>
@@ -66,8 +64,6 @@
                         {% for usage in usages %}
                         <tr>
                             <td>{{ usage.id }}</td>
-                            <td>{{ usage.startkwh }}</td>
-                            <td>{{ usage.endkwh }}</td>
                             <td>{{ usage.usedkwh }}</td>
                             <td>{{ usage.start_timestamp_formatted }}</td>
                             <td>{{ usage.end_timestamp_formatted }}</td>
@@ -84,8 +80,6 @@
                     <tfoot>
                         <tr>
                             <td><strong>ID</strong></td>
-                            <td><strong>Start kWh</strong></td>
-                            <td><strong>End kWh</strong></td>
                             <td><strong>Used kWh</strong></td>
                             <td><strong>Start</strong></td>
                             <td><strong>End</strong></td>
