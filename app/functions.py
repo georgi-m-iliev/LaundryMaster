@@ -14,25 +14,27 @@ def start_cycle(user: User):
         # User has an already running cycle
         current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
         flash(message='You already have a cycle running!', category='toast-warning')
-    else:
-        # No cycle running, create new cycle
-        current_app.logger.info(f'User {user.username} is starting a new cycle.')
+        raise ChildProcessError('User already has a cycle running!')
 
-        if trigger_relay('on') != 200:
-            current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
-            flash('Request to turn on the relay failed!\nPlease try again!', category='toast-error')
-            return
+    # No cycle running, create new cycle
+    current_app.logger.info(f'User {user.username} is starting a new cycle.')
 
-        try:
-            update_energy_consumption()
-            new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
-            db.session.add(new_cycle)
-            db.session.commit()
-            current_app.logger.info(f'User {user.username} successfully started a new cycle.')
-            flash('Cycle successfully started!', category='toast-success')
-        except RequestException:
-            current_app.logger.error(f'Error with initialising a cycle for user {user.username}.')
-            flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
+    if trigger_relay('on') != 200:
+        current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
+        flash('Request to turn on the relay failed!\nPlease try again!', category='toast-error')
+        raise ChildProcessError('Request to turn on the relay failed!')
+
+    try:
+        update_energy_consumption()
+        new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
+        db.session.add(new_cycle)
+        db.session.commit()
+        current_app.logger.info(f'User {user.username} successfully started a new cycle.')
+        flash('Cycle successfully started!', category='toast-success')
+    except RequestException:
+        current_app.logger.error(f'Error with initialising a cycle for user {user.username}.')
+        flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
+        raise ChildProcessError('Error with initialising a cycle for user {user.username}.')
 
 
 def stop_cycle(user: User):
