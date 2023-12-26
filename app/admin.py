@@ -1,10 +1,10 @@
 import datetime, json
 from flask import Blueprint, request, render_template, redirect, flash
-from flask_security import roles_required
+from flask_security import roles_required, hash_password
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, Role, WashingCycle, ScheduleEvent, EditProfileForm, EditRolesForm
+from app.models import User, Role, WashingCycle, ScheduleEvent, EditProfileForm, EditRolesForm, UserSettings
 from app.functions import calculate_unpaid_cycles_cost
 
 admin = Blueprint('admin', __name__)
@@ -27,6 +27,8 @@ def users_view():
         if request.args.get('delete'):
             user_id = request.args.get('delete')
             user = User.query.filter_by(id=user_id).first()
+            user_settings = UserSettings.query.filter_by(user_id=user_id).first()
+            db.session.delete(user_settings)
             user_datastore.delete_user(user)
             flash(f'Deleted user {user.username}', category='toast-success')
         elif request.args.get('activate'):
@@ -55,24 +57,37 @@ def users_view():
 
     roles = ', '.join(roles)
 
-    if request.args.get('user_id') and edit_user_form.validate_on_submit() and edit_user_form.submit.data:
-        # print('Profile update...')
-        if ('', '', '', '') == (edit_user_form.first_name.data, edit_user_form.email.data,
-                                edit_user_form.username.data, edit_user_form.password.data):
-            flash('Nothing to update.', category='toast-info')
-            return redirect(request.path)
+    if edit_user_form.validate_on_submit() and edit_user_form.submit.data:
+        if request.args.get('user_id'):
+            # print('Profile update...')
+            if ('', '', '', '') == (edit_user_form.first_name.data, edit_user_form.email.data,
+                                    edit_user_form.username.data, edit_user_form.password.data):
+                flash('Nothing to update.', category='toast-info')
+                return redirect(request.path)
 
-        user = User.query.filter_by(id=request.args.get('user_id')).first()
-        if edit_user_form.first_name.data:
-            user.first_name = edit_user_form.first_name.data
-        elif edit_user_form.email.data:
-            user.email = edit_user_form.email.data
-        elif edit_user_form.username.data:
-            user.username = edit_user_form.username.data
-        elif edit_user_form.password.data:
-            user.password = hash_password(edit_user_form.password.data)
-        db.session.commit()
-        flash('User updated successfully', 'toast-success')
+            user = User.query.filter_by(id=request.args.get('user_id')).first()
+            if edit_user_form.first_name.data:
+                user.first_name = edit_user_form.first_name.data
+            elif edit_user_form.email.data:
+                user.email = edit_user_form.email.data
+            elif edit_user_form.username.data:
+                user.username = edit_user_form.username.data
+            elif edit_user_form.password.data:
+                user.password = hash_password(edit_user_form.password.data)
+            db.session.commit()
+            flash('User updated successfully', 'toast-success')
+        else:
+            # print('Creating new user...')
+            user_datastore.create_user(
+                first_name=edit_user_form.first_name.data,
+                email=edit_user_form.email.data,
+                username=edit_user_form.username.data,
+                password=hash_password(edit_user_form.password.data)
+            )
+            settings = UserSettings(user_id=User.query.filter_by(username=edit_user_form.username.data).first().id)
+            db.session.add(settings)
+            db.session.commit()
+            flash('User created successfully', 'toast-success')
         return redirect(request.path)
     else:
         for field, errors in edit_user_form.errors.items():
