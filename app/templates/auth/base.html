@@ -24,37 +24,42 @@
 
 <body class="bg-gradient-primary">
 <div class="container" style="max-width: 500px;">
-    <div class="card shadow-lg o-hidden border-0 my-5">
-        <div class="p-5">
-            <div class="text-center">
-                <img class="fas fa-laugh-wink pb-3 h-50" src="static/assets/img/icons/icon-android-homescreen.png"
-                     alt="logo">
-                {% block message %}{% endblock %}
-            </div>
-            {% if form.errors %}
-                <ul class="errors">
-                    {% for error in form.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-                <div>
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                {% if category == 'message' %}
-                                    <div class="alert alert-warning" role="alert">
-                                {% else %}
-                                    <div class="alert alert-{{ category }}" role="alert">
-                                {% endif %}
-                                {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
+    <div class="container">
+        <div class="card shadow-lg o-hidden border-0 my-5 p-5">
+            <div class="card-header bg-white text-white">
+                <div class="text-center">
+                    <div class="text-primary h4 mb-4 fw-bolder px-2">LaundryMaster</div>
+                    <img class="fas fa-laugh-wink pb-3 h-50" src="static/assets/img/icons/icon-android-homescreen.png"
+                         alt="logo">
                 </div>
-                {% block content %}{% endblock %}
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    {% block message %}{% endblock %}
+                </div>
+                    <div>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if category == 'success' %}
+                                        <div class="alert alert-success" role="alert">
+                                            {{ message }}
+                                        </div>
+                                    {% elif category == 'warning' %}
+                                        <div class="alert alert-warning" role="alert">
+                                            {{ message }}
+                                        </div>
+                                    {% elif category == 'error' %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ message }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    {% block content %}{% endblock %}
+                </div>
             </div>
         </div>
     </div>
