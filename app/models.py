@@ -76,7 +76,7 @@ class LoginForm(FlaskForm):
 
 class RequestPasswordResetForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
-    submit = SubmitField('submit')
+    submit = SubmitField('Send email')
 
 
 class PasswordResetForm(FlaskForm):
@@ -86,7 +86,7 @@ class PasswordResetForm(FlaskForm):
                                          Length(min=6, max=128),
                                          EqualTo('password', message="Passwords don't match"),
                                      ])
-    submit = SubmitField('submit')
+    submit = SubmitField('Save password')
 
 
 class EditProfileForm(FlaskForm):
