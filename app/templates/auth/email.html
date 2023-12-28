@@ -1,16 +1,79 @@
-{% extends "auth/base.html" %}
+<!DOCTYPE html>
+<html lang="en" style="box-sizing: border-box;position: relative;min-height: 100%;">
 
-{% block message %}
-    <h3 class="text-dark mb-5">{{ data.title }}</h3>
-{% endblock %}
+<head style="box-sizing: border-box;">
+    <meta charset="utf-8" style="box-sizing: border-box;">
+    <meta name="application-name" content="LaundryMaster" style="box-sizing: border-box;">
+    <meta name="apple-mobile-web-app-title" content="LaundryMaster" style="box-sizing: border-box;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" style="box-sizing: border-box;">
+    <title style="box-sizing: border-box;">{% block title %}Auth{% endblock %} - LaundryMaster</title>
 
-{% block content %}
-    <div>
-        <h5 class="text-secondary-emphasis text-">{{ data.body }}</h5>
-        {% if data.link %}
-            <hr>
-            <a href="{{ data.link }}" class="btn btn-primary mt-3"> Click here!</a>
-            <p class="fw-lighter">If the button up there isn't working for you. Try this: {{ data.link }}</p>
-        {% endif %}
+    <link rel="apple-touch-icon" sizes="180x180" href="https://wash.georgi-iliev.dev/static/assets/img/icons/apple-touch-icon.png" style="box-sizing: border-box;">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://wash.georgi-iliev.dev/static/assets/img/icons/favicon-32x32.png" style="box-sizing: border-box;">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://wash.georgi-iliev.dev/static/assets/img/icons/favicon-16x16.png" style="box-sizing: border-box;">
+    <link rel="manifest" href="https://wash.georgi-iliev.dev/manifest.json" style="box-sizing: border-box;">
+    <link rel="mask-icon" href="https://wash.georgi-iliev.dev/static/assets/img/icons/safari-pinned-tab.svg" color="#5bbad5" style="box-sizing: border-box;">
+    <link rel="shortcut icon" href="https://wash.georgi-iliev.dev/static/assets/img/icons/favicon.ico" style="box-sizing: border-box;">
+    <meta name="theme-color" content="#224abe" style="box-sizing: border-box;">
+
+
+    <link rel="manifest" href="https://wash.georgi-iliev.dev/manifest.json" style="box-sizing: border-box;">
+
+
+</head>
+
+<body class="bg-gradient-primary" style="box-sizing: border-box;margin: 0;font-family: sans-serif;font-size: var(--bs-body-font-size);font-weight: var(--bs-body-font-weight);line-height: var(--bs-body-line-height);color: var(--bs-body-color);text-align: var(--bs-body-text-align);background-color: #4e73df;-webkit-text-size-adjust: 100%;-webkit-tap-highlight-color: rgba(0,0,0,0);height: 100%;background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);background-size: cover;">
+<div class="container" style="max-width: 500px;box-sizing: border-box;--bs-gutter-x: 1.5rem;--bs-gutter-y: 0;width: 100%;padding-right: 1.5rem;padding-left: 1.5rem;margin-right: auto;margin-left: auto;">
+    <div class="container" style="box-sizing: border-box;--bs-gutter-x: 1.5rem;--bs-gutter-y: 0;width: 100%;padding-right: 1.5rem;padding-left: 1.5rem;margin-right: auto;margin-left: auto;">
+        <div class="card shadow-lg o-hidden border-0 my-5 p-5" style="box-sizing: border-box;--bs-card-spacer-y: 1rem;--bs-card-spacer-x: 1rem;--bs-card-title-spacer-y: 0.5rem;--bs-card-title-color: ;--bs-card-subtitle-color: ;--bs-card-border-width: var(--bs-border-width);--bs-card-border-color: #e3e6f0;--bs-card-border-radius: var(--bs-border-radius);--bs-card-box-shadow: ;--bs-card-inner-border-radius: calc(var(--bs-border-radius) - (var(--bs-border-width)));--bs-card-cap-padding-y: 0.5rem;--bs-card-cap-padding-x: 1rem;--bs-card-cap-bg: #f8f9fc;--bs-card-cap-color: ;--bs-card-height: ;--bs-card-color: ;--bs-card-bg: var(--bs-body-bg);--bs-card-img-overlay-padding: 1rem;--bs-card-group-margin: 0.75rem;position: relative;display: flex;flex-direction: column;min-width: 0;height: var(--bs-card-height);color: var(--bs-body-color);word-wrap: break-word;background-color: var(--bs-card-bg);background-clip: border-box;border: 0 !important;border-radius: var(--bs-card-border-radius);box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;margin-top: 3rem !important;margin-bottom: 3rem !important;padding: 3rem !important;overflow: hidden !important;  background-color: white;">
+            <div class="card-header bg-white text-white" style="box-sizing: border-box;padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x);margin-bottom: 0;color: rgba(var(--bs-white-rgb), var(--bs-text-opacity)) !important;background-color: rgba(var(--bs-white-rgb), var(--bs-bg-opacity)) !important;border-bottom: var(--bs-card-border-width) solid var(--bs-card-border-color);--bs-text-opacity: 1;--bs-bg-opacity: 1;border-radius: var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius) 0 0;">
+                <div class="text-center" style="box-sizing: border-box;text-align: center !important;">
+                    <div class="text-primary h4 mb-4 fw-bolder px-2" style="box-sizing: border-box;margin-top: 0;margin-bottom: 1.5rem !important;font-weight: bolder !important;line-height: 1.2;color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;font-size: calc(1.275rem + 0.3vw);--bs-text-opacity: 1;padding-right: .5rem !important;padding-left: .5rem !important;">LaundryMaster</div>
+                    <img class="fas fa-laugh-wink pb-3 h-50" src="https://wash.georgi-iliev.dev/static/assets/img/icons/icon-android-homescreen.png" alt="logo" style="box-sizing: border-box;vertical-align: middle;height: 50% !important;padding-bottom: 1rem !important;">
+                </div>
+            </div>
+            <div class="card-body" style="box-sizing: border-box;flex: 1 1 auto;padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);color: var(--bs-card-color);">
+                <div class="text-center" style="box-sizing: border-box;text-align: center !important;">
+                    <h3 class="text-dark mb-5" style="box-sizing: border-box;margin-top: 0;margin-bottom: 3rem !important;font-weight: 400;line-height: 1.2;color: rgba(var(--bs-dark-rgb), var(--bs-text-opacity)) !important;font-size: calc(1.3rem + 0.6vw);--bs-text-opacity: 1;">{{ data.title }}</h3>
+                </div>
+                    <div style="box-sizing: border-box;">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if category == 'success' %}
+                                        <div class="alert alert-success" role="alert" style="box-sizing: border-box;--bs-alert-bg: var(--bs-success-bg-subtle);--bs-alert-padding-x: 1rem;--bs-alert-padding-y: 1rem;--bs-alert-margin-bottom: 1rem;--bs-alert-color: var(--bs-success-text-emphasis);--bs-alert-border-color: var(--bs-success-border-subtle);--bs-alert-border: var(--bs-border-width) solid var(--bs-alert-border-color);--bs-alert-border-radius: var(--bs-border-radius);--bs-alert-link-color: var(--bs-success-text-emphasis);position: relative;padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);margin-bottom: var(--bs-alert-margin-bottom);color: var(--bs-alert-color);background-color: var(--bs-alert-bg);border: var(--bs-alert-border);border-radius: var(--bs-alert-border-radius);">
+                                            {{ message }}
+                                        </div>
+                                    {% elif category == 'warning' %}
+                                        <div class="alert alert-warning" role="alert" style="box-sizing: border-box;--bs-alert-bg: var(--bs-warning-bg-subtle);--bs-alert-padding-x: 1rem;--bs-alert-padding-y: 1rem;--bs-alert-margin-bottom: 1rem;--bs-alert-color: var(--bs-warning-text-emphasis);--bs-alert-border-color: var(--bs-warning-border-subtle);--bs-alert-border: var(--bs-border-width) solid var(--bs-alert-border-color);--bs-alert-border-radius: var(--bs-border-radius);--bs-alert-link-color: var(--bs-warning-text-emphasis);position: relative;padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);margin-bottom: var(--bs-alert-margin-bottom);color: var(--bs-alert-color);background-color: var(--bs-alert-bg);border: var(--bs-alert-border);border-radius: var(--bs-alert-border-radius);">
+                                            {{ message }}
+                                        </div>
+                                    {% elif category == 'error' %}
+                                        <div class="alert alert-danger" role="alert" style="box-sizing: border-box;--bs-alert-bg: var(--bs-danger-bg-subtle);--bs-alert-padding-x: 1rem;--bs-alert-padding-y: 1rem;--bs-alert-margin-bottom: 1rem;--bs-alert-color: var(--bs-danger-text-emphasis);--bs-alert-border-color: var(--bs-danger-border-subtle);--bs-alert-border: var(--bs-border-width) solid var(--bs-alert-border-color);--bs-alert-border-radius: var(--bs-border-radius);--bs-alert-link-color: var(--bs-danger-text-emphasis);position: relative;padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);margin-bottom: var(--bs-alert-margin-bottom);color: var(--bs-alert-color);background-color: var(--bs-alert-bg);border: var(--bs-alert-border);border-radius: var(--bs-alert-border-radius);">
+                                            {{ message }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="text-center" style="box-sizing: border-box;text-align: center !important;">
+                        <h5 class="text-secondary-emphasis" style="box-sizing: border-box;margin-top: 0;margin-bottom: .5rem;font-weight: 400;line-height: 1.2;color: var(--bs-secondary-text-emphasis) !important;font-size: 1.25rem;">{{ data.body }}</h5>
+                        {% if data.link %}
+                            <a href="{{ data.link }}" class="btn btn-primary mt-3" style="box-sizing: border-box;color: #fff;text-decoration: none;--bs-btn-padding-x: 0.75rem;--bs-btn-padding-y: 0.375rem;--bs-btn-font-family: ;--bs-btn-font-size: 1rem;--bs-btn-font-weight: 400;--bs-btn-line-height: 1.5;--bs-btn-color: #fff;--bs-btn-bg: #4e73df;--bs-btn-border-width: var(--bs-border-width);--bs-btn-border-color: #4e73df;--bs-btn-border-radius: var(--bs-border-radius);--bs-btn-hover-border-color: #3e5cb2;--bs-btn-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);--bs-btn-disabled-opacity: 0.65;--bs-btn-focus-box-shadow: 0 0 0 0.25rem rgba(var(--bs-btn-focus-shadow-rgb), .5);display: inline-block;padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);font-family: sans-serif;font-size: var(--bs-btn-font-size);font-weight: var(--bs-btn-font-weight);line-height: var(--bs-btn-line-height);text-align: center;vertical-align: middle;cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;border: var(--bs-btn-border-width) solid var(--bs-btn-border-color); background-color: var(--bs-btn-bg);transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;--bs-btn-hover-color: #fff;--bs-btn-hover-bg: #4262be;--bs-btn-focus-shadow-rgb: 105, 136, 228;--bs-btn-active-color: #fff;--bs-btn-active-bg: #3e5cb2;--bs-btn-active-border-color: #3b56a7;--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);--bs-btn-disabled-color: #fff;--bs-btn-disabled-bg: #4e73df;--bs-btn-disabled-border-color: #4e73df;margin-top: 1rem !important; border-radius: 3px;"> Click here!</a>
+                            <hr style="box-sizing: border-box;margin: 1rem 0;color: inherit;border: 0;border-top: var(--bs-border-width) solid;opacity: .25;">
+                            <p class="fw-lighter" style="box-sizing: border-box;margin-top: 0;margin-bottom: 1rem;font-weight: lighter !important;">If the button up there isn't working for you. <br style="box-sizing: border-box;">Try this: {{ data.link }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-{% endblock %}
+    <script src="https://wash.georgi-iliev.dev/static/assets/js/jquery.min.js" style="box-sizing: border-box;"></script>
+    <script src="https://wash.georgi-iliev.dev/static/assets/bootstrap/js/bootstrap.min.js" style="box-sizing: border-box;"></script>
+    <script src="https://wash.georgi-iliev.dev/static/assets/js/bs-init.js" style="box-sizing: border-box;"></script>
+    <script src="https://wash.georgi-iliev.dev/static/assets/js/theme.js" style="box-sizing: border-box;"></script>
+
+</body>
+
+</html>
