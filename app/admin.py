@@ -103,6 +103,7 @@ def users_view():
             user_datastore.remove_role_from_user(user, role)
         db.session.commit()
         flash('Roles updated successfully', 'toast-success')
+        return redirect(request.path)
     else:
         for field, errors in edit_roles_form.errors.items():
             for error in errors:
