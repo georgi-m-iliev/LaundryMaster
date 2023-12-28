@@ -11,7 +11,17 @@
             <p class="text-primary m-0 fw-bold">Washing Requests Schedule</p>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">New Request</button>
         </div>
+        <div class="card-header py-2">
+            <form method="POST" class="d-flex justify-content-between">
+                {{ navigation.csrf_token }}
+                {{ navigation.previous(class_="btn btn-info text-light", value="Previous Week") }}
+                {{ navigation.today(class_="btn btn-info text-light", value="Today") }}
+                {{ navigation.next(class_="btn btn-info text-light", value="Next Week") }}
+                {{ navigation.date(type="hidden", value=today) }}
+            </form>
+        </div>
         <div class="card-body overflow-scroll">
+
             <div id="scheduler_here" class="dhx_cal_container" style="min-width:1400px; min-height:800px;">
                 <div class="dhx_cal_navline">
                     <div class="dhx_cal_date"></div>
@@ -22,7 +32,6 @@
                 <div class="dhx_cal_data"></div>
             </div>
             <div class="w-100 bg-info rounded-2 px-1 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
-
             <script>
                 scheduler.config.drag_resize = false;
                 scheduler.config.drag_move = false;
@@ -33,7 +42,7 @@
                 scheduler.config.first_hour = 8;
                 {#scheduler.config.last_hour = 19;#}
 
-                scheduler.init('scheduler_here', new Date(), "week");
+                scheduler.init('scheduler_here', '{{ today }}', "week");
                 scheduler.plugins({
                     tooltip: true
                 });

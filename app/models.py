@@ -8,7 +8,7 @@ from sqlalchemy import func
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms import (StringField, PasswordField, SubmitField, SelectField,
-                     BooleanField, FieldList, DateTimeLocalField, SelectMultipleField)
+                     BooleanField, FieldList, DateTimeLocalField, SelectMultipleField, DateField)
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 
 roles_users = db.Table(
@@ -158,3 +158,10 @@ class ScheduleEventRequestForm(FlaskForm):
         end_hour = int(os.getenv('SCHEDULE_MAX_HOUR', 23))
         if field.data.hour < start_hour or field.data.hour > end_hour:
             raise ValidationError(f'Start time must be between {start_hour} and {end_hour}')
+
+
+class ScheduleNavigationForm(FlaskForm):
+    date = DateField('date', format='%Y-%m-%d', validators=[DataRequired()])
+    next = SubmitField('next', id='next', name='next')
+    today = SubmitField('today', id='today', name='today')
+    previous = SubmitField('previous', id='previous', name='previous')

@@ -6,7 +6,7 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.models import (User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm,
-                        UserSettings, EditSettingsForm, ScheduleEvent, ScheduleEventRequestForm)
+                        UserSettings, EditSettingsForm, ScheduleEvent, ScheduleEventRequestForm, ScheduleNavigationForm)
 
 from app.functions import *
 from app.tasks import watch_usage_and_notify_cycle_end, release_door
@@ -107,7 +107,7 @@ def usage_view():
 def schedule():
     schedule_request_form = ScheduleEventRequestForm()
 
-    if schedule_request_form.validate_on_submit():
+    if schedule_request_form.validate_on_submit() and schedule_request_form.submit.data:
         start_timestamp = schedule_request_form.start_timestamp.data
         duration = 0
         if schedule_request_form.cycle_type.data == 'both':
@@ -144,7 +144,7 @@ def schedule():
             db.session.commit()
 
         return redirect(request.path)
-    else:
+    elif schedule_request_form.submit.data:
         for field, errors in schedule_request_form.errors.items():
             for error in errors:
                 flash(error, category='toast-error')
@@ -160,11 +160,22 @@ def schedule():
         return redirect(request.path)
 
     # get events for current week
-    day_of_week = datetime.datetime.today().weekday()
+    today = datetime.datetime.now().date()
+    navigation = ScheduleNavigationForm()
+
+    if navigation.validate_on_submit() and (navigation.previous.data or navigation.next.data or navigation.today.data):
+        if navigation.previous.data:
+            today = navigation.date.data - datetime.timedelta(days=7)
+        elif navigation.next.data:
+            today = navigation.date.data + datetime.timedelta(days=7)
+        elif navigation.today.data:
+            today = datetime.datetime.now().date()
+
+    day_of_week = today.weekday()
 
     events = ScheduleEvent.query.filter(
-        ScheduleEvent.start_timestamp >= datetime.datetime.now().date() - datetime.timedelta(days=day_of_week),
-        ScheduleEvent.start_timestamp <= datetime.datetime.now().date() + datetime.timedelta(days=7 - day_of_week),
+        ScheduleEvent.start_timestamp >= today - datetime.timedelta(days=day_of_week),
+        ScheduleEvent.start_timestamp <= today + datetime.timedelta(days=7 - day_of_week),
     ).all()
 
     events_json = []
@@ -183,6 +194,8 @@ def schedule():
         'schedule.html',
         is_schedule=True,
         cycle_data=update_cycle(current_user),
+        today=today,
+        navigation=navigation,
         schedule_requests=json.dumps(events_json),
         schedule_request_form=schedule_request_form
     )
