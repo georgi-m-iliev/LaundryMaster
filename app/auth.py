@@ -53,6 +53,9 @@ def logout():
 
 @auth.route('/password_reset', methods=['GET', 'POST'])
 def password_reset():
+    if current_user.is_authenticated:
+        return redirect('/')
+
     serializer = TimedSerializer(os.getenv('FLASK_SECRET_KEY'))
 
     # Check if token is supplied, is so, process the request and render the password reset form
