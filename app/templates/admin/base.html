@@ -8,33 +8,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>{% block title %}Home{% endblock %} - LaundryMaster Admin Panel</title>
 
-    <link rel="apple-touch-icon" sizes="180x180" href={{ url_for('static', filename='assets/img/icons/apple-touch-icon.png') }}>
-    <link rel="icon" type="image/png" sizes="32x32" href={{ url_for('static', filename='assets/img/icons/favicon-32x32.png') }}>
-    <link rel="icon" type="image/png" sizes="16x16" href={{ url_for('static', filename='assets/img/icons/favicon-16x16.png') }}>
-    <link rel="manifest" href={{ url_for('static', filename='manifest.json') }}>
-    <link rel="mask-icon" href={{ url_for('static', filename='assets/img/icons/safari-pinned-tab.svg') }} color="#5bbad5">
-    <link rel="shortcut icon" href={{ url_for('static', filename='assets/img/icons/favicon.ico') }}>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='assets/img/icons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='assets/img/icons/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='assets/img/icons/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='assets/img/icons/safari-pinned-tab.svg') }}" color="#5bbad5">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/img/icons/favicon.ico') }}">
     <meta name="theme-color" content="#224abe">
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/Nunito.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/fonts/fontawesome-all.min.css') }}">
 
-    <link rel="stylesheet" href={{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}>
-    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/Nunito.css') }}>
-    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/theme.css') }}>
-    <link rel="stylesheet" href={{ url_for('static', filename='/assets/fonts/fontawesome-all.min.css') }}>
+    <link href="{{ url_for('static', filename='assets/js/jquery.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/chart.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/bs-init.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/theme.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/service_worker.js') }}" rel="preload" as="script">
 
-    <link href={{ url_for('static', filename='assets/js/jquery.min.js') }} rel="preload" as="script">
-    <link href={{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }} rel="preload" as="script">
-    <link href={{ url_for('static', filename='assets/js/chart.min.js') }} rel="preload" as="script">
-    <link href={{ url_for('static', filename='assets/js/bs-init.js') }} rel="preload" as="script">
-    <link href={{ url_for('static', filename='assets/js/theme.js') }} rel="preload" as="script">
-    <link href={{ url_for('static', filename='assets/js/service_worker.js') }} rel="preload" as="script">
-
-
-    <script src={{ url_for('static', filename='assets/js/jquery.min.js') }}></script>
-    <script src={{ url_for('static', filename='assets/js/service_worker.js') }}></script>
-    <script src={{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}></script>
-    <script src={{ url_for('static', filename='assets/js/chart.min.js') }}></script>
-    <script src={{ url_for('static', filename='assets/js/bs-init.js') }}></script>
+    <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/service_worker.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/bs-init.js') }}"></script>
 
     <script src="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler.js"></script>
     <link href="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler_material.css" rel="stylesheet" type="text/css">
@@ -46,7 +44,7 @@
         <div class="container-fluid d-flex flex-column p-0">
             <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/">
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <img style="width: 5vh;" alt="logo" src={{ url_for('static', filename='assets/img/icons/icon-android-homescreen.png') }} alt="logo">
+                    <img class="w-75 p-1" alt="logo" src={{ url_for('static', filename='assets/img/icons/icon-android-homescreen.png') }} alt="logo">
                 </div>
                 <div class="sidebar-brand-text mx-3"><span>Laundry<br>master</span></div>
             </a>
@@ -86,10 +84,10 @@
         <div id="content">
             <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
                 <div class="container-fluid">
-                    <h2 class="text-danger">Admin Panel</h2>
                     <button class="btn btn-link d-md-none rounded-circle me-3 text-danger" id="sidebarToggleTop" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
+                    <h2 class="text-danger">Admin Panel</h2>
                     <ul class="navbar-nav flex-nowrap ms-auto">
 {#                        <li class="nav-item dropdown no-arrow mx-1">#}
 {#                            <div class="nav-item dropdown no-arrow">#}

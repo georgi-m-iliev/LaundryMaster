@@ -12,7 +12,7 @@
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">New Request</button>
         </div>
         <div class="card-header py-2">
-            <form method="POST" class="d-flex justify-content-between">
+            <form method="POST" class="d-flex justify-content-between flex-column flex-md-row gap-2 gap-md-0">
                 {{ navigation.csrf_token }}
                 {{ navigation.previous(class_="btn btn-info text-light", value="Previous Week") }}
                 {{ navigation.today(class_="btn btn-info text-light", value="Today") }}
@@ -26,8 +26,7 @@
                 <div class="dhx_cal_navline">
                     <div class="dhx_cal_date"></div>
                 </div>
-                    <div class="w-100 bg-info rounded-2 px-1 mb-3 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
-
+                <div class="w-100 bg-info rounded-2 px-1 mb-3 d-md-none text-white" style="min-width:1400px;">Drag here to scroll...</div>
                 <div class="dhx_cal_header"></div>
                 <div class="dhx_cal_data"></div>
             </div>

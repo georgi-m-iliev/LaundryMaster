@@ -43,7 +43,7 @@
                             {% else %}
                             <td><i class="fa fa-times"></i></td>
                             {% endif %}
-                            <td>
+                            <td class="d-flex flex-wrap gap-2" style="min-width: 21vh;">
                                 <button class="btn btn-outline-warning" type="button" title="Edit"
                                         data-bs-toggle="modal" data-bs-target="#editUserModal"
                                         onclick="window.history.replaceState(document.html, document.pageTitle, window.location.pathname + '?user_id=' + this.parentNode.parentNode.id);">
