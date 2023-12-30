@@ -106,7 +106,7 @@
                     </button>
                     {% if request.path != '/' %}
                     <form method="POST" class="">
-                        <img style="max-height: 3.5vw;" class="rounded-5 px-3 d-none d-md-inline-block align-middle" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="washing machine icon">
+                        <img style="max-height: 3.5vw;" class="rounded-2 mx-3 d-none d-md-inline-block align-middle" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="washing machine icon">
                         {% if cycle_data['state'] == 'running' %}
                         <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
                         {% elif cycle_data['state'] == 'available' %}
