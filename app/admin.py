@@ -52,10 +52,10 @@ def users_view():
     for role in Role.query.all():
         roles.append(role.name)
 
-    edit_roles_form.roles_to_add.choices = [(role, role.capitalize()) for role in roles]
-    edit_roles_form.roles_to_remove.choices = [(role, role.capitalize()) for role in roles]
+    edit_roles_form.roles_to_add.choices = [(role, role.replace('_', ' ').title()) for role in roles]
+    edit_roles_form.roles_to_remove.choices = [(role, role.replace('_', ' ').title()) for role in roles]
 
-    roles = ', '.join(roles)
+    roles = ', '.join([role.replace('_', ' ') for role in roles])
 
     if edit_user_form.validate_on_submit() and edit_user_form.submit.data:
         if request.args.get('user_id'):
