@@ -152,7 +152,9 @@ def schedule():
     if request.args.get('delete'):
         # deleting event if delete parameter is present in URL
         event = ScheduleEvent.query.filter_by(id=request.args.get('delete')).first()
-        if event.user != current_user:
+        if event is None:
+            flash('Event not found', category='toast-error')
+        elif event.user != current_user and not current_user.has_role('room_owner'):
             flash('You can only delete your own events', category='toast-error')
         else:
             db.session.delete(event)
