@@ -158,7 +158,16 @@
                         <li class="list-group-item">
                             <div class="row align-items-center no-gutters">
                                 <div class="col me-2">
-                                    <h6 class="mb-1"><strong>Cycle for {{ unpaid_cycles[i].cost }} lv.</strong></h6>
+                                    <h6 class="mb-1">
+                                        <strong>
+                                            {% if unpaid_cycles[i].split_cost %}
+                                                <span class="text-info">Split</span> Cycle for {{ unpaid_cycles[i].split_cost }}
+                                            {% else %}
+                                                Cycle for {{ unpaid_cycles[i].cost }}
+                                            {% endif %}
+                                             lv.
+                                        </strong>
+                                    </h6>
                                     <span class="text-xs">
                                         Started: {{ unpaid_cycles[i].start_timestamp_formatted }} <br>
                                         Ended: {{ unpaid_cycles[i].end_timestamp_formatted }}

@@ -5,8 +5,7 @@ from flask_security import login_required, user_authenticated, current_user, has
 from sqlalchemy import or_, and_
 
 from app.db import db
-from app.models import (User, WashingCycle, UsageViewShowCountForm, EditProfileForm, LoginForm, UnpaidCyclesForm,
-                        UserSettings, EditSettingsForm, ScheduleEvent, ScheduleEventRequestForm, ScheduleNavigationForm)
+from app.models import *
 
 from app.functions import *
 from app.tasks import watch_usage_and_notify_cycle_end, release_door
@@ -59,7 +58,12 @@ def index():
         for checkbox in unpaid_cycles_form.checkboxes:
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
-                unpaid_cycles[idx].paid = True
+                if unpaid_cycles[idx].split_users:
+                    db.session.query(split_cycles).filter_by(
+                        cycle_id=unpaid_cycles[idx].id, user_id=current_user.id
+                    ).update({split_cycles.c.paid: True})
+                else:
+                    unpaid_cycles[idx].paid = True
                 db.session.commit()
         flash('Selected cycles were marked as paid', 'toast-success')
         return redirect(request.path)
@@ -86,6 +90,33 @@ def index():
 @roles_required('user')
 def usage_view():
     select_form = UsageViewShowCountForm(items=request.args.get('items') or '10')
+    split_cycle_form = SplitCycleForm()
+
+    other_users = User.query.filter(User.id != current_user.id, User.active).all()
+    split_cycle_form.other_users.choices = [(user.id, user.first_name) for user in other_users]
+
+    if split_cycle_form.validate_on_submit() and split_cycle_form.submit.data:
+        cycle: WashingCycle = WashingCycle.query.filter_by(id=split_cycle_form.cycle_id.data).first()
+        if cycle.user_id != current_user.id:
+            flash('You can only split your own cycles', category='toast-error')
+        elif cycle.paid:
+            flash('You cannot split paid cycles', category='toast-error')
+        else:
+            if cycle.split_users:
+                splits = db.session.query(split_cycles).filter_by(cycle_id=cycle.id).all()
+                for split in splits:
+                    if split.paid:
+                        flash('You cannot split cycles that are partially paid', category='toast-error')
+                        return redirect(request.path)
+            for user_id in split_cycle_form.other_users.data:
+                cycle.split_users.append(User.query.filter_by(id=user_id).first())
+            db.session.commit()
+            flash('Cycle split successfully', category='toast-success')
+        return redirect(request.path)
+    else:
+        for field, errors in split_cycle_form.errors.items():
+            for error in errors:
+                flash(error, category='toast-error')
 
     if select_form.items.data == 'all':
         limit = None
@@ -97,7 +128,8 @@ def usage_view():
         is_usage=True,
         cycle_data=update_cycle(current_user),
         select_form=select_form,
-        usages=get_usage_list(current_user, limit)
+        usages=get_usage_list(current_user, limit),
+        split_cycle_form=split_cycle_form
     )
 
 

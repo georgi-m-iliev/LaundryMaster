@@ -8,13 +8,20 @@ from sqlalchemy import func
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms import (StringField, PasswordField, SubmitField, SelectField,
-                     BooleanField, FieldList, DateTimeLocalField, SelectMultipleField, DateField)
+                     BooleanField, FieldList, DateTimeLocalField, SelectMultipleField, DateField, IntegerField)
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 
 roles_users = db.Table(
     'roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
     db.Column('role_id', db.Integer(), db.ForeignKey('roles.id'))
+)
+
+split_cycles = db.Table(
+    'split_cycles',
+    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+    db.Column('cycle_id', db.Integer(), db.ForeignKey('washing_cycles.id')),
+    db.Column('paid', db.Boolean(), default=False)
 )
 
 
@@ -57,6 +64,7 @@ class WashingCycle(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('washing_cycles', lazy=True))
     paid = db.Column(db.Boolean(), default=False)
+    split_users = db.relationship('User', secondary='split_cycles', backref=db.backref('split_cycles', lazy='dynamic'))
 
 
 class WashingMachine(db.Model):
@@ -151,6 +159,7 @@ class ScheduleEventRequestForm(FlaskForm):
     )
     submit = SubmitField('submit')
 
+    @staticmethod
     def validate_start_timestamp(self, field):
         if field.data < datetime.datetime.now():
             raise ValidationError('Start time must be in the future!')
@@ -165,3 +174,9 @@ class ScheduleNavigationForm(FlaskForm):
     next = SubmitField('next', id='next', name='next')
     today = SubmitField('today', id='today', name='today')
     previous = SubmitField('previous', id='previous', name='previous')
+
+
+class SplitCycleForm(FlaskForm):
+    other_users = SelectMultipleField('other_users', choices=[], coerce=int)
+    cycle_id = IntegerField('cycle_id', validators=[DataRequired()])
+    submit = SubmitField('submit')

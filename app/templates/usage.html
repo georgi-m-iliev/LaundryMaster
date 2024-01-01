@@ -58,23 +58,42 @@
                             <th>Duration</th>
                             <th>Cost</th>
                             <th>Paid</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for usage in usages %}
-                        <tr>
-                            <td>{{ usage.id }}</td>
-                            <td>{{ usage.usedkwh }}</td>
-                            <td>{{ usage.start_timestamp_formatted }}</td>
-                            <td>{{ usage.end_timestamp_formatted }}</td>
-                            <td>{{ usage.duration }}</td>
-                            <td>{{ usage.cost }} lv.</td>
-                            {% if usage.paid %}
-                            <td><i class="fa fa-check"></i></td>
-                            {% else %}
-                            <td><i class="fa fa-times"></i></td>
-                            {% endif %}
-                        </tr>
+                            <tr>
+                                <td {% if usage.split_cost %} class="text-info fw-bold" {% endif %}>{{ usage.id }}</td>
+                                <td {% if usage.split_cost %} class="text-info fw-bold" {% endif %}>{{ usage.usedkwh }}</td>
+                                <td {% if usage.split_cost %} class="text-info fw-bold" {% endif %}>{{ usage.start_timestamp_formatted }}</td>
+                                <td {% if usage.split_cost %} class="text-info fw-bold" {% endif %}>{{ usage.end_timestamp_formatted }}</td>
+                                <td {% if usage.split_cost %} class="text-info fw-bold" {% endif %}>{{ usage.duration }}</td>
+                                <td {% if usage.split_cost %} class="text-info fw-bold" {% endif %}>
+                                    {% if usage.split_cost %}
+                                        {{ usage.split_cost }} lv.
+                                    {% else %}
+                                        {{ usage.cost }} lv.
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if usage.split_paid or usage.paid %}
+                                        <i class="fa fa-check text-success fw-bold"></i>
+                                    {% else %}
+                                        <i class="fa fa-times text-danger fw-bold"></i>
+                                    {% endif %}
+                                </td>
+                                {% if usage.user_id == current_user.id %}
+                                    <td>
+                                        <button class="btn btn-outline-primary" type="button" title="Split"
+                                                data-bs-toggle="modal" data-bs-target="#splitCycleModal"
+                                                data-bs-cycle-id="{{ usage.id }}" data-bs-cycle-cost="{{ usage.cost }}"
+                                                onclick="">
+                                            <i class="fas fa-solid fa-chart-pie"></i>
+                                        </button>
+                                    </td>
+                                {% endif %}
+                            </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
@@ -86,6 +105,7 @@
                             <td><strong>Duration</strong></td>
                             <td><strong>Cost</strong></td>
                             <th>Paid</th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -112,4 +132,43 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="splitCycleModal" tabindex="-1" aria-labelledby="splitCycleModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Split Cycle</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {{ split_cycle_form.csrf_token }}
+                {{ split_cycle_form.cycle_id(id="split-form-cycle-id", hidden=True) }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="col-form-label">With which users do you want to split this cycle?</div>
+                        {{ split_cycle_form.other_users(class_="form-select") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{ split_cycle_form.submit(class_="btn btn-success text-light", value="Split") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    const splitCycleModal = document.getElementById('splitCycleModal')
+    splitCycleModal.addEventListener('show.bs.modal', event => {
+      // Button that triggered the modal
+      const button = event.relatedTarget
+      // Extract info from data-bs-* attributes
+      const cycleID = button.getAttribute('data-bs-cycle-id')
+      //const cycleCost = button.getAttribute('data-bs-cycle-cost')
+
+      const modalCycleID = splitCycleModal.querySelector('#split-form-cycle-id')
+
+      modalCycleID.value = cycleID
+    })
+</script>
 {% endblock %}
