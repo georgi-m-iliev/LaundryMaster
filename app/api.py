@@ -1,7 +1,7 @@
 import os, json, time
 
 from flask import Blueprint, request
-from flask_security import login_required
+from flask_security import login_required, roles_required, current_user
 from flask_security.utils import hash_password
 from flask_sock import Sock
 
@@ -9,8 +9,8 @@ from app.db import db
 from app.auth import user_datastore
 
 from app.models import User, WashingMachine, PushSubscription, UserSettings
-from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time, get_washer_info
-from app.functions import get_relay_temperature, get_relay_wifi_rssi
+from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
+from app.functions import get_washer_info, get_relay_temperature, get_relay_wifi_rssi
 
 api = Blueprint('api', __name__)
 sock = Sock()
@@ -58,11 +58,13 @@ def update_usage():
 
 
 @api.route('/get_usage', methods=['GET'])
+@login_required
 def get_usage():
     return {'currentkwh': WashingMachine.query.first().currentkwh}
 
 
 @api.route('/push_subscriptions', methods=['POST'])
+@login_required
 def push_subscriptions():
     json_data = request.get_json()
     subscription = PushSubscription.query.filter_by(subscription_json=json_data['subscription_json']).first()
@@ -77,6 +79,8 @@ def push_subscriptions():
 
 
 @api.route('/trigger_push', methods=['POST'])
+@login_required
+@roles_required('admin')
 def trigger_push():
     json_data = request.get_json()
     send_push_to_all(
@@ -87,6 +91,8 @@ def trigger_push():
 
 
 @api.route('/trigger_push/<user_id>', methods=['POST'])
+@login_required
+@roles_required('admin')
 def trigger_push_by_id(user_id: int):
     json_data = request.get_json()
     send_push_to_user(
@@ -122,6 +128,7 @@ def relay_wifi_rssi():
 
 
 @sock.route('/api/washing_machine_infos')
+@login_required
 def websocket(ws):
     while True:
         ws.send(json.dumps(get_washer_info()))
