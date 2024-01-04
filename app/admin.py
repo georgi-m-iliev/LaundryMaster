@@ -4,7 +4,8 @@ from flask_security import roles_required, hash_password
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, Role, WashingCycle, ScheduleEvent, EditProfileForm, EditRolesForm, UserSettings
+from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings
+from app.forms import EditProfileForm, EditRolesForm
 from app.functions import calculate_unpaid_cycles_cost
 
 admin = Blueprint('admin', __name__)

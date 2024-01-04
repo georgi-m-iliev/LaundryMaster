@@ -6,6 +6,7 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.models import *
+from app.forms import *
 
 from app.functions import *
 from app.tasks import watch_usage_and_notify_cycle_end, release_door

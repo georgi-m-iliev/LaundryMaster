@@ -7,7 +7,8 @@ from itsdangerous import TimedSerializer
 import itsdangerous.exc
 
 from app.db import db
-from app.models import User, Role, LoginForm, EditProfileForm, RequestPasswordResetForm, PasswordResetForm
+from app.models import User, Role
+from app.forms import LoginForm, RequestPasswordResetForm, PasswordResetForm, EditProfileForm
 
 auth = Blueprint('auth', __name__)
 
