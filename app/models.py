@@ -152,6 +152,7 @@ class ScheduleEvent(db.Model):
 
 
 class ScheduleEventRequestForm(FlaskForm):
+    id = IntegerField('id', validators=[Optional()])
     start_timestamp = DateTimeLocalField('start_timestamp', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     cycle_type = SelectField(
         'cycle_type',

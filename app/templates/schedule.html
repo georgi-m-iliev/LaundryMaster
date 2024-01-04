@@ -47,11 +47,18 @@
                 });
                 scheduler.parse('{{ schedule_requests | safe }}');
                 scheduler.config.icons_select = [
-                   "icon_delete"
+                   "icon_delete",
+                    "icon_edit"
                 ];
 
                 scheduler._click.buttons.delete = function(id){
                    location.replace(location.pathname + "?delete=" + id);
+                };
+
+                scheduler._click.buttons.edit = function(id){
+                    const editModal = $("#editRequestModal");
+                    editModal.find("#eventID").val(id);
+                    editModal.modal("show");
                 };
 
                 scheduler.renderEvent = function(container, ev) {
@@ -78,6 +85,35 @@
 
             <form method="POST">
                 {{ schedule_request_form.csrf_token }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">When do you want to wash?</label>
+                        {{ schedule_request_form.start_timestamp(type="datetime-local", class_="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="message-text" class="col-form-label">Select what kind of cycle you'll be running!</label>
+                        {{ schedule_request_form.cycle_type(class_="form-select") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{ schedule_request_form.submit(class_="btn btn-primary", value="Send") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editRequestModal" tabindex="-1" aria-labelledby="editRequestModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Edit Washing Request</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="POST">
+                {{ schedule_request_form.csrf_token }}
+                {{ schedule_request_form.id(id="eventID", hidden=True) }}
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="recipient-name" class="col-form-label">When do you want to wash?</label>

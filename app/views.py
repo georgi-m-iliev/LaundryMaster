@@ -140,6 +140,7 @@ def schedule():
     schedule_request_form = ScheduleEventRequestForm()
 
     if schedule_request_form.validate_on_submit() and schedule_request_form.submit.data:
+        # first calculate timestamps and check for correctness
         start_timestamp = schedule_request_form.start_timestamp.data
         duration = 0
         if schedule_request_form.cycle_type.data == 'both':
@@ -149,32 +150,38 @@ def schedule():
         elif schedule_request_form.cycle_type.data == 'dry':
             duration = float(os.getenv('SCHEDULE_DRY_DURATION', 3.5))
 
-        new_event = ScheduleEvent(
-            start_timestamp=start_timestamp,
-            end_timestamp=start_timestamp + datetime.timedelta(hours=duration),
-            user_id=current_user.id
-        )
-        # overlapping_events_start = ScheduleEvent.query.filter(
-        #     new_event.start_timestamp >= ScheduleEvent.start_timestamp,
-        #     new_event.start_timestamp <= ScheduleEvent.end_timestamp
-        # ).all()
-        # overlapping_events_end = ScheduleEvent.query.filter(
-        #     new_event.end_timestamp >= ScheduleEvent.start_timestamp,
-        #     new_event.end_timestamp <= ScheduleEvent.end_timestamp
-        # ).all()
-        #
-        # overlapping_events = overlapping_events_start + overlapping_events_end
+        end_timestamp = start_timestamp + datetime.timedelta(hours=duration)
+
         overlapping_events = ScheduleEvent.query.filter(
-            or_(and_(new_event.start_timestamp >= ScheduleEvent.start_timestamp,
-                     new_event.start_timestamp <= ScheduleEvent.end_timestamp),
-                and_(new_event.end_timestamp >= ScheduleEvent.start_timestamp,
-                     new_event.end_timestamp <= ScheduleEvent.end_timestamp))).all()
+            ScheduleEvent.id != schedule_request_form.id.data,
+            or_(and_(start_timestamp >= ScheduleEvent.start_timestamp,
+                     start_timestamp <= ScheduleEvent.end_timestamp),
+                and_(end_timestamp >= ScheduleEvent.start_timestamp,
+                     end_timestamp <= ScheduleEvent.end_timestamp)
+                )).all()
+
         if overlapping_events:
+            # the timeslot collides with another event
             flash('Timeslot is already reserved! Please request another one!', category='toast-warning')
         else:
-            db.session.add(new_event)
+            if schedule_request_form.id.data:
+                # editing an existing event
+                event = ScheduleEvent.query.filter_by(id=schedule_request_form.id.data).first()
+                if event is None:
+                    flash('Event not found', category='toast-error')
+                    db.session.rollback()
+                    return redirect(request.path)
+                event.start_timestamp = start_timestamp
+                event.end_timestamp = end_timestamp
+            else:
+                # creating a new event
+                event = ScheduleEvent(
+                    start_timestamp=start_timestamp,
+                    end_timestamp=end_timestamp,
+                    user_id=current_user.id
+                )
+                db.session.add(event)
             db.session.commit()
-
         return redirect(request.path)
     elif schedule_request_form.submit.data:
         for field, errors in schedule_request_form.errors.items():
