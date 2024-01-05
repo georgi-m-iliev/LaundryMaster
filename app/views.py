@@ -277,6 +277,7 @@ def profile():
         db.session.commit()
     else:
         settings_form.automatic_stop.data = user_settings.terminate_cycle_on_usage
+        settings_form.automaitc_open_candy.data = user_settings.launch_candy_on_cycle_start
 
     return render_template(
         'profile.html',
