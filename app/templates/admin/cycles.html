@@ -30,7 +30,11 @@
                             <td>{{ cycle.user.username }}</td>
                             <td>{{ cycle.startkwh }}</td>
                             <td>{{ cycle.endkwh }}</td>
-                            <td>{{ cycle.endkwh - cycle.startkwh }}</td>
+                            <td>
+                                {% if cycle.endkwh %}
+                                    {{ cycle.endkwh - cycle.startkwh }}
+                                {% endif %}
+                            </td>
                             <td>{{ cycle.start_timestamp_formatted }}</td>
                             <td>{{ cycle.end_timestamp_formatted }}</td>
                             <td>{{ cycle.duration }}</td>

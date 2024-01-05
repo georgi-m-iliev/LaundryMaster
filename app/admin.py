@@ -126,8 +126,9 @@ def cycles_view():
     cycles = WashingCycle.query.order_by(WashingCycle.start_timestamp.desc()).limit(1000).all()
     for cycle in cycles:
         cycle.start_timestamp_formatted = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
-        cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
-        cycle.duration = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
+        if cycle.end_timestamp:
+            cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
+            cycle.duration = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
 
     return render_template(
         'admin/cycles.html',
