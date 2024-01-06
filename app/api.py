@@ -1,6 +1,6 @@
 import os, json, time
 
-from flask import Blueprint, request
+from flask import Blueprint, request, make_response
 from flask_security import login_required, roles_required, current_user
 from flask_security.utils import hash_password
 from flask_sock import Sock
@@ -8,7 +8,7 @@ from flask_sock import Sock
 from app.db import db
 from app.auth import user_datastore
 
-from app.models import User, WashingMachine, PushSubscription, UserSettings
+from app.models import User, WashingMachine, PushSubscription, UserSettings, WashingCycle
 from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
 from app.functions import get_washer_info, get_relay_temperature, get_relay_wifi_rssi
 
@@ -133,3 +133,19 @@ def websocket(ws):
     while True:
         ws.send(json.dumps(get_washer_info()))
         time.sleep(1)
+
+
+@api.route('/export_washing_cycles.csv', methods=['GET'])
+@login_required
+@roles_required('admin')
+def export_washing_cycles():
+    cycles: list[WashingCycle] = WashingCycle.query.all()
+    csv = 'id,user,date,used_kwh,cost\n'
+    for cycle in cycles:
+        csv += f'{cycle.id},{cycle.user_id},{cycle.start_timestamp.strftime("%Y-%m-%d")},{cycle.endkwh - cycle.startkwh},{cycle.cost}\n'
+    if request.args.get('excel'):
+        csv = csv.replace(',', ';').replace('.', ',')
+    output = make_response(csv)
+    output.headers["Content-Disposition"] = "attachment"
+    output.headers["Content-type"] = "text/csv"
+    return output
