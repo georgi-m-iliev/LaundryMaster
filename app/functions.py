@@ -7,7 +7,7 @@ from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
 
 from app.db import db
-from app.models import User, WashingCycle, WashingMachine, PushSubscription, split_cycles
+from app.models import User, WashingCycle, WashingMachine, PushSubscription, split_cycles, Notification
 
 
 def start_cycle(user: User):
@@ -282,35 +282,33 @@ def get_usage_list(user: User, limit: int = 10):
     return cycles
 
 
-def trigger_push_notification(push_subscription, title, body, icon=None, user=None):
+def trigger_push_notification(push_subscription, notification: Notification):
     try:
-        if user:
-            current_app.logger.info(f'Sending push notification to {user.username}.')
-        else:
-            current_app.logger.info('Sending push notification to all users.')
         response = webpush(
             subscription_info=json.loads(push_subscription.subscription_json),
-            data=json.dumps({"title": title, "body": body, "icon": icon}),
+            data=json.dumps(notification.__dict__()),
             vapid_private_key=current_app.config["PUSH_PRIVATE_KEY"],
             vapid_claims={"sub": "mailto:{}".format(current_app.config["PUSH_CLAIM_EMAIL"])}
         )
         return response.ok
     except WebPushException as ex:
-        current_app.logger.error(f'Error trying to send notification to {user.username}.')
+        current_app.logger.error(f'Error trying to send notification.')
         if ex.response and ex.response.json():
             extra = ex.response.json()
             current_app.logger.error("Remote service replied with a {}:{}, {}", extra.code, extra.errno, extra.message)
         return False
 
 
-def send_push_to_all(title, body):
+def send_push_to_all(notification: Notification):
+    current_app.logger.info('Sending push notification to all users.')
     subscriptions = PushSubscription.query.all()
-    return [trigger_push_notification(subscription, title, body) for subscription in subscriptions]
+    return [trigger_push_notification(subscription, notification) for subscription in subscriptions]
 
 
-def send_push_to_user(user: User, title, body, icon=None):
+def send_push_to_user(user: User, notification: Notification):
+    current_app.logger.info(f'Sending push notification to {user.username}.')
     subscriptions = PushSubscription.query.filter_by(user_id=user.id).all()
-    return [trigger_push_notification(subscription, title, body, icon=icon, user=user) for subscription in subscriptions]
+    return [trigger_push_notification(subscription, notification) for subscription in subscriptions]
 
 
 def trigger_relay(mode: str):

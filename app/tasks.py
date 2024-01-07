@@ -6,7 +6,7 @@ from flask import Flask
 from celery import Celery, Task, shared_task, current_app
 from celery.schedules import crontab
 
-from app.models import User, WashingMachine
+from app.models import User, WashingMachine, Notification
 from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage, trigger_relay
 
 
@@ -75,10 +75,12 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
 
         # Cycle has ended, send push notification
         send_push_to_user(
-            user,
-            "Your cycle has ended!",
-            "Go pick your laundry!",
-            icon="cycle-done-icon.png"
+            user=user,
+            notification=Notification(
+                title="Your cycle has ended!",
+                body="Go pick your laundry!",
+                icon="cycle-done-icon.png"
+            )
         )
 
     print("Starting task...")
@@ -101,10 +103,12 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
         stop_cycle(user)
         print("Sending reminder to user...")
         send_push_to_user(
-            user,
-            "Your cycle is still running...",
-            "Did you forget to terminate it?",
-            icon="reminder-icon.png"
+            user=user,
+            notification=Notification(
+                title="Your cycle is still running...",
+                body="Did you forget to terminate it?",
+                icon="reminder-icon.png"
+            )
         )
     else:
         # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
@@ -121,10 +125,12 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
 
             print("Sending reminder to user...")
             send_push_to_user(
-                user,
-                "Your cycle is still running...",
-                "Did you forget to terminate it?",
-                icon="reminder-icon.png"
+                user=user,
+                notification=Notification(
+                    title="Your cycle is still running...",
+                    body="Did you forget to terminate it?",
+                    icon="reminder-icon.png",
+                )
             )
             i += 1
 

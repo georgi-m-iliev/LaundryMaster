@@ -8,7 +8,7 @@ from flask_sock import Sock
 from app.db import db
 from app.auth import user_datastore
 
-from app.models import User, WashingMachine, PushSubscription, UserSettings, WashingCycle
+from app.models import User, WashingMachine, PushSubscription, UserSettings, WashingCycle, NotificationURL
 from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
 from app.functions import get_washer_info, get_relay_temperature, get_relay_wifi_rssi
 
@@ -84,8 +84,12 @@ def push_subscriptions():
 def trigger_push():
     json_data = request.get_json()
     send_push_to_all(
-        json_data.get('title'),
-        json_data.get('body')
+        notification=NotificationURL(
+            title=json_data.get('title'),
+            body=json_data.get('body'),
+            icon=json_data.get('icon', None),
+            url=json_data.get('url', '/')
+        )
     )
     return {"status": "success"}
 
@@ -97,8 +101,12 @@ def trigger_push_by_id(user_id: int):
     json_data = request.get_json()
     send_push_to_user(
         user=User.query.get(user_id),
-        title=json_data.get('title'),
-        body=json_data.get('body')
+        notification=NotificationURL(
+            title=json_data.get('title'),
+            body=json_data.get('body'),
+            icon=json_data.get('icon', None),
+            url=json_data.get('url', '/')
+        )
     )
     return {"status": "success"}
 

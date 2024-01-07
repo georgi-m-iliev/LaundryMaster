@@ -84,3 +84,36 @@ class ScheduleEvent(db.Model):
     user = db.relationship('User', backref=db.backref('schedule_events', lazy=True))
 
 
+class Notification:
+    def __init__(self, title, body, icon):
+        self.title = title
+        self.body = body
+        self.icon = icon
+        self.url = '/'
+
+    def __dict__(self):
+        return {
+            'title': self.title,
+            'body': self.body,
+            'icon': self.icon,
+            'url': self.url
+        }
+
+
+class NotificationURL(Notification):
+    def __init__(self, title, body, icon, url):
+        super().__init__(title, body, icon)
+        self.url = url
+
+
+class NotificationActions(Notification):
+    def __init__(self, title, body, icon, actions):
+        super().__init__(title, body, icon)
+        self.actions = actions
+
+    def __dict__(self):
+        result = super().__dict__()
+        # each actions is a dict with keys 'action', 'title', 'url'
+        result['actions'] = [{'action': action['action'], 'title': action['title']} for action in self.actions]
+        result['actionsURLs'] = [action['url'] for action in self.actions]
+        return result

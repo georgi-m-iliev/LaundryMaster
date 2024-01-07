@@ -44,23 +44,34 @@ self.addEventListener('push', function (event) {
     console.log('[Service Worker] Push Received.');
     const pushData = event.data.text();
     // console.log(`[Service Worker] Push received this data - "${pushData}"`);
-    let data, title, body, icon;
+    let data, title, body, icon, url, actions, actionsURLs;
     try {
         data = JSON.parse(pushData);
         title = data.title;
         body = data.body;
         icon = data.icon;
+        url = data.url;
+        actions = data.actions
+        actionsURLs = data.actionsURLs
     } catch (e) {
         title = "Error with retrieving notification";
         body = pushData;
         icon = null;
+        url = '/';
+        actions = [];
+        actionsURLs = [];
     }
     const options = {
         body: body,
         badge: 'static/assets/img/icons/android-chrome-192x192.png',
         icon: `static/assets/img/icons/${icon}`,
+        data: {
+            url: url,
+            actionsURLs: actionsURLs
+        },
+        // actions: [{action: "open_url", title: "Read Now"}]
+        actions: actions,
     };
-    console.log(title, options);
 
     event.waitUntil(
         self.registration.showNotification(title, options)
@@ -68,17 +79,44 @@ self.addEventListener('push', function (event) {
 });
 
 self.addEventListener('notificationclick', event => {
-    const rootUrl = new URL('/', location).href;
+    const origin = new URL('/', location).origin;
     event.notification.close();
     // Enumerate windows, and call window.focus(), or open a new one.
     event.waitUntil(
         clients.matchAll().then(matchedClients => {
-            for (let client of matchedClients) {
-                if (client.url === rootUrl) {
-                    return client.focus();
+            let newURL;
+
+            if(event.action === '') {
+                newURL = event.notification.data.url;
+            }
+            else {
+                const actions = event.notification.actions;
+                const actionsURLs = event.notification.data.actionsURLs;
+                for(let i = 0; i < actions.length; i++) {
+                    if(actions[i].action === event.action) {
+                        newURL = actionsURLs[i];
+                    }
                 }
             }
-            return clients.openWindow("/");
+
+            for (let client of matchedClients) {
+                if (client.url.startsWith(origin)) {
+                    return client.navigate(newURL).then(client => client.focus());
+                }
+            }
+            // if no clients are open, then open one.
+            return clients.openWindow(newURL);
         })
     );
 });
+
+// self.addEventListener('notificationclick', function(event) {
+//     switch(event.action){
+//         case 'open_url':
+//             clients.openWindow(event.notification.data.url); //which we got from above
+//         break;
+//         case 'any_other_action':
+//             clients.openWindow("https://www.example.com");
+//         break;
+//     }
+// });
