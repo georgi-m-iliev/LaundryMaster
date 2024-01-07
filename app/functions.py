@@ -149,8 +149,6 @@ def calculate_unpaid_cycles_cost(user: User = None):
 
     result = 0
     for unpaid_cycle in unpaid:
-        print(type(unpaid_cycle.split_users))
-
         if hasattr(unpaid_cycle, 'split_cost'):
             result += unpaid_cycle.split_cost
         else:
@@ -301,7 +299,7 @@ def trigger_push_notification(push_subscription, title, body, icon=None, user=No
         current_app.logger.error(f'Error trying to send notification to {user.username}.')
         if ex.response and ex.response.json():
             extra = ex.response.json()
-            print("Remote service replied with a {}:{}, {}", extra.code, extra.errno, extra.message)
+            current_app.logger.error("Remote service replied with a {}:{}, {}", extra.code, extra.errno, extra.message)
         return False
 
 
