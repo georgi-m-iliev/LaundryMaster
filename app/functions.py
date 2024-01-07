@@ -398,28 +398,28 @@ def get_relay_wifi_rssi():
     return data.json()['data']['device_status']['wifi_sta']['rssi']
 
 
-def get_washer_info():
+def get_washer_info(shelly=True):
     """ Returns a dict with washing machine information """
+    if shelly:
+        shelly_request = requests.post(
+            url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+            params={
+                'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+                'id': os.getenv('SHELLY_DEVICE_ID')
+            }
+        )
 
-    shelly_request = requests.post(
-        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
-        params={
-            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
-            'id': os.getenv('SHELLY_DEVICE_ID')
+        if shelly_request.status_code != 200:
+            current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
+            raise RequestException('Failed to get current usage data from Shelly Cloud API')
+
+        shelly_data = shelly_request.json()
+
+        return {
+            "running_time": get_running_time(),
+            "current_usage": shelly_data['data']['device_status']['meters'][0]['power'],
+            "relay_temperature": shelly_data['data']['device_status']['temperature'],
+            "relay_wifi_rssi": shelly_data['data']['device_status']['wifi_sta']['rssi']
         }
-    )
 
-    if shelly_request.status_code != 200:
-        current_app.logger.error('Failed to get current usage data from Shelly Cloud API')
-        raise RequestException('Failed to get current usage data from Shelly Cloud API')
-
-    shelly_data = shelly_request.json()
-
-    result = {
-        "running_time": get_running_time(),
-        "current_usage": shelly_data['data']['device_status']['meters'][0]['power'],
-        "relay_temperature": shelly_data['data']['device_status']['temperature'],
-        "relay_wifi_rssi": shelly_data['data']['device_status']['wifi_sta']['rssi']
-    }
-
-    return result
+    return {"running_time": get_running_time()}

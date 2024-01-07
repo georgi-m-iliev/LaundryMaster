@@ -81,7 +81,8 @@
                 </div>
             </div>
             <script type="module">
-                import { washingMachineInfoWS } from "{{ url_for('static', filename='assets/js/websockets.js') }}";
+                import { getWS } from "{{ url_for('static', filename='assets/js/websockets.js') }}";
+                const washingMachineInfoWS = getWS();
                 washingMachineInfoWS.onmessage = (event) => {
                     const newData = JSON.parse(event.data);
                     document.getElementById('current-usage').textContent = newData['current_usage'];

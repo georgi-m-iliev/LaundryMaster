@@ -130,8 +130,13 @@ def relay_wifi_rssi():
 @sock.route('/api/washing_machine_infos')
 @login_required
 def websocket(ws):
+    if request.args.get('shelly') == 'false':
+        shelly = False
+    else:
+        shelly = True
+
     while True:
-        ws.send(json.dumps(get_washer_info()))
+        ws.send(json.dumps(get_washer_info(shelly)))
         time.sleep(1)
 
 
