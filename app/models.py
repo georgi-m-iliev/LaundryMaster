@@ -107,9 +107,17 @@ class NotificationURL(Notification):
 
 
 class NotificationActions(Notification):
-    def __init__(self, title, body, icon, actions):
+    def __init__(self, title, body, icon, actions=None):
         super().__init__(title, body, icon)
-        self.actions = actions
+        if actions is None:
+            self.actions = []
+        else:
+            self.actions = actions
+
+    def add_action(self, action, title, url, icon=None):
+        self.actions.append({'action': action, 'title': title, 'url': url})
+        if icon is not None:
+            self.actions[-1]['icon'] = icon
 
     def __dict__(self):
         result = super().__dict__()
