@@ -7,10 +7,11 @@ from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
 
 from app.db import db
-from app.models import User, WashingCycle, WashingMachine, PushSubscription, split_cycles, Notification
+from app.models import User, UserSettings, WashingCycle, WashingMachine, PushSubscription, split_cycles, Notification
 
 
-def start_cycle(user: User):
+def start_cycle(user: User, user_settings: UserSettings):
+    from app.tasks import watch_usage_and_notify_cycle_end
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # User has an already running cycle
         current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
@@ -26,8 +27,7 @@ def start_cycle(user: User):
         raise ChildProcessError('Request to turn on the relay failed!')
 
     try:
-        update_energy_consumption()
-        new_cycle = WashingCycle(user_id=user.id, startkwh=WashingMachine.query.first().currentkwh)
+        new_cycle = WashingCycle(user_id=user.id, startkwh=get_energy_consumption())
         db.session.add(new_cycle)
         db.session.commit()
         current_app.logger.info(f'User {user.username} successfully started a new cycle.')
@@ -35,7 +35,14 @@ def start_cycle(user: User):
     except RequestException:
         current_app.logger.error(f'Error with initialising a cycle for user {user.username}.')
         flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
+        db.session.rollback()
         raise ChildProcessError('Error with initialising a cycle for user {user.username}.')
+
+    WashingMachine.query.first().notification_task_id = watch_usage_and_notify_cycle_end.delay(
+        user.id,
+        user_settings.terminate_cycle_on_usage
+    ).id
+    db.session.commit()
 
 
 def stop_cycle(user: User):

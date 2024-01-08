@@ -21,20 +21,13 @@ def handle_cycle_buttons():
     # if request is POST, then check if one of the buttons was pressed
     if request.method == 'POST':
         if request.form.get('start_cycle') is not None:
+            user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
             try:
-                start_cycle(current_user)
+                start_cycle(current_user, user_settings)
             except ChildProcessError:
                 return redirect(request.path)
-            WashingMachine.query.first().notification_task_id = watch_usage_and_notify_cycle_end.delay(
-                current_user.id,
-                UserSettings.query.filter_by(user_id=current_user.id).first().terminate_cycle_on_usage
-            ).id
-            db.session.commit()
-
-            user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
             if user_settings.launch_candy_on_cycle_start:
                 return redirect(request.path + '?candy=true')
-
             return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
             stop_cycle(current_user)
