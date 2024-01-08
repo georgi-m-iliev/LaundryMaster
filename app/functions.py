@@ -1,7 +1,7 @@
-import os, decimal, datetime, json, math, requests
+import os, decimal, datetime, json, requests
 from requests.exceptions import RequestException
 
-from flask import session, current_app, flash
+from flask import current_app, flash
 from celery.result import AsyncResult
 from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
@@ -87,97 +87,6 @@ def update_cycle(user: User):
         return {'state': 'available', 'id': None}
 
 
-def calculate_charges(user: User):
-    """Calculate the monthly charges for a user."""
-    charges: list[WashingCycle] = WashingCycle.query.filter(
-        WashingCycle.end_timestamp.is_not(None),
-        or_(
-            WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
-        ),
-        db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
-    ).all()
-
-    result = 0
-    for charge in charges:
-        result += charge.cost
-
-    return result
-
-
-def calculate_usage(user: User):
-    """Calculate the monthly usage of electricity for a user."""
-    usage: list[WashingCycle] = WashingCycle.query.filter(
-        WashingCycle.end_timestamp.is_not(None),
-        or_(
-            WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
-        ),
-        db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
-    ).all()
-
-    result = 0
-    for use in usage:
-        result += use.endkwh - use.startkwh
-
-    return result
-
-
-def calculate_unpaid_cycles_cost(user: User = None):
-    """Calculate the unpaid cycles for a user or at all."""
-    if user is None:
-        unpaid: list[WashingCycle] = WashingCycle.query.filter(
-            WashingCycle.end_timestamp.is_not(None),
-            WashingCycle.paid.is_(False)
-        ).all()
-    else:
-        unpaid: list[WashingCycle] = WashingCycle.query.filter(
-            WashingCycle.end_timestamp.is_not(None),
-            or_(
-                and_(
-                    WashingCycle.user_id == user.id,
-                    WashingCycle.paid.is_(False),
-                ),
-                WashingCycle.split_users.any(id=user.id)
-            )
-        ).all()
-
-        paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(
-            user_id=user.id, paid=True
-        ).all()]
-        unpaid = [cycle for cycle in unpaid if cycle.id not in paid_split_cycles_ids]
-
-    result = 0
-    for unpaid_cycle in unpaid:
-        if hasattr(unpaid_cycle, 'split_cost'):
-            result += unpaid_cycle.split_cost
-        else:
-            result += unpaid_cycle.cost
-
-    return result
-
-
-def calculate_savings(user: User):
-    """Calculate the savings from having personal washing machine."""
-    cycles: list[WashingCycle] = WashingCycle.query.filter(
-        WashingCycle.end_timestamp.is_not(None),
-        or_(
-            WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
-        ),
-        WashingCycle.cost > 0.30,  # minimum cost of washing and drying, so the calculation would be accurate
-        db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
-    ).all()
-
-    public_wash_cost = WashingMachine.query.first().public_wash_cost
-
-    result = 0
-    for cycle in cycles:
-        result += public_wash_cost - cycle.cost
-
-    return result
-
-
 def get_running_time() -> str:
     """Calculate the running time of the current cycle."""
     cycle: WashingCycle = WashingCycle.query.filter(
@@ -187,46 +96,6 @@ def get_running_time() -> str:
         return str(datetime.datetime.now(datetime.timezone.utc) - cycle.start_timestamp).split('.')[0].zfill(8)
     else:
         return '00:00:00'
-
-
-def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
-    """Calculate the monthly statistics for a user."""
-    if months <= 0:
-        return {"labels": [], "data": [0, 0, 0, 0, 0, 0]}
-
-    stat_labels: list[str] = []
-    stat_data: list[str] = []
-    year: int = datetime.datetime.now().year
-    month: int = datetime.datetime.now().month
-
-    for i in range(months):
-        # print("Month " + str(month) + " Year " + str(year))
-        cycles = WashingCycle.query.filter(
-            WashingCycle.end_timestamp.is_not(None),
-            or_(
-                WashingCycle.user_id == user.id,
-                WashingCycle.split_users.any(id=user.id)
-            ),
-            db.func.extract('month', WashingCycle.end_timestamp) == month,
-            db.func.extract('year', WashingCycle.end_timestamp) == year,
-        ).all()
-
-        total_cost = 0
-
-        for cycle in cycles:
-            total_cost += cycle.cost
-
-        stat_labels.append(datetime.date(year=year, month=month, day=1).strftime("%B")[0:3])
-        stat_data.append(str(total_cost))
-
-        if month == 1:
-            month = 12
-            year -= 1
-        else:
-            month -= 1
-    stat_labels.reverse()
-    stat_data.reverse()
-    return {"labels": stat_labels, "data": stat_data}
 
 
 def get_unpaid_list(user: User):

@@ -9,6 +9,7 @@ from app.models import *
 from app.forms import *
 
 from app.functions import *
+from app.statistics import *
 from app.tasks import watch_usage_and_notify_cycle_end, release_door
 
 

@@ -6,7 +6,7 @@ from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings
 from app.forms import EditProfileForm, EditRolesForm
-from app.functions import calculate_unpaid_cycles_cost
+from app.statistics import calculate_unpaid_cycles_cost
 
 admin = Blueprint('admin', __name__)
 
