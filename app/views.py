@@ -250,27 +250,26 @@ def profile():
     edit_form = EditProfileForm()
     settings_form = EditSettingsForm()
 
-    if 'profile-submit' in request.form and edit_form.validate_on_submit():
-        if True not in (
-            edit_form.first_name.data, edit_form.email.data, edit_form.username.data, edit_form.password.data
-        ):
+    if edit_form.validate_on_submit() and edit_form.submit.data:
+        if not edit_form.first_name.data and not edit_form.email.data and not edit_form.username.data and \
+                not edit_form.password.data:
             flash('Nothing to update', category='profile')
-            return redirect(request.path)
+        else:
+            if edit_form.first_name.data:
+                current_user.first_name = edit_form.first_name.data
+            if edit_form.email.data:
+                current_user.email = edit_form.email.data
+            if edit_form.username.data:
+                current_user.username = edit_form.username.data
+            if edit_form.password.data:
+                current_user.password = hash_password(edit_form.password.data)
 
-        if edit_form.first_name.data:
-            current_user.first_name = edit_form.first_name.data
-        if edit_form.email.data:
-            current_user.email = edit_form.email.data
-        if edit_form.username.data:
-            current_user.username = edit_form.username.data
-        if edit_form.password.data:
-            current_user.password = hash_password(edit_form.password.data)
-        db.session.commit()
-        flash('Profile updated successfully', 'success')
+            db.session.commit()
+            flash('Profile updated successfully', 'success')
         return redirect(request.path)
 
     user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
-    if 'settings-submit' in request.form and settings_form.validate_on_submit():
+    if settings_form.validate_on_submit() and settings_form.submit.data:
         # print('New setting is {}'.format(settings_form.automatic_stop.data))
         user_settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
         user_settings.launch_candy_on_cycle_start = settings_form.automaitc_open_candy.data
