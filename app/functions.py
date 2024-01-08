@@ -290,3 +290,24 @@ def get_washer_info(shelly=True):
         }
 
     return {"running_time": get_running_time()}
+
+
+def delete_user(user: User):
+    """ Deletes a user and all associated data excl. washing cycles """
+    from app.models import User, UserSettings, PushSubscription, ScheduleEvent, WashingCycle, roles_users, split_cycles
+    user_settings = UserSettings.query.filter_by(user_id=user.user_id).first()
+    push_subscriptions = PushSubscription.query.filter_by(user_id=user.user_id).all()
+    schedule_events = ScheduleEvent.query.filter_by(user_id=user.user_id).all()
+    cycles = WashingCycle.query.filter_by(user_id=user.user_id).all()
+
+    for cycle in cycles:
+        cycle.user_id = None
+
+    db.session.delete(user_settings)
+    db.session.delete(push_subscriptions)
+    db.session.delete(schedule_events)
+    roles_users.delete().where(roles_users.c.user_id == user.user_id)
+    split_cycles.delete().where(split_cycles.c.user_id == user.user_id)
+    user_datastore.delete_user(user)
+
+    db.session.commit()

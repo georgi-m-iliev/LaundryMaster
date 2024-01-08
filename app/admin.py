@@ -1,12 +1,13 @@
 import datetime, json
 from flask import Blueprint, request, render_template, redirect, flash
-from flask_security import roles_required, hash_password
+from flask_security import roles_required, hash_password, current_user
 
 from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings
 from app.forms import EditProfileForm, EditRolesForm
 from app.statistics import calculate_unpaid_cycles_cost
+from app.functions import delete_user
 
 admin = Blueprint('admin', __name__)
 
@@ -28,18 +29,28 @@ def users_view():
         if request.args.get('delete'):
             user_id = request.args.get('delete')
             user = User.query.filter_by(id=user_id).first()
-            user_settings = UserSettings.query.filter_by(user_id=user_id).first()
-            db.session.delete(user_settings)
-            user_datastore.delete_user(user)
+            if user is None:
+                flash(f'User does not exist', category='toast-error')
+                return redirect(request.path)
+            if user == current_user:
+                flash(f'You cannot delete yourself', category='toast-error')
+                return redirect(request.path)
+            delete_user(user)
             flash(f'Deleted user {user.username}', category='toast-success')
         elif request.args.get('activate'):
             user_id = request.args.get('activate')
             user = User.query.filter_by(id=user_id).first()
+            if user is None:
+                flash(f'User does not exist', category='toast-error')
+                return redirect(request.path)
             user_datastore.activate_user(user)
             flash(f'Activated user {user.username}', category='toast-success')
         elif request.args.get('deactivate'):
             user_id = request.args.get('deactivate')
             user = User.query.filter_by(id=user_id).first()
+            if user is None:
+                flash(f'User does not exist', category='toast-error')
+                return redirect(request.path)
             user_datastore.deactivate_user(user)
             flash(f'Deactivated user {user.username}', category='toast-success')
         db.session.commit()
@@ -61,22 +72,25 @@ def users_view():
     if edit_user_form.validate_on_submit() and edit_user_form.submit.data:
         if request.args.get('user_id'):
             # print('Profile update...')
+            user = User.query.filter_by(id=request.args.get('user_id')).first()
+            if user is None:
+                flash('User not found.', category='toast-error')
+                return redirect(request.path)
+
             if ('', '', '', '') == (edit_user_form.first_name.data, edit_user_form.email.data,
                                     edit_user_form.username.data, edit_user_form.password.data):
                 flash('Nothing to update.', category='toast-info')
                 return redirect(request.path)
-
-            user = User.query.filter_by(id=request.args.get('user_id')).first()
-            if edit_user_form.first_name.data:
-                user.first_name = edit_user_form.first_name.data
-            elif edit_user_form.email.data:
-                user.email = edit_user_form.email.data
-            elif edit_user_form.username.data:
-                user.username = edit_user_form.username.data
-            elif edit_user_form.password.data:
-                user.password = hash_password(edit_user_form.password.data)
-            db.session.commit()
-            flash('User updated successfully', 'toast-success')
+            else:
+                if edit_user_form.first_name.data:
+                    user.first_name = edit_user_form.first_name.data
+                if edit_user_form.email.data:
+                    user.email = edit_user_form.email.data
+                if edit_user_form.username.data:
+                    user.username = edit_user_form.username.data
+                if edit_user_form.password.data:
+                    user.password = hash_password(edit_user_form.password.data)
+                flash('User updated successfully', 'toast-success')
         else:
             # print('Creating new user...')
             user_datastore.create_user(
@@ -87,8 +101,8 @@ def users_view():
             )
             settings = UserSettings(user_id=User.query.filter_by(username=edit_user_form.username.data).first().id)
             db.session.add(settings)
-            db.session.commit()
             flash('User created successfully', 'toast-success')
+        db.session.commit()
         return redirect(request.path)
     else:
         for field, errors in edit_user_form.errors.items():
@@ -98,12 +112,15 @@ def users_view():
     if request.args.get('user_id') and edit_roles_form.validate_on_submit() and edit_roles_form.submit.data:
         # print('Changing roles...')
         user = User.query.filter_by(id=request.args.get('user_id')).first()
-        for role in edit_roles_form.roles_to_add.data:
-            user_datastore.add_role_to_user(user, role)
-        for role in edit_roles_form.roles_to_remove.data:
-            user_datastore.remove_role_from_user(user, role)
-        db.session.commit()
-        flash('Roles updated successfully', 'toast-success')
+        if user:
+            for role in edit_roles_form.roles_to_add.data:
+                user_datastore.add_role_to_user(user, role)
+            for role in edit_roles_form.roles_to_remove.data:
+                user_datastore.remove_role_from_user(user, role)
+            db.session.commit()
+            flash('Roles updated successfully', 'toast-success')
+        else:
+            flash(f'User does not exist', category='toast-error')
         return redirect(request.path)
     else:
         for field, errors in edit_roles_form.errors.items():
