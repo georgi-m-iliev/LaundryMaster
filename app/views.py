@@ -173,6 +173,9 @@ def schedule():
                     flash('Event not found', category='toast-error')
                     db.session.rollback()
                     return redirect(request.path)
+                if event.user != current_user:
+                    flash('You can only edit your own events', category='toast-error')
+                    return redirect(request.path)
                 event.start_timestamp = start_timestamp
                 event.end_timestamp = end_timestamp
             else:
