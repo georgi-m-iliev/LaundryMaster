@@ -135,3 +135,37 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
     stat_labels.reverse()
     stat_data.reverse()
     return {"labels": stat_labels, "data": stat_data}
+
+
+def admin_users_usage_statistics(months: int = 12) -> dict:
+    """ Calculates the times each user has used the washing machine. """
+    users = User.query.all()
+    users_usage_stats = {'labels': [user.first_name for user in users], 'datasets': []}
+
+    users_usage_stats['datasets'].append({
+            'label': f'Cycles per user for the last {months} months',
+            'fill': True,
+            'data': [],
+            'backgroundColor': '#5f74d7',
+    })
+    for user in users:
+        cycles = WashingCycle.query.filter(
+            WashingCycle.user_id == user.id,
+            WashingCycle.start_timestamp >= datetime.datetime.now() - datetime.timedelta(days=months * 30)
+        ).all()
+        users_usage_stats['datasets'][0]['data'].append(len(cycles))
+
+    users_usage_stats['datasets'].append({
+            'label': f'Cycles per user for the last 30 days',
+            'fill': True,
+            'data': [],
+            'backgroundColor': '#7fc2d1',
+    })
+    for user in users:
+        cycles = WashingCycle.query.filter(
+            WashingCycle.user_id == user.id,
+            WashingCycle.start_timestamp >= datetime.datetime.now() - datetime.timedelta(days=30)
+        ).all()
+        users_usage_stats['datasets'][1]['data'].append(len(cycles))
+
+    return users_usage_stats

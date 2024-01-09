@@ -6,7 +6,7 @@ from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings
 from app.forms import EditProfileForm, EditRolesForm
-from app.statistics import calculate_unpaid_cycles_cost
+from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics
 from app.functions import delete_user
 
 admin = Blueprint('admin', __name__)
@@ -18,7 +18,8 @@ def index():
     return render_template(
         'admin/index.html',
         is_dashboard=True,
-        unpaid_cycles_cost=calculate_unpaid_cycles_cost()
+        unpaid_cycles_cost=calculate_unpaid_cycles_cost(),
+        users_usage_stats=json.dumps(admin_users_usage_statistics()),
     )
 
 

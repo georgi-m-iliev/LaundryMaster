@@ -23,5 +23,83 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-lg-7 col-xl-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="text-danger fw-bold m-0">Users Usage Of Washing Machine</h6>
+                        <div class="dropdown no-arrow" style="padding-top: 2vh; padding-bottom: 2vh">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas data-bss-chart='{
+                                "type": "horizontalBar",
+                                "data": {{ users_usage_stats }},
+                                "options":{
+                                    "maintainAspectRatio": false,
+                                    "responsive": true,
+                                    "legend":{
+                                        "display": true,
+                                        "labels":{
+                                            "fontStyle":"normal"
+                                        }
+                                    },
+                                    "title":{
+                                        "fontStyle":"normal"
+                                    },
+                                    "scales":{
+                                        "xAxes": [
+                                            {
+                                                "gridLines":{
+                                                    "color":"rgb(234, 236, 244)",
+                                                    "zeroLineColor":"rgb(234, 236, 244)",
+                                                    "drawBorder":false,
+                                                    "drawTicks":false,
+                                                    "borderDash":[
+                                                        "2"
+                                                    ],
+                                                    "zeroLineBorderDash":[
+                                                        "2"
+                                                    ],
+                                                    "drawOnChartArea":false
+                                                },
+                                                "ticks":{
+                                                    "fontColor":"#858796",
+                                                    "fontStyle":"normal",
+                                                    "padding":20,
+                                                    "beginAtZero": true
+                                                }
+                                            }
+                                        ],
+                                        "yAxes": [
+                                            {
+                                                "gridLines":{
+                                                    "color":"rgb(234, 236, 244)",
+                                                    "zeroLineColor":"rgb(234, 236, 244)",
+                                                    "drawBorder":false,
+                                                    "drawTicks":false,
+                                                    "borderDash": [
+                                                        "2"
+                                                    ],
+                                                    "zeroLineBorderDash": [
+                                                        "2"
+                                                    ]
+                                                },
+                                                "ticks":{
+                                                    "fontColor":"#858796",
+                                                    "fontStyle":"normal",
+                                                    "padding":20
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }'></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
