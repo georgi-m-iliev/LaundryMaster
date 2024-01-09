@@ -7,6 +7,7 @@ from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
 
 from app.db import db
+from app.auth import user_datastore
 from app.models import User, UserSettings, WashingCycle, WashingMachine, PushSubscription, split_cycles, Notification
 
 
@@ -302,19 +303,16 @@ def get_washer_info(shelly=True):
 def delete_user(user: User):
     """ Deletes a user and all associated data excl. washing cycles """
     from app.models import User, UserSettings, PushSubscription, ScheduleEvent, WashingCycle, roles_users, split_cycles
-    user_settings = UserSettings.query.filter_by(user_id=user.user_id).first()
-    push_subscriptions = PushSubscription.query.filter_by(user_id=user.user_id).all()
-    schedule_events = ScheduleEvent.query.filter_by(user_id=user.user_id).all()
-    cycles = WashingCycle.query.filter_by(user_id=user.user_id).all()
+    user_settings = UserSettings.query.filter_by(user_id=user.id).delete()
+    push_subscriptions = PushSubscription.query.filter_by(user_id=user.id).delete()
+    schedule_events = ScheduleEvent.query.filter_by(user_id=user.id).delete()
+    cycles = WashingCycle.query.filter_by(user_id=user.id).all()
 
     for cycle in cycles:
         cycle.user_id = None
 
-    db.session.delete(user_settings)
-    db.session.delete(push_subscriptions)
-    db.session.delete(schedule_events)
-    roles_users.delete().where(roles_users.c.user_id == user.user_id)
-    split_cycles.delete().where(split_cycles.c.user_id == user.user_id)
+    roles_users.delete().where(roles_users.c.user_id == user.id)
+    split_cycles.delete().where(split_cycles.c.user_id == user.id)
     user_datastore.delete_user(user)
 
     db.session.commit()
