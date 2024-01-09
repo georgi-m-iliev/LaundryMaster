@@ -96,3 +96,8 @@ class SplitCycleForm(FlaskForm):
     other_users = SelectMultipleField('other_users', choices=[], coerce=int)
     cycle_id = IntegerField('cycle_id', validators=[DataRequired()])
     submit = SubmitField('submit')
+
+
+class MarkPaidForm(FlaskForm):
+    cycle_id = IntegerField('cycle_id', validators=[DataRequired()])
+    submit = SubmitField('mark')

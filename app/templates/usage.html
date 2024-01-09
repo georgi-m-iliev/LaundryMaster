@@ -84,13 +84,25 @@
                                     {% endif %}
                                 </td>
                                 {% if usage.user_id == current_user.id %}
-                                    <td>
+                                    <td class="d-flex flex-row gap-1">
                                         <button class="btn btn-outline-primary" type="button" title="Split"
                                                 data-bs-toggle="modal" data-bs-target="#splitCycleModal"
                                                 data-bs-cycle-id="{{ usage.id }}" data-bs-cycle-cost="{{ usage.cost }}"
                                                 onclick="">
                                             <i class="fas fa-solid fa-chart-pie"></i>
                                         </button>
+                                        {% if not (usage.split_paid or usage.paid) %}
+                                            <button class="btn btn-outline-success" type="button" title="Mark as paid"
+                                                    onclick="
+                                                        document.getElementById('mark-paid-cycle-id').value = '{{ usage.id }}';
+                                                        document.getElementById('mark-paid-form').submit();">
+                                                <i class="fas fa-solid fa-money-bill-wave"></i>
+                                            </button>
+                                            <form id="mark-paid-form" method="POST">
+                                                {{ mark_paid_form.csrf_token }}
+                                                {{ mark_paid_form.cycle_id(id="mark-paid-cycle-id", hidden=True) }}
+                                            </form>
+                                        {% endif %}
                                     </td>
                                 {% endif %}
                             </tr>

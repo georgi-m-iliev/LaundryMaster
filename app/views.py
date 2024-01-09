@@ -84,10 +84,23 @@ def index():
 @login_required
 @roles_required('user')
 def usage_view():
-    select_form = UsageViewShowCountForm(items=request.args.get('items') or '10')
-    split_cycle_form = SplitCycleForm()
+    mark_paid_form = MarkPaidForm()
+
+    if mark_paid_form.validate_on_submit() and mark_paid_form.cycle_id.data:
+        cycle = WashingCycle.query.filter_by(id=mark_paid_form.cycle_id.data).first()
+        if cycle is None:
+            flash('Cycle not found', category='toast-error')
+        elif cycle.user_id != current_user.id:
+            flash('You can only mark your own cycles as paid', category='toast-error')
+        elif cycle.paid:
+            flash('Cycle already marked as paid', category='toast-error')
+        else:
+            cycle.paid = True
+            db.session.commit()
+            flash('Cycle marked as paid', category='toast-success')
 
     other_users = User.query.filter(User.id != current_user.id, User.active).all()
+    split_cycle_form = SplitCycleForm()
     split_cycle_form.other_users.choices = [(user.id, user.first_name) for user in other_users]
 
     if split_cycle_form.validate_on_submit() and split_cycle_form.submit.data:
@@ -113,6 +126,7 @@ def usage_view():
             for error in errors:
                 flash(error, category='toast-error')
 
+    select_form = UsageViewShowCountForm(items=request.args.get('items') or '10')
     if select_form.items.data == 'all':
         limit = None
     else:
@@ -124,7 +138,8 @@ def usage_view():
         cycle_data=update_cycle(current_user),
         select_form=select_form,
         usages=get_usage_list(current_user, limit),
-        split_cycle_form=split_cycle_form
+        split_cycle_form=split_cycle_form,
+        mark_paid_form=mark_paid_form
     )
 
 
