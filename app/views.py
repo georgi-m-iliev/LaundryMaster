@@ -10,7 +10,7 @@ from app.forms import *
 
 from app.functions import *
 from app.statistics import *
-from app.tasks import watch_usage_and_notify_cycle_end, release_door
+from app.tasks import schedule_notification, release_door
 
 
 views = Blueprint('views', __name__)
@@ -175,7 +175,7 @@ def schedule():
             flash('Timeslot is already reserved! Please request another one!', category='toast-warning')
         else:
             if schedule_request_form.id.data:
-                # editing an existing event
+                # editing an existing event and updating notification task
                 event = ScheduleEvent.query.filter_by(id=schedule_request_form.id.data).first()
                 if event is None:
                     flash('Event not found', category='toast-error')
@@ -186,12 +186,24 @@ def schedule():
                     return redirect(request.path)
                 event.start_timestamp = start_timestamp
                 event.end_timestamp = end_timestamp
+                if event.notification_task_id:
+                    AsyncResult(event.notification_task_id).revoke(terminate=True)
+                    notification_task_id = schedule_notification.apply_async(
+                        (current_user.id,),
+                        eta=start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5)))
+                    ).id
+                    event.notification_task_id = notification_task_id
             else:
-                # creating a new event
+                # creating a new event and task for notification
+                notification_task_id = schedule_notification.apply_async(
+                    (current_user.id,),
+                    eta=start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5)))
+                ).id
                 event = ScheduleEvent(
                     start_timestamp=start_timestamp,
                     end_timestamp=end_timestamp,
-                    user_id=current_user.id
+                    user_id=current_user.id,
+                    notification_task_id=notification_task_id
                 )
                 db.session.add(event)
             db.session.commit()

@@ -6,7 +6,7 @@ from flask import Flask
 from celery import Celery, Task, shared_task, current_app
 from celery.schedules import crontab
 
-from app.models import User, WashingMachine, Notification
+from app.models import User, WashingMachine, Notification, schedule_reminder_notification
 from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage, trigger_relay
 
 
@@ -170,3 +170,16 @@ def release_door(user_username: str):
         counter += 1
 
     current_app.logger.info("Task to release the door ended.")
+
+
+@shared_task(ignore_result=True)
+def schedule_notification(user_id: int):
+    print("Starting schedule event notification task...")
+    user = User.query.filter_by(id=user_id).first()
+    if user:
+        current_app.logger.info(f'Reminding {user.username} about their scheduled washing...')
+        result = send_push_to_user(user=user, notification=schedule_reminder_notification)
+        if False in result:
+            current_app.logger.warning(f'Sending push notification failed for some subscriptions: {result}')
+    else:
+        current_app.logger.warning(f'User with id {user_id} not found!')

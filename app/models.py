@@ -82,6 +82,7 @@ class ScheduleEvent(db.Model):
     end_timestamp = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('schedule_events', lazy=True))
+    notification_task_id = db.Column(db.String(512), nullable=True)
 
 
 class Notification:
@@ -125,3 +126,10 @@ class NotificationActions(Notification):
         result['actions'] = [{'action': action['action'], 'title': action['title']} for action in self.actions]
         result['actionsURLs'] = [action['url'] for action in self.actions]
         return result
+
+
+schedule_reminder_notification = Notification(
+    title="You have a scheduled washing!",
+    body="Click here to see the details.",
+    icon="reminder-icon.png"
+)
