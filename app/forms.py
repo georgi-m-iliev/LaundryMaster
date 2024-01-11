@@ -13,12 +13,12 @@ class LoginForm(FlaskForm):
                              validators=[DataRequired(), Length(min=6, max=128)],
                              render_kw={'type': 'password'}
                              )
-    login = SubmitField('login')
+    login = SubmitField('login', id='login', name='login')
 
 
 class RequestPasswordResetForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Send email')
+    submit = SubmitField('Send email', id='email-submit', name='email-submit')
 
 
 class PasswordResetForm(FlaskForm):
@@ -28,7 +28,7 @@ class PasswordResetForm(FlaskForm):
                                          Length(min=6, max=128),
                                          EqualTo('password', message="Passwords don't match"),
                                      ])
-    submit = SubmitField('Save password')
+    submit = SubmitField('Save password', id='password-submit', name='password-submit')
 
 
 class EditProfileForm(FlaskForm):
@@ -42,19 +42,19 @@ class EditProfileForm(FlaskForm):
                                          EqualTo('password', message="Passwords don't match"),
                                          Optional()
                                      ])
-    submit = SubmitField('Save Changes', id='profile-submit', name='profile-submit')
+    profile_submit = SubmitField('Save Changes', id='profile-submit', name='profile-submit')
 
 
 class EditSettingsForm(FlaskForm):
     automatic_stop = BooleanField(default=False)
-    automaitc_open_candy = BooleanField(default=True)
-    submit = SubmitField('', id='settings-submit', name='settings-submit')
+    automatic_open_candy = BooleanField(default=True)
+    settings_submit = SubmitField('Save Settings', id='settings-submit', name='settings-submit')
 
 
 class EditRolesForm(FlaskForm):
     roles_to_add = SelectMultipleField('roles_to_add', choices=[])
     roles_to_remove = SelectMultipleField('roles_to_remove', choices=[])
-    submit = SubmitField('submit', id='roles-submit', name='roles-submit')
+    roles_submit = SubmitField('Save Roles', id='roles-submit', name='roles-submit')
 
 
 class UsageViewShowCountForm(FlaskForm):
@@ -63,7 +63,7 @@ class UsageViewShowCountForm(FlaskForm):
 
 class UnpaidCyclesForm(FlaskForm):
     checkboxes = FieldList(BooleanField('checkboxes', default=False, validators=[Optional()]), min_entries=0)
-    submit = SubmitField('submit')
+    unpaid_submit = SubmitField('Mark Paid', id='unpaid-submit', name='unpaid-submit')
 
 
 class ScheduleEventRequestForm(FlaskForm):
@@ -73,7 +73,7 @@ class ScheduleEventRequestForm(FlaskForm):
         'cycle_type',
         choices=[('both', 'Washing & Drying'), ('wash', 'Washing'), ('dry', 'Drying')]
     )
-    submit = SubmitField('submit')
+    event_submit = SubmitField('Schedule', id='event-submit', name='event-submit')
 
     @staticmethod
     def validate_start_timestamp(self, field):
@@ -93,11 +93,11 @@ class ScheduleNavigationForm(FlaskForm):
 
 
 class SplitCycleForm(FlaskForm):
-    other_users = SelectMultipleField('other_users', choices=[], coerce=int)
+    other_users = SelectMultipleField('other_users', choices=[], coerce=int, validators=[DataRequired()])
     cycle_id = IntegerField('cycle_id', validators=[DataRequired()])
-    submit = SubmitField('submit')
+    split_submit = SubmitField('Split', id='split-submit', name='split-submit')
 
 
 class MarkPaidForm(FlaskForm):
     cycle_id = IntegerField('cycle_id', validators=[DataRequired()])
-    submit = SubmitField('mark')
+    mark_paid_submit = SubmitField('Mark Paid', id='mark-paid-submit', name='mark-paid-submit')

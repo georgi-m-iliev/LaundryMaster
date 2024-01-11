@@ -95,12 +95,13 @@
                                             <button class="btn btn-outline-success" type="button" title="Mark as paid"
                                                     onclick="
                                                         document.getElementById('mark-paid-cycle-id').value = '{{ usage.id }}';
-                                                        document.getElementById('mark-paid-form').submit();">
+                                                        document.getElementById('mark-paid-submit').click();">
                                                 <i class="fas fa-solid fa-money-bill-wave"></i>
                                             </button>
                                             <form id="mark-paid-form" method="POST">
                                                 {{ mark_paid_form.csrf_token }}
                                                 {{ mark_paid_form.cycle_id(id="mark-paid-cycle-id", hidden=True) }}
+                                                {{ mark_paid_form.mark_paid_submit(hidden=True) }}
                                             </form>
                                         {% endif %}
                                     </td>
@@ -163,7 +164,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    {{ split_cycle_form.submit(class_="btn btn-success text-light", value="Split") }}
+                    {{ split_cycle_form.split_submit(class_="btn btn-success text-light", value="Split") }}
                 </div>
             </form>
         </div>

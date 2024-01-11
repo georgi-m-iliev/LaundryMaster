@@ -81,7 +81,7 @@
                                         </div>
                                         <div class="col">
                                             <div class="mb-3">
-                                                {{ edit_form.submit(class_="btn btn-primary") }}
+                                                {{ edit_form.profile_submit(class_="btn btn-primary") }}
                                             </div>
                                         </div>
                                     </div>
@@ -120,18 +120,17 @@
                                 </div>
                                 <form method="POST" id="settings_form">
                                     {{ settings_form.csrf_token }}
+                                    {{ settings_form.settings_submit(class_="d-none") }}
                                     <div class="col">
                                         <div class="col">
                                             <div class="mb-3 form-check form-switch">
                                                 {{ settings_form.automatic_stop(class_="form-check-input", onchange="document.getElementById('settings-submit').click();") }}
-                                                {{ settings_form.submit(class_="d-none") }}
                                                 <label class="form-label" for="name">
                                                     <strong>Automatic Cycle Stop</strong>
                                                 </label>
                                             </div>
                                             <div class="mb-3 form-check form-switch">
-                                                {{ settings_form.automaitc_open_candy(class_="form-check-input", onchange="document.getElementById('settings-submit').click();") }}
-                                                {{ settings_form.submit(class_="d-none") }}
+                                                {{ settings_form.automatic_open_candy(class_="form-check-input", onchange="document.getElementById('settings-submit').click();") }}
                                                 <label class="form-label" for="name">
                                                     <strong>Launch simpli-Fi on cycle start</strong>
                                                 </label>

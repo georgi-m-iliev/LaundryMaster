@@ -70,7 +70,7 @@ def users_view():
 
     roles = ', '.join([role.replace('_', ' ') for role in roles])
 
-    if edit_user_form.validate_on_submit() and edit_user_form.submit.data:
+    if edit_user_form.validate_on_submit() and edit_user_form.profile_submit.data:
         if request.args.get('user_id'):
             # print('Profile update...')
             user = User.query.filter_by(id=request.args.get('user_id')).first()
@@ -110,7 +110,7 @@ def users_view():
             for error in errors:
                 flash(error, category='toast-error')
 
-    if request.args.get('user_id') and edit_roles_form.validate_on_submit() and edit_roles_form.submit.data:
+    if request.args.get('user_id') and edit_roles_form.validate_on_submit() and edit_roles_form.roles_submit.data:
         # print('Changing roles...')
         user = User.query.filter_by(id=request.args.get('user_id')).first()
         if user:

@@ -49,7 +49,7 @@ def index():
     for _ in range(len(unpaid_cycles)):
         unpaid_cycles_form.checkboxes.append_entry()
 
-    if request.form.get('unpaid-submit') is not None and unpaid_cycles_form.validate_on_submit():
+    if unpaid_cycles_form.validate_on_submit() and unpaid_cycles_form.unpaid_submit.data:
         for checkbox in unpaid_cycles_form.checkboxes:
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
@@ -86,7 +86,7 @@ def index():
 def usage_view():
     mark_paid_form = MarkPaidForm()
 
-    if mark_paid_form.validate_on_submit() and mark_paid_form.cycle_id.data:
+    if mark_paid_form.validate_on_submit() and mark_paid_form.mark_paid_submit.data:
         cycle = WashingCycle.query.filter_by(id=mark_paid_form.cycle_id.data).first()
         if cycle is None:
             flash('Cycle not found', category='toast-error')
@@ -103,7 +103,7 @@ def usage_view():
     split_cycle_form = SplitCycleForm()
     split_cycle_form.other_users.choices = [(user.id, user.first_name) for user in other_users]
 
-    if split_cycle_form.validate_on_submit() and split_cycle_form.submit.data:
+    if split_cycle_form.validate_on_submit() and split_cycle_form.split_submit.data:
         cycle: WashingCycle = WashingCycle.query.filter_by(id=split_cycle_form.cycle_id.data).first()
         if cycle.user_id != current_user.id:
             flash('You can only split your own cycles', category='toast-error')
@@ -121,10 +121,10 @@ def usage_view():
             db.session.commit()
             flash('Cycle split successfully', category='toast-success')
         return redirect(request.path)
-    else:
+    elif split_cycle_form.split_submit.data:
         for field, errors in split_cycle_form.errors.items():
             for error in errors:
-                flash(error, category='toast-error')
+                flash(f'{error} about {field}', category='toast-error')
 
     select_form = UsageViewShowCountForm(items=request.args.get('items') or '10')
     if select_form.items.data == 'all':
@@ -149,7 +149,7 @@ def usage_view():
 def schedule():
     schedule_request_form = ScheduleEventRequestForm()
 
-    if schedule_request_form.validate_on_submit() and schedule_request_form.submit.data:
+    if schedule_request_form.validate_on_submit() and schedule_request_form.event_submit.data:
         # first calculate timestamps and check for correctness
         start_timestamp = schedule_request_form.start_timestamp.data
         duration = 0
@@ -208,7 +208,7 @@ def schedule():
                 db.session.add(event)
             db.session.commit()
         return redirect(request.path)
-    elif schedule_request_form.submit.data:
+    elif schedule_request_form.event_submit.data:
         for field, errors in schedule_request_form.errors.items():
             for error in errors:
                 flash(error, category='toast-error')
@@ -274,7 +274,7 @@ def profile():
     edit_form = EditProfileForm()
     settings_form = EditSettingsForm()
 
-    if edit_form.validate_on_submit() and edit_form.submit.data:
+    if edit_form.validate_on_submit() and edit_form.profile_submit.data:
         if not edit_form.first_name.data and not edit_form.email.data and not edit_form.username.data and \
                 not edit_form.password.data:
             flash('Nothing to update', category='profile')
@@ -293,14 +293,13 @@ def profile():
         return redirect(request.path)
 
     user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
-    if settings_form.validate_on_submit() and settings_form.submit.data:
-        # print('New setting is {}'.format(settings_form.automatic_stop.data))
+    if settings_form.validate_on_submit() and settings_form.settings_submit.data:
         user_settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
-        user_settings.launch_candy_on_cycle_start = settings_form.automaitc_open_candy.data
+        user_settings.launch_candy_on_cycle_start = settings_form.automatic_open_candy.data
         db.session.commit()
     else:
         settings_form.automatic_stop.data = user_settings.terminate_cycle_on_usage
-        settings_form.automaitc_open_candy.data = user_settings.launch_candy_on_cycle_start
+        settings_form.automatic_open_candy.data = user_settings.launch_candy_on_cycle_start
 
     return render_template(
         'profile.html',
