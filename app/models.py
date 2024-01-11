@@ -9,13 +9,6 @@ roles_users = db.Table(
     db.Column('role_id', db.Integer(), db.ForeignKey('roles.id'))
 )
 
-split_cycles = db.Table(
-    'split_cycles',
-    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
-    db.Column('cycle_id', db.Integer(), db.ForeignKey('washing_cycles.id')),
-    db.Column('paid', db.Boolean(), default=False)
-)
-
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -56,7 +49,14 @@ class WashingCycle(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('washing_cycles', lazy=True))
     paid = db.Column(db.Boolean(), default=False)
-    split_users = db.relationship('User', secondary='split_cycles', backref=db.backref('split_cycles', lazy='dynamic'))
+    splits = db.relationship('WashingCycleSplit', backref='washing_cycle', lazy=True)
+
+
+class WashingCycleSplit(db.Model):
+    __tablename__ = 'split_cycles'
+    cycle_id = db.Column(db.Integer, db.ForeignKey('washing_cycles.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    paid = db.Column(db.Boolean(), default=False)
 
 
 class WashingMachine(db.Model):

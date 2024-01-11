@@ -53,10 +53,12 @@ def index():
         for checkbox in unpaid_cycles_form.checkboxes:
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
-                if unpaid_cycles[idx].split_users:
-                    db.session.query(split_cycles).filter_by(
-                        cycle_id=unpaid_cycles[idx].id, user_id=current_user.id
-                    ).update({split_cycles.c.paid: True})
+                if unpaid_cycles[idx].splits:
+                    split = WashingCycleSplit.query.filter_by(
+                        cycle_id=unpaid_cycles[idx].id,
+                        user_id=current_user.id
+                    ).first()
+                    split.paid = True
                 else:
                     unpaid_cycles[idx].paid = True
                 db.session.commit()
@@ -110,14 +112,14 @@ def usage_view():
         elif cycle.paid:
             flash('You cannot split paid cycles', category='toast-error')
         else:
-            if cycle.split_users:
-                splits = db.session.query(split_cycles).filter_by(cycle_id=cycle.id).all()
-                for split in splits:
-                    if split.paid:
-                        flash('You cannot split cycles that are partially paid', category='toast-error')
-                        return redirect(request.path)
+            if cycle.splits:
+                # if there are paid splits, then we cannot proceed
+                paid_splits = WashingCycleSplit.query.filter_by(cycle_id=cycle.id, paid=True).all()
+                if len(paid_splits) > 0:
+                    flash('You cannot split cycles that have paid splits', category='toast-error')
+                    return redirect(request.path)
             for user_id in split_cycle_form.other_users.data:
-                cycle.split_users.append(User.query.filter_by(id=user_id).first())
+                cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=user_id))
             db.session.commit()
             flash('Cycle split successfully', category='toast-success')
         return redirect(request.path)

@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy import or_, and_
 
 from app import User, db
-from app.models import WashingCycle, split_cycles, WashingMachine
+from app.models import WashingCycle, WashingCycleSplit, WashingMachine
 
 
 def calculate_charges(user: User):
@@ -12,7 +12,7 @@ def calculate_charges(user: User):
         WashingCycle.end_timestamp.is_not(None),
         or_(
             WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
+            WashingCycle.splits.any(user_id=user.id)
         ),
         db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
     ).all()
@@ -30,7 +30,7 @@ def calculate_usage(user: User):
         WashingCycle.end_timestamp.is_not(None),
         or_(
             WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
+            WashingCycle.splits.any(user_id=user.id)
         ),
         db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
     ).all()
@@ -57,14 +57,14 @@ def calculate_unpaid_cycles_cost(user: User = None):
                     WashingCycle.user_id == user.id,
                     WashingCycle.paid.is_(False),
                 ),
-                WashingCycle.split_users.any(id=user.id)
+                WashingCycle.splits.any(user_id=user.id, paid=False)
             )
         ).all()
 
-        paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(
-            user_id=user.id, paid=True
-        ).all()]
-        unpaid = [cycle for cycle in unpaid if cycle.id not in paid_split_cycles_ids]
+        # paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(
+        #     user_id=user.id, paid=True
+        # ).all()]
+        # unpaid = [cycle for cycle in unpaid if cycle.id not in paid_split_cycles_ids]
 
     result = 0
     for unpaid_cycle in unpaid:
@@ -82,7 +82,7 @@ def calculate_savings(user: User):
         WashingCycle.end_timestamp.is_not(None),
         or_(
             WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
+            WashingCycle.splits.any(user_id=user.id)
         ),
         WashingCycle.cost > 0.30,  # minimum cost of washing and drying, so the calculation would be accurate
         db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
@@ -113,7 +113,7 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
             WashingCycle.end_timestamp.is_not(None),
             or_(
                 WashingCycle.user_id == user.id,
-                WashingCycle.split_users.any(id=user.id)
+                WashingCycle.splits.any(user_id=user.id)
             ),
             db.func.extract('month', WashingCycle.end_timestamp) == month,
             db.func.extract('year', WashingCycle.end_timestamp) == year,

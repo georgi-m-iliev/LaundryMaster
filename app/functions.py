@@ -8,7 +8,8 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, UserSettings, WashingCycle, WashingMachine, PushSubscription, split_cycles, Notification
+from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, Notification
+from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, Notification, SplitRequestNotification
 
 
 def start_cycle(user: User, user_settings: UserSettings):
@@ -115,15 +116,15 @@ def get_unpaid_list(user: User):
                 WashingCycle.user_id == user.id,
                 WashingCycle.paid.is_(False),
             ),
-            WashingCycle.split_users.any(id=user.id)
+            WashingCycle.splits.any(user_id=user.id, paid=False)
         )
     ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).all()
 
-    paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(user_id=user.id, paid=True).all()]
-    cycles = [cycle for cycle in cycles if cycle.id not in paid_split_cycles_ids]
+    # paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(user_id=user.id, paid=True).all()]
+    # cycles = [cycle for cycle in cycles if cycle.id not in paid_split_cycles_ids]
 
     for cycle in cycles:
-        if split_users_count := len(cycle.split_users):
+        if split_users_count := len(cycle.splits):
             cycle.split_cost = round(cycle.cost / (split_users_count + 1), 2)
             if cycle.split_cost * (split_users_count + 1) < cycle.cost:
                 cycle.split_cost = round(cycle.split_cost + decimal.Decimal(0.01), 2)
@@ -139,20 +140,18 @@ def get_usage_list(user: User, limit: int = 10):
         WashingCycle.end_timestamp.is_not(None),
         or_(
             WashingCycle.user_id == user.id,
-            WashingCycle.split_users.any(id=user.id)
+            WashingCycle.splits.any(user_id=user.id)
         )
     ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).limit(limit).all()
 
     for cycle in cycles:
         cycle.usedkwh = round(cycle.endkwh - cycle.startkwh, 2)
-        if split_users_count := len(cycle.split_users):
+        if split_users_count := len(cycle.splits):
             cycle.split_cost = round(cycle.cost / (split_users_count + 1), 2)
             if cycle.split_cost * (split_users_count + 1) < cycle.cost:
                 cycle.split_cost = round(cycle.split_cost + decimal.Decimal(0.01), 2)
             if cycle.user_id != user.id:
-                cycle.split_paid = db.session.query(split_cycles).filter_by(
-                    cycle_id=cycle.id, user_id=user.id
-                ).first().paid
+                cycle.split_paid = WashingCycleSplit.query.filter_by(cycle_id=cycle.id, user_id=user.id).first().paid
         cycle.start_timestamp_formatted = cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S")
         cycle.end_timestamp_formatted = cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S")
         cycle.duration = str(cycle.end_timestamp - cycle.start_timestamp).split('.')[0]
@@ -302,17 +301,17 @@ def get_washer_info(shelly=True):
 
 def delete_user(user: User):
     """ Deletes a user and all associated data excl. washing cycles """
-    from app.models import User, UserSettings, PushSubscription, ScheduleEvent, WashingCycle, roles_users, split_cycles
-    user_settings = UserSettings.query.filter_by(user_id=user.id).delete()
-    push_subscriptions = PushSubscription.query.filter_by(user_id=user.id).delete()
-    schedule_events = ScheduleEvent.query.filter_by(user_id=user.id).delete()
+    from app.models import User, UserSettings, PushSubscription, ScheduleEvent, WashingCycle, WashingCycleSplit, roles_users
+    UserSettings.query.filter_by(user_id=user.id).delete()
+    PushSubscription.query.filter_by(user_id=user.id).delete()
+    ScheduleEvent.query.filter_by(user_id=user.id).delete()
     cycles = WashingCycle.query.filter_by(user_id=user.id).all()
+    WashingCycleSplit.query.filter_by(user_id=user.id, paid=False).delete()
 
     for cycle in cycles:
         cycle.user_id = None
 
     roles_users.delete().where(roles_users.c.user_id == user.id)
-    split_cycles.delete().where(split_cycles.c.user_id == user.id)
     user_datastore.delete_user(user)
 
     db.session.commit()
