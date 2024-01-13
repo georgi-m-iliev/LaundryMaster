@@ -57,6 +57,7 @@ class WashingCycleSplit(db.Model):
     cycle_id = db.Column(db.Integer, db.ForeignKey('washing_cycles.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     paid = db.Column(db.Boolean(), default=False)
+    accepted = db.Column(db.Boolean(), default=False)
 
 
 class WashingMachine(db.Model):
@@ -107,9 +108,11 @@ class NotificationURL(Notification):
         self.url = url
 
 
-class NotificationActions(Notification):
-    def __init__(self, title, body, icon, actions=None):
-        super().__init__(title, body, icon)
+class NotificationActions(NotificationURL):
+    def __init__(self, title, body, icon, url=None, actions=None):
+        if url is None:
+            url = '/'
+        super().__init__(title, body, icon, url)
         if actions is None:
             self.actions = []
         else:
@@ -133,3 +136,19 @@ schedule_reminder_notification = Notification(
     body="Click here to see the details.",
     icon="reminder-icon.png"
 )
+
+
+class SplitRequestNotification(NotificationActions):
+    def __init__(self, initiator: User, cycle: WashingCycle):
+        super().__init__(
+            title=f"You have a new split request!",
+            body=f"{initiator.first_name} wants to split a washing cycle with you.\n"
+                 f"Data: {cycle.end_timestamp.strftime('%d/%m/%Y %H:%M')}\n"
+                 f"Amount: {cycle.cost} lv.",
+            icon="split-icon.png",
+            url=f'/usage/split/{cycle.id}',
+            actions=[
+                {'action': 'accept', 'title': 'Accept', 'url': f'/usage/split/{cycle.id}/accept'},
+                {'action': 'reject', 'title': 'Reject', 'url': f'/usage/split/{cycle.id}/reject'}
+            ]
+        )

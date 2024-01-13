@@ -2,7 +2,8 @@ import datetime
 
 from sqlalchemy import or_, and_
 
-from app import User, db
+from app.db import db
+from app.models import User, roles_users
 from app.models import WashingCycle, WashingCycleSplit, WashingMachine
 
 
@@ -47,7 +48,8 @@ def calculate_unpaid_cycles_cost(user: User = None):
     if user is None:
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
-            WashingCycle.paid.is_(False)
+            WashingCycle.paid.is_(False),
+            WashingCycle.user_id != db.session.query(roles_users).filter_by(role_id=3).first().user_id
         ).all()
     else:
         unpaid: list[WashingCycle] = WashingCycle.query.filter(

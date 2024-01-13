@@ -8,8 +8,8 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, Notification
 from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, Notification, SplitRequestNotification
+from app.forms import SplitCycleForm
 
 
 def start_cycle(user: User, user_settings: UserSettings):
@@ -147,6 +147,7 @@ def get_usage_list(user: User, limit: int = 10):
     for cycle in cycles:
         cycle.usedkwh = round(cycle.endkwh - cycle.startkwh, 2)
         if split_users_count := len(cycle.splits):
+            # print(cycle.splits)
             cycle.split_cost = round(cycle.cost / (split_users_count + 1), 2)
             if cycle.split_cost * (split_users_count + 1) < cycle.cost:
                 cycle.split_cost = round(cycle.split_cost + decimal.Decimal(0.01), 2)
@@ -315,3 +316,24 @@ def delete_user(user: User):
     user_datastore.delete_user(user)
 
     db.session.commit()
+
+
+def split_cycle(user: User, split_cycle_form: SplitCycleForm):
+    cycle: WashingCycle = WashingCycle.query.filter_by(id=split_cycle_form.cycle_id.data).first()
+    if cycle.user_id != user.id:
+        flash('You can only split your own cycles', category='toast-error')
+    elif cycle.paid:
+        flash('You cannot split paid cycles', category='toast-error')
+    else:
+        if cycle.splits:
+            # if there are paid splits, then we cannot proceed
+            paid_splits = WashingCycleSplit.query.filter_by(cycle_id=cycle.id, paid=True).all()
+            if len(paid_splits) > 0:
+                flash('You cannot split cycles that have paid splits', category='toast-error')
+                return redirect(request.path)
+        for split_participant_user_id in split_cycle_form.other_users.data:
+            split_participant = User.query.filter_by(id=split_participant_user_id).first()
+            cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=split_participant_user_id))
+            send_push_to_user(split_participant, SplitRequestNotification(user, cycle))
+        db.session.commit()
+        flash('Cycle split successfully, users need to confirm to complete!', category='toast-success')

@@ -83,14 +83,18 @@
                                         <i class="fa fa-times text-danger fw-bold"></i>
                                     {% endif %}
                                 </td>
-                                {% if usage.user_id == current_user.id %}
-                                    <td class="d-flex flex-row gap-1">
-                                        <button class="btn btn-outline-primary" type="button" title="Split"
-                                                data-bs-toggle="modal" data-bs-target="#splitCycleModal"
-                                                data-bs-cycle-id="{{ usage.id }}" data-bs-cycle-cost="{{ usage.cost }}"
-                                                onclick="">
-                                            <i class="fas fa-solid fa-chart-pie"></i>
-                                        </button>
+                                <td>
+                                    <div class="d-flex flex-row gap-1">
+                                        {% for split in usage.splits %}
+                                            {% if split.user_id == current_user.id and not split.accepted %}
+                                                <a class="btn btn-outline-success" title="Accept Split" href="/usage/split/{{ usage.id }}/accept">
+                                                    <i class="fas fa-solid fa-check-circle"></i>
+                                                </a>
+                                                <a class="btn btn-outline-danger" title="Reject Split" href="/usage/split/{{ usage.id }}/reject">
+                                                    <i class="fas fa-solid fa-ban"></i>
+                                                </a>
+                                            {% endif %}
+                                        {% endfor %}
                                         {% if not (usage.split_paid or usage.paid) %}
                                             <button class="btn btn-outline-success" type="button" title="Mark as paid"
                                                     onclick="
@@ -104,8 +108,16 @@
                                                 {{ mark_paid_form.mark_paid_submit(hidden=True) }}
                                             </form>
                                         {% endif %}
-                                    </td>
-                                {% endif %}
+                                        {% if usage.user_id == current_user.id %}
+                                            <button class="btn btn-outline-primary" type="button" title="Split"
+                                                    data-bs-toggle="modal" data-bs-target="#splitCycleModal"
+                                                    data-bs-cycle-id="{{ usage.id }}" data-bs-cycle-cost="{{ usage.cost }}"
+                                                    onclick="">
+                                                <i class="fas fa-solid fa-chart-pie"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -184,4 +196,61 @@
       modalCycleID.value = cycleID
     })
 </script>
+{% if split_request_cycle %}
+    <div class="modal fade" id="splitRequestModal" tabindex="-1" aria-labelledby="splitRequestModal" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Request To Split A Cycle</h1>
+                </div>
+                <div class="modal-body">
+                    <p class="fs-6">
+                        {{ split_request_cycle.user.first_name }} has requested to split a cycle with you!
+                    <p>
+                    <p class="fs-6 mb-5">
+                        Here are the details of the cycle, choose whether to accept or reject the request.
+                    </p>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex flex-row justify-content-between">
+                            <p class="fw-bold">Cycle ID</p>
+                            <p class="">{{ split_request_cycle.id }}</p>
+                        </div>
+                        <div class="d-flex flex-row justify-content-between">
+                            <p class="fw-bold">Cycle Start Timestamp</p>
+                            <p class="">{{ split_request_cycle.start_timestamp.strftime("%d-%m-%Y %H:%M:%S") }}</p>
+                        </div>
+                        <div class="d-flex flex-row justify-content-between">
+                            <p class="fw-bold">Cycle End Timestamp</p>
+                            <p class="">{{ split_request_cycle.end_timestamp.strftime("%d-%m-%Y %H:%M:%S") }}</p>
+                        </div>
+                        <div class="d-flex flex-row justify-content-between">
+                            <p class="fw-bold">Cycle Duration</p>
+                            <p class="">{{ split_request_cycle.end_timestamp - split_request_cycle.start_timestamp }}</p>
+                        </div>
+                        <div class="d-flex flex-row justify-content-between">
+                            <p class="fw-bold">Cycle Cost</p>
+                            <p class="">{{ split_request_cycle.split_cost }}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between mt-5">
+                        <a class="btn btn-success text-light" href="/usage/split/{{ split_request_cycle.id }}/accept">
+                            <i class="fas fa-solid fa-check-circle"></i>
+                            &nbsp;Accept
+                        </a>
+                        <a class="btn btn-danger" href="/usage/split/{{ split_request_cycle.id }}/reject">
+                            <i class="fas fa-solid fa-ban"></i>
+                            &nbsp;Reject
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            const splitRequestModal = $('#splitRequestModal');
+            splitRequestModal.modal({backdrop: 'static', keyboard: false }).modal('show');
+        });
+    </script>
+{% endif %}
 {% endblock %}

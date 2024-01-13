@@ -82,10 +82,11 @@ def index():
     )
 
 
+@views.route('/usage/split/<cycle_id>', methods=['GET', 'POST'])
 @views.route('/usage', methods=['GET', 'POST'])
 @login_required
 @roles_required('user')
-def usage_view():
+def usage_view(cycle_id=None):
     mark_paid_form = MarkPaidForm()
 
     if mark_paid_form.validate_on_submit() and mark_paid_form.mark_paid_submit.data:
@@ -93,7 +94,19 @@ def usage_view():
         if cycle is None:
             flash('Cycle not found', category='toast-error')
         elif cycle.user_id != current_user.id:
-            flash('You can only mark your own cycles as paid', category='toast-error')
+            split = WashingCycleSplit.query.filter_by(
+                cycle_id=mark_paid_form.cycle_id.data,
+                user_id=current_user.id
+            ).first()
+            if split:
+                if split.accepted:
+                    split.paid = True
+                    db.session.commit()
+                    flash('Cycle marked as paid', category='toast-success')
+                else:
+                    flash('You can only mark accepted cycles as paid', category='toast-error')
+            else:
+                flash('You can only mark your own cycles as paid', category='toast-error')
         elif cycle.paid:
             flash('Cycle already marked as paid', category='toast-error')
         else:
@@ -106,22 +119,7 @@ def usage_view():
     split_cycle_form.other_users.choices = [(user.id, user.first_name) for user in other_users]
 
     if split_cycle_form.validate_on_submit() and split_cycle_form.split_submit.data:
-        cycle: WashingCycle = WashingCycle.query.filter_by(id=split_cycle_form.cycle_id.data).first()
-        if cycle.user_id != current_user.id:
-            flash('You can only split your own cycles', category='toast-error')
-        elif cycle.paid:
-            flash('You cannot split paid cycles', category='toast-error')
-        else:
-            if cycle.splits:
-                # if there are paid splits, then we cannot proceed
-                paid_splits = WashingCycleSplit.query.filter_by(cycle_id=cycle.id, paid=True).all()
-                if len(paid_splits) > 0:
-                    flash('You cannot split cycles that have paid splits', category='toast-error')
-                    return redirect(request.path)
-            for user_id in split_cycle_form.other_users.data:
-                cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=user_id))
-            db.session.commit()
-            flash('Cycle split successfully', category='toast-success')
+        split_cycle(current_user, split_cycle_form)
         return redirect(request.path)
     elif split_cycle_form.split_submit.data:
         for field, errors in split_cycle_form.errors.items():
@@ -134,6 +132,27 @@ def usage_view():
     else:
         limit = select_form.items.data
 
+    split_request_cycle = None
+    if cycle_id is not None:
+        cycle = WashingCycle.query.filter_by(id=cycle_id).first()
+        split = WashingCycleSplit.query.filter_by(cycle_id=cycle_id, user_id=current_user.id).first()
+        if cycle is None:
+            flash('Cycle not found', category='toast-error')
+            return redirect('/usage')
+        elif not split:
+            flash('Split wasn\'t found', category='toast-error')
+            return redirect('/usage')
+        elif split.accepted:
+            flash('Split already accepted', category='toast-error')
+            return redirect('/usage')
+        else:
+            split_request_cycle = cycle
+            split_users_count = len(cycle.splits)
+            cycle.split_cost = round(cycle.cost / (split_users_count + 1), 2)
+            if cycle.split_cost * (split_users_count + 1) < cycle.cost:
+                cycle.split_cost = round(cycle.split_cost + decimal.Decimal(0.01), 2)
+    print(split_request_cycle)
+
     return render_template(
         'usage.html',
         is_usage=True,
@@ -141,8 +160,35 @@ def usage_view():
         select_form=select_form,
         usages=get_usage_list(current_user, limit),
         split_cycle_form=split_cycle_form,
-        mark_paid_form=mark_paid_form
+        mark_paid_form=mark_paid_form,
+        split_request_cycle=split_request_cycle
     )
+
+
+@views.route('/usage/split/<cycle_id>/<action>', methods=['GET', 'POST'])
+@login_required
+@roles_required('user')
+def split_cycle_actions(cycle_id, action=None):
+    cycle = WashingCycle.query.filter_by(id=cycle_id).first()
+    split = WashingCycleSplit.query.filter_by(cycle_id=cycle_id, user_id=current_user.id).first()
+    if cycle is None:
+        flash('Cycle not found', category='toast-error')
+    elif not split:
+        flash('You aren\'t associated with this cycle', category='toast-error')
+    elif split.accepted:
+        flash('You can\'t use this action on this cycle', category='toast-error')
+    else:
+        if action == 'accept':
+            split.accepted = True
+            db.session.commit()
+            flash('Cycle split accepted', category='toast-success')
+        elif action == 'reject':
+            db.session.delete(split)
+            db.session.commit()
+            flash('Cycle split rejected', category='toast-success')
+        else:
+            flash('Action not recognized', category='toast-error')
+    return redirect('/usage')
 
 
 @views.route('/schedule', methods=['GET', 'POST'])
