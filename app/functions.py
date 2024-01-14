@@ -86,7 +86,7 @@ def stop_cycle(user: User):
 
 
 def update_cycle(user: User):
-    cycle = WashingCycle.query.filter_by(end_timestamp=None).join(User).filter(WashingCycle.user_id == User.id).first()
+    cycle = WashingCycle.query.filter_by(end_timestamp=None).first()
     if cycle:
         if cycle.user_id == user.id:
             return {'state': 'running', 'id': cycle.id}
@@ -337,3 +337,31 @@ def split_cycle(user: User, split_cycle_form: SplitCycleForm):
             send_push_to_user(split_participant, SplitRequestNotification(user, cycle))
         db.session.commit()
         flash('Cycle split successfully, users need to confirm to complete!', category='toast-success')
+
+
+def mark_cycle_paid(user: User, cycle_id: int):
+    cycle = WashingCycle.query.filter_by(id=cycle_id).first()
+    if cycle is None:
+        flash('Cycle not found', category='toast-error')
+    elif [split.accepted for split in cycle.splits].count(False):
+        flash('You can mark the cycle as paid only after all users have accepted the split', category='toast-warning')
+    elif cycle.user_id != user.id:
+        split = WashingCycleSplit.query.filter_by(
+            cycle_id=cycle_id,
+            user_id=user.id
+        ).first()
+        if split:
+            if split.accepted:
+                split.paid = True
+                db.session.commit()
+                flash('Cycle marked as paid', category='toast-success')
+            else:
+                flash('You can only mark accepted cycles as paid', category='toast-error')
+        else:
+            flash('You can only mark your own cycles as paid', category='toast-error')
+    elif cycle.paid:
+        flash('Cycle already marked as paid', category='toast-error')
+    else:
+        cycle.paid = True
+        db.session.commit()
+        flash('Cycle marked as paid', category='toast-success')

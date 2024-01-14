@@ -12,7 +12,6 @@ from app.functions import *
 from app.statistics import *
 from app.tasks import schedule_notification, release_door
 
-
 views = Blueprint('views', __name__)
 
 
@@ -53,16 +52,7 @@ def index():
         for checkbox in unpaid_cycles_form.checkboxes:
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
-                if unpaid_cycles[idx].splits:
-                    split = WashingCycleSplit.query.filter_by(
-                        cycle_id=unpaid_cycles[idx].id,
-                        user_id=current_user.id
-                    ).first()
-                    split.paid = True
-                else:
-                    unpaid_cycles[idx].paid = True
-                db.session.commit()
-        flash('Selected cycles were marked as paid', 'toast-success')
+                mark_cycle_paid(current_user, unpaid_cycles[idx].id)
         return redirect(request.path)
 
     return render_template(
@@ -90,29 +80,7 @@ def usage_view(cycle_id=None):
     mark_paid_form = MarkPaidForm()
 
     if mark_paid_form.validate_on_submit() and mark_paid_form.mark_paid_submit.data:
-        cycle = WashingCycle.query.filter_by(id=mark_paid_form.cycle_id.data).first()
-        if cycle is None:
-            flash('Cycle not found', category='toast-error')
-        elif cycle.user_id != current_user.id:
-            split = WashingCycleSplit.query.filter_by(
-                cycle_id=mark_paid_form.cycle_id.data,
-                user_id=current_user.id
-            ).first()
-            if split:
-                if split.accepted:
-                    split.paid = True
-                    db.session.commit()
-                    flash('Cycle marked as paid', category='toast-success')
-                else:
-                    flash('You can only mark accepted cycles as paid', category='toast-error')
-            else:
-                flash('You can only mark your own cycles as paid', category='toast-error')
-        elif cycle.paid:
-            flash('Cycle already marked as paid', category='toast-error')
-        else:
-            cycle.paid = True
-            db.session.commit()
-            flash('Cycle marked as paid', category='toast-success')
+        mark_cycle_paid(current_user, mark_paid_form.cycle_id.data)
 
     other_users = User.query.filter(User.id != current_user.id, User.active).all()
     split_cycle_form = SplitCycleForm()
@@ -151,7 +119,6 @@ def usage_view(cycle_id=None):
             cycle.split_cost = round(cycle.cost / (split_users_count + 1), 2)
             if cycle.split_cost * (split_users_count + 1) < cycle.cost:
                 cycle.split_cost = round(cycle.split_cost + decimal.Decimal(0.01), 2)
-    print(split_request_cycle)
 
     return render_template(
         'usage.html',
@@ -362,7 +329,6 @@ def profile():
 @login_required
 @roles_required('user')
 def washing_machine():
-
     washing_machine_info = get_washer_info()
 
     return render_template(

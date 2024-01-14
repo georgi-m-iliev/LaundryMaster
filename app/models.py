@@ -55,7 +55,7 @@ class WashingCycle(db.Model):
 class WashingCycleSplit(db.Model):
     __tablename__ = 'split_cycles'
     cycle_id = db.Column(db.Integer, db.ForeignKey('washing_cycles.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     paid = db.Column(db.Boolean(), default=False)
     accepted = db.Column(db.Boolean(), default=False)
 
