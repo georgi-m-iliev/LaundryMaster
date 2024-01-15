@@ -67,6 +67,11 @@ class WashingMachine(db.Model):
     costperkwh = db.Column(db.Numeric(10, 2))
     public_wash_cost = db.Column(db.Numeric(10, 2))
     notification_task_id = db.Column(db.String(512))
+    cycle_remaining_minutes = db.Column(db.Integer)
+    candy_device_id = db.Column(db.String(512), nullable=False)
+    candy_appliance_id = db.Column(db.String(512), nullable=False)
+    candy_api_token = db.Column(db.String(5000), nullable=True)
+    candy_api_refresh_token = db.Column(db.String(512), nullable=True)
 
 
 class PushSubscription(db.Model):
