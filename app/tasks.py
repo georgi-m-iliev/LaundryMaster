@@ -8,6 +8,7 @@ from celery.schedules import crontab
 
 from app.models import User, WashingMachine, Notification, schedule_reminder_notification
 from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage, trigger_relay
+from app.candy import CandyWashingMachine, CandyMachineState, fetch_candy_data
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -28,18 +29,11 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.logger = logging.getLogger(__name__)
 
     app.extensions["celery"] = celery_app
-    app.config['CELERYBEAT_SCHEDULE'] = {
-        # Executes every minute
-        'update_usage_task': {
-            'task': 'update_usage',
-            'schedule': crontab(minute="*")
-        }
-    }
     return celery_app
 
 
 @shared_task(ignore_result=False)
-def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
+def watch_usage_and_notify_cycle_end_old(user_id: int, terminate_cycle: bool):
     def wait_usage_over_threshold():
         current_app.logger.info('Watching energy consumption and waiting it to get over threshold...')
         while True:
@@ -183,3 +177,61 @@ def schedule_notification(user_id: int):
             current_app.logger.warning(f'Sending push notification failed for some subscriptions: {result}')
     else:
         current_app.logger.warning(f'User with id {user_id} not found!')
+
+
+@shared_task(ignore_result=False)
+def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
+    current_app.logger.info("Starting task...")
+    # Give a time window of 10 minutes to start a washing cycle
+    time.sleep(10 * 60)
+
+    washing_machine = CandyWashingMachine.get_instance()
+    while washing_machine.machine_state != CandyMachineState.FINISHED1 or washing_machine.machine_state != CandyMachineState.FINISHED2:
+        if washing_machine.machine_state == CandyMachineState.PAUSED:
+            current_app.logger.info("Machine is paused, notifying user...")
+            send_push_to_user(
+                user=User.query.filter_by(id=user_id).first(),
+                notification=Notification(
+                    title="Your cycle is paused!",
+                    body="Probably a glitch, go fix it!",
+                    icon="reminder-icon.png"
+                )
+            )
+            time.sleep(60)
+        if washing_machine.machine_state == CandyMachineState.IDLE:
+            time.sleep(60)
+        if washing_machine.machine_state == CandyMachineState.RUNNING:
+            time.sleep(5 * 60)
+        washing_machine.update()
+
+    if terminate_cycle:
+        # Terminate cycle if enabled in settings
+        stop_cycle(user)
+    else:
+        # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
+        current_app.logger.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
+
+        send_push_to_user(
+            user=user,
+            notification=Notification(
+                title="Your cycle has ended!",
+                body="Go pick your laundry!",
+                icon="cycle-done-icon.png"
+            )
+        )
+
+        time.sleep(10 * 60)
+
+        for _ in range(10):
+            current_app.logger.info("Sending reminder to user...")
+            send_push_to_user(
+                user=user,
+                notification=Notification(
+                    title="Your cycle is still running...",
+                    body="Did you forget to terminate it?",
+                    icon="reminder-icon.png",
+                )
+            )
+            time.sleep(5 * 60)
+
+    current_app.logger.info("Ending task....")
