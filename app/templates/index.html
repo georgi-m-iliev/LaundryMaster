@@ -47,16 +47,10 @@
                                     {% if cycle_data['state'] == 'running' %}
                                         <div class="d-flex gap-2 m-auto">
                                             <i class="fas fa-clock fa-2x text-warning"></i>
-                                            <span id="time-elapsed" class="align-self-center text-warning fw-bold" onload="initStopwatch()">{{ stopwatch }}</span>
+                                            <span id="time-elapsed" class="align-self-center text-warning fw-bold">
+                                                Expected end: {{ expected_end }}
+                                            </span>
                                         </div>
-                                        <script type="module">
-                                            import { getWS } from "{{ url_for('static', filename='assets/js/websockets.js') }}";
-                                            const washingMachineInfoWS = getWS('shelly=false');
-                                            washingMachineInfoWS.onmessage = (event) => {
-                                                const newData = JSON.parse(event.data);
-                                                document.getElementById('time-elapsed').textContent = newData['running_time'];
-                                            };
-                                        </script>
                                     {% endif %}
                                 </div>
                             </div>
