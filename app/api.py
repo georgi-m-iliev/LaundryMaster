@@ -162,3 +162,12 @@ def export_washing_cycles():
     output.headers["Content-Disposition"] = "attachment"
     output.headers["Content-type"] = "text/csv"
     return output
+
+
+@api.route('/get_candy_data', methods=['GET'])
+@login_required
+@roles_required('admin')
+def get_candy_data():
+    from app.candy import CandyWashingMachine
+    machine = CandyWashingMachine.get_instance()
+    return {'result': machine.json()}
