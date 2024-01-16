@@ -107,6 +107,15 @@ def get_running_time() -> str:
         return '00:00:00'
 
 
+def get_remaining_minutes() -> int:
+    """Fetch the remaining minutes of the current cycle."""
+    washing_machine: WashingMachine = WashingMachine.query.first()
+    if washing_machine.cycle_remaining_minutes is None:
+        return 0
+    else:
+        return washing_machine.cycle_remaining_minutes
+
+
 def get_unpaid_list(user: User):
     """Get the unpaid cycles for a user."""
     cycles: list[WashingCycle] = WashingCycle.query.filter(
@@ -292,6 +301,7 @@ def get_washer_info(shelly=True):
 
         return {
             "running_time": get_running_time(),
+            "remaining_minutes": get_remaining_minutes(),
             "current_usage": shelly_data['data']['device_status']['meters'][0]['power'],
             "relay_temperature": shelly_data['data']['device_status']['temperature'],
             "relay_wifi_rssi": shelly_data['data']['device_status']['wifi_sta']['rssi']
