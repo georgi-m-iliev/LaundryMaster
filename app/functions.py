@@ -110,10 +110,12 @@ def get_running_time() -> str:
 def get_remaining_minutes() -> int:
     """Fetch the remaining minutes of the current cycle."""
     washing_machine: WashingMachine = WashingMachine.query.first()
-    if washing_machine.cycle_remaining_minutes is None:
+    if washing_machine.candy_appliance_data is None:
         return 0
-    else:
-        return washing_machine.cycle_remaining_minutes
+    elif 'remaining_minutes' not in washing_machine.candy_appliance_data:
+        return 0
+
+    return washing_machine.candy_appliance_data['remaining_minutes']
 
 
 def get_unpaid_list(user: User):

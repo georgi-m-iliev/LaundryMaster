@@ -11,6 +11,7 @@ from app.auth import user_datastore
 from app.models import User, WashingMachine, PushSubscription, UserSettings, WashingCycle, NotificationURL
 from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
 from app.functions import get_washer_info, get_relay_temperature, get_relay_wifi_rssi
+from app.candy import CandyWashingMachine
 
 api = Blueprint('api', __name__)
 sock = Sock()
@@ -137,7 +138,7 @@ def relay_wifi_rssi():
 
 @sock.route('/api/washing_machine_infos')
 @login_required
-def websocket(ws):
+def ws_washing_machine_info(ws):
     if request.args.get('shelly') == 'false':
         shelly = False
     else:
@@ -168,6 +169,19 @@ def export_washing_cycles():
 @login_required
 @roles_required('admin')
 def get_candy_data():
-    from app.candy import CandyWashingMachine
     machine = CandyWashingMachine.get_instance()
     return {'result': machine.json()}
+
+
+@sock.route('/api/candy_data')
+@login_required
+def ws_candy_data(ws):
+    interval = 60
+    if request.args.get('interval'):
+        interval = int(request.args.get('interval'))
+
+    machine = CandyWashingMachine.get_instance()
+    while True:
+        ws.send(machine.json())
+        time.sleep(interval)
+        machine.update()

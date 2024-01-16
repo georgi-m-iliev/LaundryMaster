@@ -3,7 +3,6 @@ import json
 import requests
 from enum import Enum
 from typing import Optional
-from dataclasses import dataclass
 
 from flask import current_app
 
@@ -21,6 +20,9 @@ class CandyStatusCode(Enum):
 
     def json(self):
         return json.dumps({'code': self.code, 'label': self.label})
+
+    def asdict(self):
+        return {'code': self.code, 'label': self.label}
 
     @classmethod
     def from_code(cls, code: int):
@@ -57,9 +59,9 @@ class CandyWashProgramState(CandyStatusCode):
     SPIN = (10, "Spin")
 
 
-@dataclass
 class CandyWashingMachine:
     def __init__(self):
+        self.current_status = None
         self.machine_state: CandyMachineState = CandyMachineState.UNKNOWN
         self.program_state: CandyWashProgramState = CandyWashProgramState.UNKNOWN
         self.program: int = -1
@@ -69,8 +71,9 @@ class CandyWashingMachine:
         self.remaining_minutes: int = -1
         self.remote_control: bool = False
         self.fill_percent: Optional[int] = None  # 0...100
+        self.washing_machine: WashingMachine = WashingMachine.query.first()
 
-    def parse_json(self, json_data):
+    def parse_current_status_parameters(self, json_data):
         self.machine_state = CandyMachineState.from_code(int(json_data["MachMd"]))
         self.program_state = CandyWashProgramState.from_code(int(json_data["PrPh"]))
         self.program = int(json_data["Pr"]) if "Pr" in json_data else int(json_data["PrNm"])
@@ -85,19 +88,13 @@ class CandyWashingMachine:
     def get_instance(cls):
         obj = cls()
         obj.update()
-        WashingMachine.query.first().cycle_remaining_minutes = obj.remaining_minutes
-        db.session.commit()
         return obj
 
-    def update(self):
-        json_data = fetch_candy_data()['appliance']['current_status_parameters']
-        # WashingMachine.query.update()
-        self.parse_json(json_data)
-
-    def json(self):
-        return json.dumps({
-            'machine_state': self.machine_state.json(),
-            'program_state': self.program_state.json(),
+    def asdict(self):
+        return {
+            'current_status': self.current_status,
+            'machine_state': self.machine_state.asdict(),
+            'program_state': self.program_state.asdict(),
             'program': self.program,
             'program_code': self.program_code,
             'temp': self.temp,
@@ -105,7 +102,21 @@ class CandyWashingMachine:
             'remaining_minutes': self.remaining_minutes,
             'remote_control': self.remote_control,
             'fill_percent': self.fill_percent
-        })
+        }
+
+    def json(self):
+        return json.dumps(self.asdict())
+
+    def update_db_model(self):
+        db.session.refresh(self.washing_machine)
+        self.washing_machine.candy_appliance_data = self.asdict()
+        db.session.commit()
+
+    def update(self):
+        data = fetch_appliance_data()
+        self.current_status = data['appliance']['current_status']
+        self.parse_current_status_parameters(data['appliance']['current_status_parameters'])
+        self.update_db_model()
 
 
 def refresh_candy_token(washing_machine: WashingMachine):
@@ -130,8 +141,8 @@ def refresh_candy_token(washing_machine: WashingMachine):
     current_app.logger.info('Successfully refreshed Candy API token')
 
 
-def fetch_candy_data():
-    """ Fetches data from Candy API """
+def fetch_appliance_data():
+    """ Fetches appliance data from Candy API """
     washing_machine: WashingMachine = WashingMachine.query.first()
     if not washing_machine.candy_api_token:
         refresh_candy_token(washing_machine)
@@ -153,7 +164,7 @@ def fetch_candy_data():
     response = requests.request("GET", url, headers=headers)
     if response.status_code == 401:
         refresh_candy_token(washing_machine)
-        return fetch_candy_data()
+        return fetch_appliance_data()
     elif response.status_code != 200:
         current_app.logger.error(f'Tried to fetch data from Candy API, but failed. More info: {response.text}')
         raise RequestException('Failed to fetch data from Candy API')

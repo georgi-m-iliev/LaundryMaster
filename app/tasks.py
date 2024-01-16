@@ -8,7 +8,7 @@ from celery.schedules import crontab
 
 from app.models import User, WashingMachine, Notification, schedule_reminder_notification
 from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage, trigger_relay
-from app.candy import CandyWashingMachine, CandyMachineState, fetch_candy_data
+from app.candy import CandyWashingMachine, CandyMachineState, fetch_appliance_data
 
 
 def celery_init_app(app: Flask) -> Celery:
