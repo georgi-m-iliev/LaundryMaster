@@ -135,7 +135,7 @@ def refresh_candy_token(washing_machine: WashingMachine):
     refresh_request = requests.post(url, headers=headers, data=payload)
     if refresh_request.status_code != 200:
         current_app.logger.error(f'Tried to refresh the bearer token, but failed. More info: {refresh_request.text}')
-        raise RequestException('Failed to refresh Candy API token')
+        raise RuntimeError('Failed to refresh Candy API token')
     washing_machine.candy_api_token = refresh_request.json()['id_token']
     db.session.commit()
     current_app.logger.info('Successfully refreshed Candy API token')
@@ -167,6 +167,6 @@ def fetch_appliance_data():
         return fetch_appliance_data()
     elif response.status_code != 200:
         current_app.logger.error(f'Tried to fetch data from Candy API, but failed. More info: {response.text}')
-        raise RequestException('Failed to fetch data from Candy API')
+        raise RuntimeError('Failed to fetch data from Candy API')
 
     return response.json()
