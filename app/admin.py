@@ -11,6 +11,7 @@ from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics
 from app.functions import delete_user, recalculate_cycles_cost
 from app.tasks import recalculate_cycles_cost_task
+from app.candy import CandyWashingMachine
 
 admin = Blueprint('admin', __name__)
 
@@ -58,7 +59,8 @@ def index():
         is_dashboard=True,
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(),
         users_usage_stats=json.dumps(admin_users_usage_statistics()),
-        update_wm_form=update_wm_form
+        update_wm_form=update_wm_form,
+        candy_washing_machine=CandyWashingMachine.get_instance().asdict()
     )
 
 

@@ -72,7 +72,46 @@
                     </div>
                 </div>
             </div>
-
+            <div class="col col-l-2 col-xl-3 col-auto">
+                <div class="card shadow mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="text-danger fw-bold m-0">Washing Machine Status</h6>
+                        <div class="dropdown no-arrow" style="padding-top: 2vh; padding-bottom: 2vh">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <img class="float-start imgshadow me-2 rounded-2" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="Washing Machine">
+                        <div class="d-flex justify-content-between mb-2">
+                            <label class="fw-bold">Washing Machine State:</label>
+                            {{ candy_washing_machine.machine_state.label }}
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <label class="fw-bold">Program State:</label>
+                            {{ candy_washing_machine.program_state.label }}
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <label class="fw-bold">Remaining:</label>
+                            {{ candy_washing_machine.remaining_minutes }} min
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <label class="fw-bold">Temperature:</label>
+                            {{ candy_washing_machine.temp }} °C
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <label class="fw-bold">Spin Speed:</label>
+                            {{ candy_washing_machine.spin_speed }}
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <label class="fw-bold">WiFi Control:</label>
+                            {% if candy_washing_machine.remote_control %}
+                                <i class="fa fa-wifi text-success"></i>
+                            {% else %}
+                                <i class="fa fa-wifi text-danger"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
