@@ -8,7 +8,8 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, Notification, SplitRequestNotification
+from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription
+from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification
 from app.forms import SplitCycleForm
 
 
@@ -377,3 +378,10 @@ def mark_cycle_paid(user: User, cycle_id: int):
         cycle.paid = True
         db.session.commit()
         flash('Cycle marked as paid', category='toast-success')
+
+
+def notify_debtors():
+    room_owner = User.query.filter(User.roles.any(name='room_owner')).first()
+    debtors = {cycle.user for cycle in WashingCycle.query.filter_by(paid=False).all()} - {room_owner}
+    for debtor in debtors:
+        send_push_to_user(user=debtor, notification=unpaid_cycles_reminder_notification)
