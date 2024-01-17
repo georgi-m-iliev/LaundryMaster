@@ -1,6 +1,7 @@
 import logging
+from sqlalchemy.exc import OperationalError
 
-from flask import Flask, send_from_directory, make_response
+from flask import Flask, send_from_directory, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -45,6 +46,11 @@ def create_app(test_config=None):
         response.headers['Content-Type'] = 'application/javascript'
         response.headers['Cache-Control'] = 'no-cache'
         return response
+
+    @app.errorhandler(OperationalError)
+    def handle_db_error(e):
+        app.logger.error(e)
+        return render_template('error.html'), 500
 
     db.init_app(app)
     migrate.init_app(app, db)

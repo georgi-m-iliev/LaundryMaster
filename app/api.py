@@ -1,4 +1,5 @@
 import os, json, time
+from sqlalchemy.exc import OperationalError
 
 from flask import Blueprint, request, make_response
 from flask_security import login_required, roles_required, current_user
@@ -17,9 +18,20 @@ api = Blueprint('api', __name__)
 sock = Sock()
 
 
+@api.errorhandler(OperationalError)
+def handle_db_error(error):
+    return {'status': 'database error', 'error': str(error)}, 503
+
+
 @api.route('/')
 def index():
     return '<h1>API</h1>'
+
+
+@api.route('/db_alive')
+def db_alive():
+    # Exception would be raised if the database is not available, no need to query any data
+    return {'status': 'success'}
 
 
 @api.route('/add_user', methods=['POST'])
