@@ -270,6 +270,20 @@ def get_relay_temperature():
     return data.json()['data']['device_status']['temperature']
 
 
+def get_relays_state():
+    data = requests.post(
+        url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
+        params={
+            'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
+            'id': os.getenv('SHELLY_DEVICE_ID')
+        }
+    )
+
+    if data.status_code != 200:
+        raise RequestException('Failed to get data from Shelly Cloud API')
+
+    return data.json()['data']['device_status']['relays'][0]['ison']
+
 def get_relay_wifi_rssi():
     data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
