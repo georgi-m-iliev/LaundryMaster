@@ -1,1 +1,231 @@
-Error
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="application-name" content="LaundryMaster">
+    <meta name="apple-mobile-web-app-title" content="LaundryMaster">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>{% block title %}Home{% endblock %} - LaundryMaster</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='assets/img/icons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='assets/img/icons/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='assets/img/icons/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='assets/img/icons/safari-pinned-tab.svg') }}" color="#5bbad5">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/img/icons/favicon.ico') }}">
+    <meta name="theme-color" content="#224abe">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/Nunito.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/fonts/fontawesome-all.min.css') }}">
+
+    <link href="{{ url_for('static', filename='assets/js/jquery.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/chart.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/bs-init.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/theme.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/service_worker.js') }}" rel="preload" as="script">
+
+    <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/service_worker.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/bs-init.js') }}"></script>
+
+    <script src="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler.js"></script>
+    <link href="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler_material.css" rel="stylesheet" type="text/css">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark">
+        <div class="container-fluid d-flex flex-column p-0">
+            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <img class="w-75 p-1" src="{{ url_for('static', filename='assets/img/icons/icon-android-homescreen.png') }}" alt="logo">
+                </div>
+                <div class="sidebar-brand-text mx-3"><span>Laundry<br>master</span></div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <ul class="navbar-nav text-light" id="accordionSidebar">
+                <li class="nav-item">
+                    <a class="nav-link {% if is_dashboard %} active {% endif %}" href="/">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if is_usage %} active {% endif %}" href="usage">
+                        <i class="fas fa-table"></i>
+                        <span>Detailed view</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if is_schedule %} active {% endif %}" href="schedule">
+                        <i class="fas fa-calendar-week"></i>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if is_profile %} active {% endif %}" href="profile">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if is_washer %} active {% endif %}" href="washing-machine">
+                        <i class="fas fa-tshirt"></i>
+                        <span>Washing machine</span>
+                    </a>
+                </li>
+            {% for role in current_user.roles %}
+                {% if 'admin' == role %}
+                    <hr class="sidebar-divider">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-user-shield"></i>
+                        <span>Admin Panel</span>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+            <div class="text-center d-none d-md-inline">
+                <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
+                <div class="container-fluid p-0 px-md-4 d-flex justify-content-between gap-2">
+                    <button class="btn btn-link d-md-none rounded-circle" id="sidebarToggleTop" type="button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <ul class="navbar-nav flex-nowrap ms-auto">
+                        <li class="d-none d-sm-block topbar-divider"></li>
+                        <li class="nav-item dropdown no-arrow">
+                            <div class="nav-item dropdown no-arrow">
+                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
+                                    <span class="d-lg-inline me-2 text-gray-600 small">{{ current_user.first_name }}</span>
+                                    <i class="fa fa-solid fa-user-ninja"></i>
+                                </a>
+                                <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                                    <a class="dropdown-item" href="/logout">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                                        &nbsp;Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if 'toast' in category %}
+                                <div style="left: 50%;position: fixed;transform: translate(-50%, 0px);z-index: 11">
+                                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                                        {% if category == 'toast-error' %}
+                                        <div class="toast-header bg-danger">
+                                            <strong class="me-auto text-white">Error</strong>
+                                            <small class="text-white">just now</small>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>
+                                        {% elif category == 'toast-warning' %}
+                                        <div class="toast-header bg-warning">
+                                            <strong class="me-auto text-white">Warning</strong>
+                                            <small class="text-white">just now</small>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>
+                                        {% elif category == 'toast-success' %}
+                                        <div class="toast-header bg-success">
+                                            <strong class="me-auto text-white">Success</strong>
+                                            <small class="text-white">just now</small>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>
+                                        {% else %}
+                                        <div class="toast-header bg-info">
+                                            <strong class="me-auto text-white">Info</strong>
+                                            <small class="text-white">just now</small>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>
+                                        {% endif %}
+                                        <div class="toast-body">
+                                            {{ message }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <script>
+                $(document).ready(function() {
+                    $('.toast').toast('show');
+                });
+            </script>
+            <div class="container-fluid h-75">
+                <section class="h-100">
+                    <header class="container h-100">
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <div class="d-flex flex-column">
+                                {% if code == '404' %}
+                                    <h1 class="text-danger align-self-center p-2">Oh no! Page not found :((</h1>
+                                    <h3 class="text align-self-center p-2">We are redirecting you home...</h3>
+                                    <script>
+                                        setTimeout(function() {
+                                            window.location.href = "/";
+                                        }, 3000);
+                                    </script>
+                                {% elif code =='5xx' %}
+                                    <h1 class="text align-self-center p-2">We are experiencing technical difficulties :((</h1>
+                                    <h2 class="text align-self-center p-2">Please try again later</h2>
+                                {% else %}
+                                    <h1 class="text align-self-center p-2">Unexpected error has occurred!</h1>
+                                    <h2 class="text align-self-center p-2">Please try again</h2>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </header>
+                </section>
+            </div>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto text-center ">
+                <div class="my-auto copyright fs-6"><span>Copyright © <br class="d-sm-none"> LaundryMaster 2023</span></div>
+                <a class="mt-2 fs-6 link-underline link-underline-opacity-0" href="https://github.com/georgi-m-iliev/LaundryMaster" title="PR are appreciated!">
+                    <i class="fab fa-github-square fa-1x"></i> Repo
+                </a>
+            </div>
+        </footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<script type="text/javascript">
+    registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscriptions", "{{ current_user.id }}");
+</script>
+<script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
+<div class="modal fade" id="launchCandyModal" tabindex="-1" aria-labelledby="launchCandyModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Click to launch Candy app</p>
+                <a href="candy://main" id="candy-link">
+                    <svg viewBox="0 0 400 136"><g fill="none" fill-rule="evenodd"><path d="M0 0h400v136H0z"></path><path d="M345.113 60.343l-15.118 15.048-5.098-14.787h-18.52l12.075 27.411-12.001 11.895h15.876s3.084-.38 4.369-.83c1.277-.463 3.098-2.31 3.098-2.31L366 60.39l-20.887-.047zM145.592 83.126l10.806-10.295 1.035 10.037-11.841.258zm86.172-22.522l-8.752 19.694-11.828-19.694H190.48l-11.709 25.55-5.915-25.81h-18.523s-2.698.021-5.002 1.002c-1.793.763-3.388 2.092-3.388 2.092l-17.333 15.27c-10.714 8.432-29.468 13.301-34.709 13.54-24.955 1.133-30.163-15.906-28.427-23.96 4.448-20.808 36.73-25.73 53.691-25.73 8.029 0 14.621 1.583 19.716 2.987l4.907-8.735-3.598-.758c-4.48-.563-11.447-2.07-23.345-2.106-48.105-.16-72.804 13.341-80.331 30.65-8.485 19.55 5.853 37.243 46.154 37.243 7.315 0 21.773-.638 35.364-5.537h13.127l6.714-5.967h20.324l.856 6.377h22.142l-.016-.149h11.825l9.439-20.643 12.371 20.632 19.205.011 16.469-35.959h-18.724zm57.117 17.376c-2.325 9.005-15.634 9.597-20.153 9.597h-5.372l7.956-17.979h5.364c4.907 0 14.124.921 12.205 8.382zm-3.122-17.376h-30.285l-16.48 35.96h30.283c24.237.194 34.084-9.12 37.356-16.266 3.622-7.913.494-19.694-20.874-19.694z" fill="#00B1F0"></path></g></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

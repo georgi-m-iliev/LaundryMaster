@@ -47,10 +47,20 @@ def create_app(test_config=None):
         response.headers['Cache-Control'] = 'no-cache'
         return response
 
-    @app.errorhandler(OperationalError)
-    def handle_db_error(e):
-        app.logger.error(e)
-        return render_template('error.html'), 500
+    if not app.debug:
+        @app.errorhandler(OperationalError)
+        def handle_db_error(e):
+            app.logger.error(e)
+            return render_template('error.html', code='5xx'), 500
+
+        @app.errorhandler(404)
+        def handle_404(e):
+            return render_template('error.html', code='404'), 404
+
+        @app.errorhandler(Exception)
+        def handle_exception(e):
+            app.logger.error(e)
+            return render_template('error.html', code=None), 500
 
     db.init_app(app)
     migrate.init_app(app, db)
