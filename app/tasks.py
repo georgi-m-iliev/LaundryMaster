@@ -204,13 +204,14 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
             time.sleep(5 * 60)
         washing_machine.update()
 
+    current_app.logger.info("Washing cycle has ended!")
     if terminate_cycle:
         # Terminate cycle if enabled in settings
+        current_app.logger.info("Automatic termination of cycle...")
         stop_cycle(user)
     else:
         # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
         current_app.logger.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
-
         send_push_to_user(
             user=user,
             notification=Notification(
