@@ -1,3 +1,4 @@
+import decimal
 import datetime
 
 from sqlalchemy import or_, and_
@@ -20,7 +21,13 @@ def calculate_charges(user: User):
 
     result = 0
     for charge in charges:
-        result += charge.cost
+        if split_users_count := len(charge.splits):
+            charge.split_cost = round(charge.cost / (split_users_count + 1), 2)
+            if charge.split_cost * (split_users_count + 1) < charge.cost:
+                charge.split_cost = round(charge.split_cost + decimal.Decimal(0.01), 2)
+            result += charge.split_cost
+        else:
+            result += charge.cost
 
     return result
 
@@ -38,6 +45,8 @@ def calculate_usage(user: User):
 
     result = 0
     for use in usage:
+        if split_user_count := len(use.splits):
+            result += round((use.endkwh - use.startkwh) / (split_user_count + 1), 4)
         result += use.endkwh - use.startkwh
 
     return result
@@ -49,7 +58,8 @@ def calculate_unpaid_cycles_cost(user: User = None):
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
             WashingCycle.paid.is_(False),
-            WashingCycle.user_id != db.session.query(roles_users).filter_by(role_id=3).first().user_id
+            WashingCycle.user_id != db.session.query(roles_users).filter_by(role_id=3).first().user_id,
+            User.query.filter_by(id=WashingCycle.user_id).first().active is True
         ).all()
     else:
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
@@ -63,14 +73,12 @@ def calculate_unpaid_cycles_cost(user: User = None):
             )
         ).all()
 
-        # paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(
-        #     user_id=user.id, paid=True
-        # ).all()]
-        # unpaid = [cycle for cycle in unpaid if cycle.id not in paid_split_cycles_ids]
-
     result = 0
     for unpaid_cycle in unpaid:
-        if hasattr(unpaid_cycle, 'split_cost'):
+        if split_users_count := len(unpaid_cycle.splits):
+            unpaid_cycle.split_cost = round(unpaid_cycle.cost / (split_users_count + 1), 2)
+            if unpaid_cycle.split_cost * (split_users_count + 1) < unpaid_cycle.cost:
+                unpaid_cycle.split_cost = round(unpaid_cycle.split_cost + decimal.Decimal(0.01), 2)
             result += unpaid_cycle.split_cost
         else:
             result += unpaid_cycle.cost
@@ -102,7 +110,7 @@ def calculate_savings(user: User):
 def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
     """Calculate the monthly statistics for a user."""
     if months <= 0:
-        return {"labels": [], "data": [0, 0, 0, 0, 0, 0]}
+        return {"labels": [], "data": [0] * months}
 
     stat_labels: list[str] = []
     stat_data: list[str] = []
@@ -124,7 +132,13 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
         total_cost = 0
 
         for cycle in cycles:
-            total_cost += cycle.cost
+            if split_users_count := len(cycle.splits):
+                cycle.split_cost = round(cycle.cost / (split_users_count + 1), 2)
+                if cycle.split_cost * (split_users_count + 1) < cycle.cost:
+                    cycle.split_cost = round(cycle.split_cost + decimal.Decimal(0.01), 2)
+                total_cost += cycle.split_cost
+            else:
+                total_cost += cycle.cost
 
         stat_labels.append(datetime.date(year=year, month=month, day=1).strftime("%B")[0:3])
         stat_data.append(str(total_cost))
@@ -141,7 +155,7 @@ def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
 
 def admin_users_usage_statistics(months: int = 12) -> dict:
     """ Calculates the times each user has used the washing machine. """
-    users = User.query.all()
+    users = User.query.filter_by(active=True).all()
     users_usage_stats = {'labels': [user.first_name for user in users], 'datasets': []}
 
     users_usage_stats['datasets'].append({
