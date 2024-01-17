@@ -1,3 +1,5 @@
+import enum
+
 from app import db
 
 from flask_security import UserMixin, RoleMixin
@@ -181,3 +183,16 @@ class SplitRequestNotification(NotificationActions):
                 {'action': 'reject', 'title': 'Reject', 'url': f'/usage/split/{cycle.id}/reject'}
             ]
         )
+
+
+class CeleryTask(db.Model):
+    class TaskKinds(enum.Enum):
+        CYCLE_NOTIFICATION = 1
+        SCHEDULE_NOTIFICATION = 2
+        RELEASE_DOOR = 3
+        RECALCULATE_CYCLES_COST = 4
+
+    __tablename__ = 'tasks'
+    id = db.Column(db.String(512), primary_key=True)
+    kind = db.Column(db.Enum(TaskKinds))
+    timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
