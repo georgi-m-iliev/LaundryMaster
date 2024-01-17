@@ -120,6 +120,8 @@ class CandyWashingMachine:
         data = fetch_appliance_data()
         self.current_status = data['appliance']['current_status']
         self.parse_current_status_parameters(data['appliance']['current_status_parameters'])
+        if self.program_state == CandyWashProgramState.STOPPED:
+            self.remaining_minutes = 0
         self.update_db_model()
 
 
