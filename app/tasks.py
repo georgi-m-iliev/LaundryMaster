@@ -6,8 +6,11 @@ from flask import Flask
 from celery import Celery, Task, shared_task, current_app
 from celery.schedules import crontab
 
-from app.models import User, WashingMachine, Notification, schedule_reminder_notification
-from app.functions import send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage, trigger_relay
+from app.models import User, WashingMachine, Notification
+from app.models import (schedule_reminder_notification, cycle_paused_notification, cycle_ended_notification,
+                        cycle_termination_reminder_notification)
+from app.functions import (send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage,
+                           trigger_relay)
 from app.candy import CandyWashingMachine, CandyMachineState, fetch_appliance_data
 
 
@@ -70,11 +73,7 @@ def watch_usage_and_notify_cycle_end_old(user_id: int, terminate_cycle: bool):
         # Cycle has ended, send push notification
         send_push_to_user(
             user=user,
-            notification=Notification(
-                title="Your cycle has ended!",
-                body="Go pick your laundry!",
-                icon="cycle-done-icon.png"
-            )
+            notification=cycle_ended_notification
         )
 
     print("Starting task...")
@@ -98,11 +97,7 @@ def watch_usage_and_notify_cycle_end_old(user_id: int, terminate_cycle: bool):
         print("Sending reminder to user...")
         send_push_to_user(
             user=user,
-            notification=Notification(
-                title="Your cycle is still running...",
-                body="Did you forget to terminate it?",
-                icon="reminder-icon.png"
-            )
+            notification=cycle_termination_reminder_notification
         )
     else:
         # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
@@ -120,11 +115,7 @@ def watch_usage_and_notify_cycle_end_old(user_id: int, terminate_cycle: bool):
             print("Sending reminder to user...")
             send_push_to_user(
                 user=user,
-                notification=Notification(
-                    title="Your cycle is still running...",
-                    body="Did you forget to terminate it?",
-                    icon="reminder-icon.png",
-                )
+                notification=cycle_termination_reminder_notification
             )
             i += 1
 
@@ -191,11 +182,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
             current_app.logger.info("Machine is paused, notifying user...")
             send_push_to_user(
                 user=User.query.filter_by(id=user_id).first(),
-                notification=Notification(
-                    title="Your cycle is paused!",
-                    body="Probably a glitch, go fix it!",
-                    icon="reminder-icon.png"
-                )
+                notification=cycle_paused_notification
             )
             time.sleep(60)
         if washing_machine.machine_state == CandyMachineState.IDLE:
@@ -214,11 +201,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
         current_app.logger.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
         send_push_to_user(
             user=user,
-            notification=Notification(
-                title="Your cycle has ended!",
-                body="Go pick your laundry!",
-                icon="cycle-done-icon.png"
-            )
+            notification=cycle_ended_notification
         )
 
         time.sleep(10 * 60)
@@ -227,11 +210,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
             current_app.logger.info("Sending reminder to user...")
             send_push_to_user(
                 user=user,
-                notification=Notification(
-                    title="Your cycle is still running...",
-                    body="Did you forget to terminate it?",
-                    icon="reminder-icon.png",
-                )
+                notification=cycle_termination_reminder_notification
             )
             time.sleep(5 * 60)
 

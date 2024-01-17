@@ -139,7 +139,31 @@ class NotificationActions(NotificationURL):
 schedule_reminder_notification = Notification(
     title="You have a scheduled washing!",
     body="Click here to see the details.",
-    icon="reminder-icon.png"
+    icon="cycle-reminder-icon.png"
+)
+
+cycle_paused_notification = Notification(
+    title="Your cycle is paused!",
+    body="Probably a glitch, go fix it!",
+    icon="cycle-reminder-icon.png"
+)
+
+cycle_ended_notification = Notification(
+    title="Your cycle has ended!",
+    body="Go pick your laundry!",
+    icon="cycle-done-icon.png"
+)
+
+cycle_termination_reminder_notification = Notification(
+    title="Your cycle is still running...",
+    body="Did you forget to terminate it?",
+    icon="cycle-reminder-icon.png",
+)
+
+unpaid_cycles_reminder_notification = Notification(
+    title='You have unpaid cycles!',
+    body='Please pay your debt to the washing machine owner!',
+    icon='unpaid-cycles-remind-icon.png'
 )
 
 
