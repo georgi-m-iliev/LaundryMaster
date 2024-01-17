@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import datetime
 from enum import Enum
 from typing import Optional
 
@@ -109,7 +110,10 @@ class CandyWashingMachine:
 
     def update_db_model(self):
         db.session.refresh(self.washing_machine)
-        self.washing_machine.candy_appliance_data = self.asdict()
+        data = self.asdict()
+        data['last_updated'] = datetime.datetime.now()
+        self.washing_machine.candy_appliance_data = data
+
         db.session.commit()
 
     def update(self):
