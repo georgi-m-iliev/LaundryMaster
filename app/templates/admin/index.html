@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-7 col-xl-8">
+            <div class="col-l-5 col-xl-6">
                 <div class="card shadow mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="text-danger fw-bold m-0">Users Usage Of Washing Machine</h6>
@@ -33,73 +33,46 @@
                     </div>
                     <div class="card-body">
                         <div class="chart-area">
-                            <canvas data-bss-chart='{
-                                "type": "horizontalBar",
-                                "data": {{ users_usage_stats }},
-                                "options":{
-                                    "maintainAspectRatio": false,
-                                    "responsive": true,
-                                    "legend":{
-                                        "display": true,
-                                        "labels":{
-                                            "fontStyle":"normal"
-                                        }
-                                    },
-                                    "title":{
-                                        "fontStyle":"normal"
-                                    },
-                                    "scales":{
-                                        "xAxes": [
-                                            {
-                                                "gridLines":{
-                                                    "color":"rgb(234, 236, 244)",
-                                                    "zeroLineColor":"rgb(234, 236, 244)",
-                                                    "drawBorder":false,
-                                                    "drawTicks":false,
-                                                    "borderDash":[
-                                                        "2"
-                                                    ],
-                                                    "zeroLineBorderDash":[
-                                                        "2"
-                                                    ],
-                                                    "drawOnChartArea":false
-                                                },
-                                                "ticks":{
-                                                    "fontColor":"#858796",
-                                                    "fontStyle":"normal",
-                                                    "padding":20,
-                                                    "beginAtZero": true
-                                                }
-                                            }
-                                        ],
-                                        "yAxes": [
-                                            {
-                                                "gridLines":{
-                                                    "color":"rgb(234, 236, 244)",
-                                                    "zeroLineColor":"rgb(234, 236, 244)",
-                                                    "drawBorder":false,
-                                                    "drawTicks":false,
-                                                    "borderDash": [
-                                                        "2"
-                                                    ],
-                                                    "zeroLineBorderDash": [
-                                                        "2"
-                                                    ]
-                                                },
-                                                "ticks":{
-                                                    "fontColor":"#858796",
-                                                    "fontStyle":"normal",
-                                                    "padding":20
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }'></canvas>
+                            <canvas data-bss-chart='{"type":"horizontalBar","data":{{ users_usage_stats }},"options":{"maintainAspectRatio":false,"responsive":true,"legend":{"display":true,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"},"scales":{"xAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"],"drawOnChartArea":false},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20,"beginAtZero":true}}],"yAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"]},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}]}}}'></canvas>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col col-l-3 col-xl-3">
+                <div class="card shadow mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="text-danger fw-bold m-0">Update Washing Machine Parameters</h6>
+                        <div class="dropdown no-arrow" style="padding-top: 2vh; padding-bottom: 2vh">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ update_wm_form.csrf_token }}
+                            <div class="mb-3">
+                                <label class="form-label" for="costperkwh">
+                                    <strong>Cost of kWh in Leva</strong>
+                                </label>
+                                {{ update_wm_form.costperkwh(class="form-control") }}
+                                <div class="form-text">Changing this value would start recalculation of all unpaid cycles.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="public_wash_cost">
+                                    <strong>Cost of washing in public laundry</strong>
+                                </label>
+                                {{ update_wm_form.public_wash_cost(class="form-control") }}
+                                <div class="form-text">Value used for savings statistic.</div>
+                            </div>
+                            <div class="d-flex justify-content-center mb-3">
+                                {{ update_wm_form.terminate_notification_task(value="Terminate Notification Task", class="btn btn-warning text-wrap") }}
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                {{ update_wm_form.update_washing_machine_submit(class="btn btn-danger") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 {% endblock %}

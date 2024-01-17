@@ -1,25 +1,64 @@
 import datetime, json
+
 from flask import Blueprint, request, render_template, redirect, flash
 from flask_security import roles_required, hash_password, current_user
+from celery.result import AsyncResult
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings
-from app.forms import EditProfileForm, EditRolesForm
+from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings, WashingMachine, CeleryTask
+from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics
-from app.functions import delete_user
+from app.functions import delete_user, recalculate_cycles_cost
+from app.tasks import recalculate_cycles_cost_task
 
 admin = Blueprint('admin', __name__)
 
 
-@admin.route('/', methods=['GET'])
+@admin.route('/', methods=['GET', 'POST'])
 @roles_required('admin')
 def index():
+    update_wm_form = UpdateWashingMachineForm()
+    washing_machine = WashingMachine.query.first()
+    update_wm_form.costperkwh.data = washing_machine.costperkwh
+    update_wm_form.public_wash_cost.data = washing_machine.public_wash_cost
+
+    if update_wm_form.validate_on_submit():
+        if update_wm_form.update_washing_machine_submit.data:
+            if update_wm_form.costperkwh.data == washing_machine.costperkwh and \
+                    update_wm_form.public_wash_cost.data == washing_machine.public_wash_cost:
+                flash('Nothing to update', 'toast-info')
+                return redirect(request.path)
+            if update_wm_form.costperkwh.data and update_wm_form.costperkwh.data != washing_machine.costperkwh:
+                washing_machine.costperkwh = update_wm_form.costperkwh.data
+                recalculate_task = CeleryTask(
+                    id=recalculate_cycles_cost_task.delay(update_wm_form.costperkwh.data).id,
+                    kind=CeleryTask.TaskKinds.RECALCULATE_CYCLES_COST,
+                )
+                db.session.add(recalculate_task)
+            elif update_wm_form.public_wash_cost.data and \
+                    update_wm_form.public_wash_cost.data != washing_machine.public_wash_cost:
+                washing_machine.public_wash_cost = update_wm_form.public_wash_cost.data
+            db.session.commit()
+            flash('Washing machine updated successfully', 'toast-success')
+        elif update_wm_form.terminate_notification_task.data:
+            if washing_machine.notification_task_id:
+                AsyncResult(washing_machine.notification_task_id).revoke(terminate=True)
+                flash('Notification task terminated successfully', 'toast-success')
+            else:
+                flash('Notification task is not scheduled', 'toast-warning')
+        return redirect(request.path)
+    else:
+        for field, errors in update_wm_form.errors.items():
+            for error in errors:
+                flash(error, category='toast-error')
+
     return render_template(
         'admin/index.html',
         is_dashboard=True,
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(),
         users_usage_stats=json.dumps(admin_users_usage_statistics()),
+        update_wm_form=update_wm_form
     )
 
 

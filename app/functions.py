@@ -385,3 +385,15 @@ def notify_debtors():
     debtors = {cycle.user for cycle in WashingCycle.query.filter_by(paid=False).all()} - {room_owner}
     for debtor in debtors:
         send_push_to_user(user=debtor, notification=unpaid_cycles_reminder_notification)
+
+
+def recalculate_cycles_cost():
+    recalc_cycles = WashingCycle.query.filter(
+        WashingCycle.end_timestamp.is_not(None),
+        WashingCycle.paid.is_(False)
+    ).all()
+
+    for cycle in recalc_cycles:
+        cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
+
+    db.session.commit()

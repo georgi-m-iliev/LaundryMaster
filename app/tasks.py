@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import datetime
 
 from flask import Flask
 from celery import Celery, Task, shared_task, current_app
@@ -10,7 +11,7 @@ from app.models import User, WashingMachine, Notification
 from app.models import (schedule_reminder_notification, cycle_paused_notification, cycle_ended_notification,
                         cycle_termination_reminder_notification)
 from app.functions import (send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage,
-                           trigger_relay)
+                           trigger_relay, recalculate_cycles_cost)
 from app.candy import CandyWashingMachine, CandyMachineState, fetch_appliance_data
 
 
@@ -215,3 +216,14 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
             time.sleep(5 * 60)
 
     current_app.logger.info("Ending task....")
+
+
+@shared_task()
+def recalculate_cycles_cost_task():
+    current_app.logger.info("Task to recalculate cycles will start in 30 minutes...")
+    # Giving some time to cancel the task if it was started by mistake
+    time.sleep(30 * 60)
+
+    current_app.logger.info(f"Starting task to recalculate cycles cost at {datetime.datetime.now} ...")
+    recalculate_cycles_cost()
+    current_app.logger.info(f"Task to recalculate cycles cost ended at {datetime.datetime.now}.")

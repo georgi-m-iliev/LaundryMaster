@@ -3,8 +3,8 @@ import datetime
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectMultipleField, SelectField, FieldList
-from wtforms import IntegerField, DateTimeLocalField, ValidationError, DateField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
+from wtforms import IntegerField, DateTimeLocalField, ValidationError, DateField, DecimalField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional, NumberRange
 
 
 class LoginForm(FlaskForm):
@@ -101,3 +101,17 @@ class SplitCycleForm(FlaskForm):
 class MarkPaidForm(FlaskForm):
     cycle_id = IntegerField('cycle_id', validators=[DataRequired()])
     mark_paid_submit = SubmitField('Mark Paid', id='mark-paid-submit', name='mark-paid-submit')
+
+
+class UpdateWashingMachineForm(FlaskForm):
+    # costperkwh between 0.01 and 1.0
+    costperkwh = DecimalField(
+        'costperkwh',
+        validators=[
+            Optional(),
+            NumberRange(min=0.01, max=1.0, message='kWh cost must be between 0.01 and 1.0')
+        ]
+    )
+    public_wash_cost = DecimalField('public_wash_cost', validators=[Optional()])
+    terminate_notification_task = SubmitField(id='terminate-notification-task', name='terminate-notification-task')
+    update_washing_machine_submit = SubmitField('Update', id='update-wm-submit', name='update-wm-submit')
