@@ -99,35 +99,30 @@
                         </div>
                         <div class="card-body">
                             <img class="float-start imgshadow me-2 rounded-2" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="Washing Machine">
-
-                            {% if candy_washing_machine %}
+                            {% if relay_is_on %}
                                 <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Washing Machine State:</label>
-                                    {{ candy_washing_machine.machine_state.label }}
+                                    <span id="candy-machine-state"></span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Program State:</label>
-                                    {{ candy_washing_machine.program_state.label }}
+                                    <span id="candy-program-state"></span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Remaining:</label>
-                                    {{ candy_washing_machine.remaining_minutes }} min
+                                    <div><span id="candy-remaining-minutes"></span> min</div>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Temperature:</label>
-                                    {{ candy_washing_machine.temp }} °C
+                                    <div><span id="candy-washing-temp"></span> °C</div>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Spin Speed:</label>
-                                    {{ candy_washing_machine.spin_speed }}
+                                    <span id="candy-spin-speed"></span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <label class="fw-bold">WiFi Control:</label>
-                                    {% if candy_washing_machine.remote_control %}
-                                        <i class="fa fa-wifi text-success"></i>
-                                    {% else %}
-                                        <i class="fa fa-wifi text-danger"></i>
-                                    {% endif %}
+                                    <div id="candy-remote-control"></div>
                                 </div>
                             {% else %}
                                 <div class="text-center">
@@ -137,7 +132,26 @@
                             {% endif %}
                         </div>
                     </div>
-
+                    {% if relay_is_on %}
+                        <script type="module">
+                            import { getCandy } from "{{ url_for('static', filename='assets/js/websockets.js') }}";
+                            const candyInfoWS = getCandy();
+                            candyInfoWS.onmessage = (event) => {
+                                const newData = JSON.parse(event.data);
+                                document.getElementById('candy-machine-state').textContent = newData['machine_state']['label'];
+                                document.getElementById('candy-program-state').textContent = newData['program_state']['label'];
+                                document.getElementById('candy-remaining-minutes').textContent = newData['remaining_minutes'];
+                                document.getElementById('candy-washing-temp').textContent = newData['temp'];
+                                document.getElementById('candy-spin-speed').textContent = newData['spin_speed'];
+                                if(newData['remote_control']) {
+                                    document.getElementById('candy-remote-control').innerHTML = '<i class="fa fa-wifi text-success"></i>';
+                                }
+                                else {
+                                    document.getElementById('candy-remote-control').innerHTML = '<i class="fa fa-wifi text-danger"></i>';
+                                }
+                            };
+                        </script>
+                    {% endif %}
                     <div class="card shadow mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h6 class="text-danger fw-bold m-0">Relay Control</h6>

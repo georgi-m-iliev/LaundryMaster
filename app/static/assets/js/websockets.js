@@ -14,3 +14,11 @@ export function getWS(urlArgs = "") {
     });
     return washingMachineInfoWS;
 }
+
+export function getCandy() {
+    const candyInfoWS = new WebSocket(ws_uri_base + "/api/candy_data");
+    candyInfoWS.addEventListener('open', function (event) {
+        console.log("Connected to candy info websocket");
+    });
+    return candyInfoWS;
+}
