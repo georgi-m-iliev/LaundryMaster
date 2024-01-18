@@ -321,6 +321,7 @@ def get_washer_info(shelly=True):
             "running_time": get_running_time(),
             "remaining_minutes": get_remaining_minutes(),
             "current_usage": shelly_data['data']['device_status']['meters'][0]['power'],
+            "relay_ison": shelly_data['data']['device_status']['relays'][0]['ison'],
             "relay_temperature": shelly_data['data']['device_status']['temperature'],
             "relay_wifi_rssi": shelly_data['data']['device_status']['wifi_sta']['rssi']
         }

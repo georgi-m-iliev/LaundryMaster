@@ -63,6 +63,10 @@ def index():
             return redirect(request.path)
 
     washing_machine_info = get_washer_info()
+    if not washing_machine_info['relay_ison']:
+        candy_washing_machine = None
+    else:
+        candy_washing_machine = CandyWashingMachine.get_instance()
 
     return render_template(
         'admin/index.html',
@@ -71,8 +75,8 @@ def index():
         total_energy_usage=calculate_energy_usage(),
         users_usage_stats=json.dumps(admin_users_usage_statistics()),
         update_wm_form=update_wm_form,
-        candy_washing_machine=CandyWashingMachine.get_instance().asdict(),
-        relay_status=get_relays_state(),
+        candy_washing_machine=candy_washing_machine,
+        relay_is_on=washing_machine_info['relay_ison'],
         stopwatch=washing_machine_info['running_time'],
         current_usage=washing_machine_info['current_usage'],
         relay_temperature=washing_machine_info['relay_temperature'],
