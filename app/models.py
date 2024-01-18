@@ -196,3 +196,4 @@ class CeleryTask(db.Model):
     id = db.Column(db.String(512), primary_key=True)
     kind = db.Column(db.Enum(TaskKinds))
     timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
+    cycle_id = db.Column(db.Integer, db.ForeignKey('washing_cycles.id'), nullable=True)

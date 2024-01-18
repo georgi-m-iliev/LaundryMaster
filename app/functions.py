@@ -8,7 +8,7 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription
+from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
 from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification
 from app.forms import SplitCycleForm
 
@@ -41,10 +41,11 @@ def start_cycle(user: User, user_settings: UserSettings):
         db.session.rollback()
         raise ChildProcessError('Error with initialising a cycle for user {user.username}.')
 
-    WashingMachine.query.first().notification_task_id = watch_usage_and_notify_cycle_end.delay(
-        user.id,
-        user_settings.terminate_cycle_on_usage
-    ).id
+    new_task = CeleryTask(
+        id=watch_usage_and_notify_cycle_end.delay(user.id, user_settings.terminate_cycle_on_usage).id,
+        kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION
+    )
+    db.session.add(new_task)
     db.session.commit()
 
 
@@ -67,9 +68,9 @@ def stop_cycle(user: User):
             if cycle.cost == 0:
                 db.session.delete(cycle)
 
-            if notification_task_id := WashingMachine.query.first().notification_task_id:
-                AsyncResult(notification_task_id).revoke(terminate=True)
-                WashingMachine.query.first().notification_task_id = None
+            if notification_task := CeleryTask.query.filter_by(cycle_id=cycle.id).first():
+                AsyncResult(notification_task.id).revoke(terminate=True)
+                db.session.delete(notification_task)
 
             db.session.commit()
             current_app.logger.info(f'User {user.username} successfully stopped their cycle.')

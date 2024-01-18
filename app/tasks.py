@@ -4,10 +4,11 @@ import logging
 import datetime
 
 from flask import Flask
-from celery import Celery, Task, shared_task, current_app
+from celery import Celery, Task, shared_task, current_app, current_task
 from celery.schedules import crontab
 
-from app.models import User, WashingMachine, Notification
+from app.db import db
+from app.models import User, WashingMachine, Notification, CeleryTask
 from app.models import (schedule_reminder_notification, cycle_paused_notification, cycle_ended_notification,
                         cycle_termination_reminder_notification)
 from app.functions import (send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage,
@@ -156,6 +157,7 @@ def release_door(user_username: str):
         counter += 1
 
     current_app.logger.info("Task to release the door ended.")
+    CeleryTask.query.filter_by(task_id=current_task.request.id).delete()
 
 
 @shared_task(ignore_result=True)

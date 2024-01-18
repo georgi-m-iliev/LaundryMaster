@@ -32,7 +32,12 @@ def handle_cycle_buttons():
             stop_cycle(current_user)
             return redirect(request.path)
         elif request.form.get('release_door') is not None:
-            release_door.delay(current_user.username)
+            release_door_task = CeleryTask(
+                id=release_door.delay(current_user.username).id,
+                kind=CeleryTask.TaskKinds.RELEASE_DOOR,
+            )
+            db.session.add(release_door_task)
+            db.session.commit()
             flash('Powering the machine for 30 seconds!', category='toast-info')
             return redirect(request.path)
 

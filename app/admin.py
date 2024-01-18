@@ -43,8 +43,10 @@ def index():
             db.session.commit()
             flash('Washing machine updated successfully', 'toast-success')
         elif update_wm_form.terminate_notification_task.data:
-            if washing_machine.notification_task_id:
-                AsyncResult(washing_machine.notification_task_id).revoke(terminate=True)
+            if notification_task := CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION).first():
+                AsyncResult(notification_task.id).revoke(terminate=True)
+                db.session.delete(notification_task)
+                db.session.commit()
                 flash('Notification task terminated successfully', 'toast-success')
             else:
                 flash('Notification task is not scheduled', 'toast-warning')
