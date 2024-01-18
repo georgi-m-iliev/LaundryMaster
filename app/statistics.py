@@ -32,16 +32,22 @@ def calculate_charges(user: User):
     return result
 
 
-def calculate_usage(user: User):
+def calculate_energy_usage(user: User = None):
     """Calculate the monthly usage of electricity for a user."""
-    usage: list[WashingCycle] = WashingCycle.query.filter(
-        WashingCycle.end_timestamp.is_not(None),
-        or_(
-            WashingCycle.user_id == user.id,
-            WashingCycle.splits.any(user_id=user.id)
-        ),
-        db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
-    ).all()
+    if user is None:
+        usage: list[WashingCycle] = WashingCycle.query.filter(
+            WashingCycle.end_timestamp.is_not(None),
+            db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
+        ).all()
+    else:
+        usage: list[WashingCycle] = WashingCycle.query.filter(
+            WashingCycle.end_timestamp.is_not(None),
+            or_(
+                WashingCycle.user_id == user.id,
+                WashingCycle.splits.any(user_id=user.id)
+            ),
+            db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
+        ).all()
 
     result = 0
     for use in usage:

@@ -402,6 +402,10 @@ def notify_debtors():
 
 
 def recalculate_cycles_cost():
+    if current_app.debug:
+        print('We are debugging, no changes applied to the database.')
+        return
+
     recalc_cycles = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.paid.is_(False)

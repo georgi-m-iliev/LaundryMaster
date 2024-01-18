@@ -8,7 +8,7 @@ from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings, WashingMachine, CeleryTask
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
-from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics
+from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
 from app.functions import delete_user, recalculate_cycles_cost, get_relays_state, trigger_relay
 from app.tasks import recalculate_cycles_cost_task
 from app.candy import CandyWashingMachine
@@ -64,6 +64,7 @@ def index():
         'admin/index.html',
         is_dashboard=True,
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(),
+        total_energy_usage=calculate_energy_usage(),
         users_usage_stats=json.dumps(admin_users_usage_statistics()),
         update_wm_form=update_wm_form,
         candy_washing_machine=CandyWashingMachine.get_instance().asdict(),
