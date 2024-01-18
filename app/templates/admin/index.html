@@ -155,5 +155,89 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-start-primary py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center no-gutters">
+                            <div class="col me-2">
+                                <div class="text-uppercase text-danger fw-bold text-xs mb-1">
+                                    <span>Current Usage</span>
+                                </div>
+                                <div class="text-dark fw-bold h5 mb-0">
+                                    <span id="current-usage">{{ current_usage }}</span>
+                                    <span>W</span>
+                                </div>
+                            </div>
+                            <div class="col-auto"><i class="fas fa-plug fa-2x text-gray-300"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-start-warning py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center no-gutters">
+                            <div class="col me-2">
+                                <div class="text-uppercase text-warning fw-bold text-xs mb-1">
+                                    <span>Time Elapsed</span>
+                                </div>
+                                <div class="text-dark fw-bold h5 mb-0">
+                                    <span id="time-elapsed">{{ stopwatch }}</span>
+                                </div>
+                            </div>
+                            <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-start-warning py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center no-gutters">
+                            <div class="col me-2">
+                                <div class="text-uppercase text-danger-emphasis fw-bold text-xs mb-1">
+                                    <span>Relay Temperature</span>
+                                </div>
+                                <div class="text-dark fw-bold h5 mb-0">
+                                    <span id="relay-temperature">{{ relay_temperature }}</span>
+                                    <span>°C</span>
+                                </div>
+                            </div>
+                            <div class="col-auto"><i class="fas fa-thermometer-half fa-2x text-gray-300"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-start-warning py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center no-gutters">
+                            <div class="col me-2">
+                                <div class="text-uppercase text-primary fw-bold text-xs mb-1">
+                                    <span>Relay Wi-Fi RSSI</span>
+                                </div>
+                                <div class="text-dark fw-bold h5 mb-0">
+                                    <span id="relay-wifi-rssi">{{ relay_wifi_rssi }}</span>
+                                    <span>dBm</span>
+                                </div>
+                            </div>
+                            <div class="col-auto"><i class="fas fa-wifi fa-2x text-gray-300"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="module">
+                import { getWS } from "{{ url_for('static', filename='assets/js/websockets.js') }}";
+                const washingMachineInfoWS = getWS();
+                washingMachineInfoWS.onmessage = (event) => {
+                    const newData = JSON.parse(event.data);
+                    document.getElementById('current-usage').textContent = newData['current_usage'];
+                    document.getElementById('time-elapsed').textContent = newData['running_time'];
+                    document.getElementById('relay-temperature').textContent = newData['relay_temperature'];
+                    document.getElementById('relay-wifi-rssi').textContent = newData['relay_wifi_rssi'];
+                };
+            </script>
+        </div>
     </div>
 {% endblock %}

@@ -9,7 +9,7 @@ from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings, WashingMachine, CeleryTask
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
-from app.functions import delete_user, recalculate_cycles_cost, get_relays_state, trigger_relay
+from app.functions import delete_user, recalculate_cycles_cost, get_relays_state, trigger_relay, get_washer_info
 from app.tasks import recalculate_cycles_cost_task
 from app.candy import CandyWashingMachine
 
@@ -60,6 +60,8 @@ def index():
             flash(f'Relay triggered {mode} successfully', 'toast-success')
             return redirect(request.path)
 
+    washing_machine_info = get_washer_info()
+
     return render_template(
         'admin/index.html',
         is_dashboard=True,
@@ -68,7 +70,11 @@ def index():
         users_usage_stats=json.dumps(admin_users_usage_statistics()),
         update_wm_form=update_wm_form,
         candy_washing_machine=CandyWashingMachine.get_instance().asdict(),
-        relay_status=get_relays_state()
+        relay_status=get_relays_state(),
+        stopwatch=washing_machine_info['running_time'],
+        current_usage=washing_machine_info['current_usage'],
+        relay_temperature=washing_machine_info['relay_temperature'],
+        relay_wifi_rssi=washing_machine_info['relay_wifi_rssi'],
     )
 
 
