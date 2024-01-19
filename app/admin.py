@@ -9,7 +9,7 @@ from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings, WashingMachine, CeleryTask
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
-from app.functions import delete_user, recalculate_cycles_cost, get_relays_state, trigger_relay, get_washer_info
+from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info
 from app.tasks import recalculate_cycles_cost_task
 from app.candy import CandyWashingMachine
 
