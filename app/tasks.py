@@ -38,7 +38,8 @@ def celery_init_app(app: Flask) -> Celery:
 
 
 @shared_task(ignore_result=False)
-def watch_usage_and_notify_cycle_end_old(user_id: int, terminate_cycle: bool):
+def cycle_end_notification_task_old(user_id: int, terminate_cycle: bool):
+    """ Legacy task for notification of cycle end. Watches the energy consumption and decides based on usage. """
     def wait_usage_over_threshold():
         current_app.logger.info('Watching energy consumption and waiting it to get over threshold...')
         while True:
@@ -126,11 +127,13 @@ def watch_usage_and_notify_cycle_end_old(user_id: int, terminate_cycle: bool):
 
 @shared_task(name="update_energy_consumption")
 def update_energy_consumption_task():
+    """ Task to update the energy consumption up to that point. """
     update_energy_consumption()
 
 
 @shared_task(ignore_result=True)
 def release_door(user_username: str):
+    """ Task to release the door of the washing machine. """
     current_app.logger.info(f"Starting task to release the door for {user_username}...")
 
     current_app.logger.info("Sending request to turn on the relay through Shelly Cloud API...")
@@ -162,7 +165,7 @@ def release_door(user_username: str):
 
 @shared_task(ignore_result=True)
 def schedule_notification(user_id: int):
-    print("Starting schedule event notification task...")
+    """ Task to send a push notification to the user about their scheduled washing. """
     user = User.query.filter_by(id=user_id).first()
     if user:
         current_app.logger.info(f'Reminding {user.username} about their scheduled washing...')
@@ -174,13 +177,16 @@ def schedule_notification(user_id: int):
 
 
 @shared_task(ignore_result=False)
-def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
+def cycle_end_notification_task(user_id: int, terminate_cycle: bool):
+    """ Task to send a push notification to the user about the end of their washing cycle."""
     current_app.logger.info("Starting task...")
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
 
     washing_machine = CandyWashingMachine.get_instance()
-    while washing_machine.machine_state != CandyMachineState.FINISHED1 or washing_machine.machine_state != CandyMachineState.FINISHED2:
+    while (washing_machine.machine_state != CandyMachineState.FINISHED1 or
+           washing_machine.machine_state != CandyMachineState.FINISHED2):
+
         if washing_machine.machine_state == CandyMachineState.PAUSED:
             current_app.logger.info("Machine is paused, notifying user...")
             send_push_to_user(
@@ -189,8 +195,10 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
             )
             time.sleep(60)
         if washing_machine.machine_state == CandyMachineState.IDLE:
+            current_app.logger.info("Machine is idle, waiting for it to start...")
             time.sleep(60)
         if washing_machine.machine_state == CandyMachineState.RUNNING:
+            current_app.logger.info("Machine is running, waiting for it to finish...")
             time.sleep(5 * 60)
         washing_machine.update()
 
@@ -208,7 +216,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
         )
 
         time.sleep(10 * 60)
-
+        current_app.logger.info("User was notified but didn't terminate the cycle, reminding them...")
         for _ in range(10):
             current_app.logger.info("Sending reminder to user...")
             send_push_to_user(
@@ -222,6 +230,7 @@ def watch_usage_and_notify_cycle_end(user_id: int, terminate_cycle: bool):
 
 @shared_task()
 def recalculate_cycles_cost_task():
+    """ Task to recalculate the cost of cycles. """
     current_app.logger.info("Task to recalculate cycles will start in 30 minutes...")
     # Giving some time to cancel the task if it was started by mistake
     time.sleep(30 * 60)
