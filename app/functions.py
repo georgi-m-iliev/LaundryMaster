@@ -14,7 +14,8 @@ from app.forms import SplitCycleForm
 
 
 def start_cycle(user: User, user_settings: UserSettings):
-    from app.tasks import watch_usage_and_notify_cycle_end
+    """ Initiates a new cycle for a user. """
+    from app.tasks import cycle_end_notification_task
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # User has an already running cycle
         current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
@@ -35,21 +36,22 @@ def start_cycle(user: User, user_settings: UserSettings):
         db.session.commit()
         current_app.logger.info(f'User {user.username} successfully started a new cycle.')
         flash('Cycle successfully started!', category='toast-success')
+
+        new_task = CeleryTask(
+            id=cycle_end_notification_task.delay(user.id, user_settings.terminate_cycle_on_usage).id,
+            kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION
+        )
+        db.session.add(new_task)
+        db.session.commit()
     except RequestException:
         current_app.logger.error(f'Error with initialising a cycle for user {user.username}.')
         flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
         db.session.rollback()
         raise ChildProcessError('Error with initialising a cycle for user {user.username}.')
 
-    new_task = CeleryTask(
-        id=watch_usage_and_notify_cycle_end.delay(user.id, user_settings.terminate_cycle_on_usage).id,
-        kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION
-    )
-    db.session.add(new_task)
-    db.session.commit()
-
 
 def stop_cycle(user: User):
+    """ Terminates the running cycle for a user. """
     cycle: WashingCycle = WashingCycle.query.filter_by(user_id=user.id, end_timestamp=None).first()
     if cycle:
         # Cycle belonging to current user was found, stopping it
@@ -88,6 +90,7 @@ def stop_cycle(user: User):
 
 
 def update_cycle(user: User):
+    """ Updates the running cycle for a user. Should be executed on every request. """
     cycle = WashingCycle.query.filter_by(end_timestamp=None).first()
     if cycle:
         if cycle.user_id == user.id:
@@ -99,7 +102,7 @@ def update_cycle(user: User):
 
 
 def get_running_time() -> str:
-    """Calculate the running time of the current cycle."""
+    """ Calculate the running time of the current cycle. """
     cycle: WashingCycle = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_(None)
     ).first()
@@ -110,7 +113,7 @@ def get_running_time() -> str:
 
 
 def get_remaining_minutes() -> int:
-    """Fetch the remaining minutes of the current cycle."""
+    """ Fetch the remaining minutes of the current cycle. """
     washing_machine: WashingMachine = WashingMachine.query.first()
     if washing_machine.candy_appliance_data is None:
         return 0
@@ -121,7 +124,7 @@ def get_remaining_minutes() -> int:
 
 
 def get_unpaid_list(user: User):
-    """Get the unpaid cycles for a user."""
+    """ Get the unpaid cycles for a user. """
     cycles: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         or_(
@@ -132,9 +135,6 @@ def get_unpaid_list(user: User):
             WashingCycle.splits.any(user_id=user.id, paid=False)
         )
     ).order_by(WashingCycle.start_timestamp.desc(), WashingCycle.end_timestamp.desc()).all()
-
-    # paid_split_cycles_ids = [cycle.cycle_id for cycle in db.session.query(split_cycles).filter_by(user_id=user.id, paid=True).all()]
-    # cycles = [cycle for cycle in cycles if cycle.id not in paid_split_cycles_ids]
 
     for cycle in cycles:
         if split_users_count := len(cycle.splits):
@@ -148,7 +148,7 @@ def get_unpaid_list(user: User):
 
 
 def get_usage_list(user: User, limit: int = 10):
-    """Get the usage list for a user."""
+    """ Get the usage list for a user. """
     cycles: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         or_(
@@ -173,6 +173,7 @@ def get_usage_list(user: User, limit: int = 10):
 
 
 def trigger_push_notification(push_subscription, notification: Notification):
+    """ Sends a push notification through a push subscription. """
     try:
         response = webpush(
             subscription_info=json.loads(push_subscription.subscription_json),
@@ -190,19 +191,21 @@ def trigger_push_notification(push_subscription, notification: Notification):
 
 
 def send_push_to_all(notification: Notification):
+    """ Sends push to all users through all push subscriptions. """
     current_app.logger.info('Sending push notification to all users.')
     subscriptions = PushSubscription.query.all()
     return [trigger_push_notification(subscription, notification) for subscription in subscriptions]
 
 
 def send_push_to_user(user: User, notification: Notification):
+    """ Sends push to a user through all push subscriptions associated with them. """
     current_app.logger.info(f'Sending push notification to {user.username}.')
     subscriptions = PushSubscription.query.filter_by(user_id=user.id).all()
     return [trigger_push_notification(subscription, notification) for subscription in subscriptions]
 
 
 def trigger_relay(mode: str):
-    """Enable the relay on the Shelly device."""
+    """ Changes the relay state of a Shelly device. """
     current_app.logger.info(f'Triggering relay through Shelly API to be {mode}.')
     response = requests.post(
         url='{}/device/relay/control'.format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
@@ -216,7 +219,7 @@ def trigger_relay(mode: str):
 
 
 def get_energy_consumption():
-    """ Queries Shelly Cloud API for energy consumption data in Watt-minute and return in kWatt-hour."""
+    """ Queries Shelly Cloud API for energy consumption data in Watt-minute and returns in kWatt-hour. """
     data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -233,7 +236,7 @@ def get_energy_consumption():
 
 
 def get_realtime_current_usage():
-    """ Queries Shelly Cloud API for current usage data in Watt."""
+    """ Queries Shelly Cloud API for current usage data in Watt. """
     data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -257,6 +260,7 @@ def update_energy_consumption():
 
 
 def get_relay_temperature():
+    """ Queries Shelly Cloud API for relay temperature in Celsius. """
     data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -272,6 +276,7 @@ def get_relay_temperature():
 
 
 def get_relays_state():
+    """ Queries Shelly Cloud API for relay state. """
     data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -285,7 +290,9 @@ def get_relays_state():
 
     return data.json()['data']['device_status']['relays'][0]['ison']
 
+
 def get_relay_wifi_rssi():
+    """ Queries Shelly Cloud API for relay Wi-Fi RSSI. """
     data = requests.post(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
@@ -330,8 +337,9 @@ def get_washer_info(shelly=True):
 
 
 def delete_user(user: User):
-    """ Deletes a user and all associated data excl. washing cycles """
-    from app.models import User, UserSettings, PushSubscription, ScheduleEvent, WashingCycle, WashingCycleSplit, roles_users
+    """ Deletes a user and all associated data excl. washing cycles. """
+    from app.models import User, UserSettings, PushSubscription, ScheduleEvent, WashingCycle, WashingCycleSplit, \
+        roles_users
     UserSettings.query.filter_by(user_id=user.id).delete()
     PushSubscription.query.filter_by(user_id=user.id).delete()
     ScheduleEvent.query.filter_by(user_id=user.id).delete()
@@ -348,6 +356,7 @@ def delete_user(user: User):
 
 
 def split_cycle(user: User, split_cycle_form: SplitCycleForm):
+    """ Splits a cycle between users based on passed SplitCycleForm. """
     cycle: WashingCycle = WashingCycle.query.filter_by(id=split_cycle_form.cycle_id.data).first()
     if cycle.user_id != user.id:
         flash('You can only split your own cycles', category='toast-error')
@@ -369,6 +378,7 @@ def split_cycle(user: User, split_cycle_form: SplitCycleForm):
 
 
 def mark_cycle_paid(user: User, cycle_id: int):
+    """ Marks a cycle as paid. """
     cycle = WashingCycle.query.filter_by(id=cycle_id).first()
     if cycle is None:
         flash('Cycle not found', category='toast-error')
@@ -397,6 +407,7 @@ def mark_cycle_paid(user: User, cycle_id: int):
 
 
 def notify_debtors():
+    """ Sends push notifications to all users owing money. """
     room_owner = User.query.filter(User.roles.any(name='room_owner')).first()
     debtors = {cycle.user for cycle in WashingCycle.query.filter_by(paid=False).all()} - {room_owner}
     for debtor in debtors:
@@ -404,8 +415,9 @@ def notify_debtors():
 
 
 def recalculate_cycles_cost():
+    """ Recalculates the cost of all unpaid cycles based on new price per kWh. """
     if current_app.debug:
-        print('We are debugging, no changes applied to the database.')
+        current_app.logger.warning('We are debugging, no changes applied to the database.')
         return
 
     recalc_cycles = WashingCycle.query.filter(
