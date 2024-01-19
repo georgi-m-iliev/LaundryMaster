@@ -1,6 +1,6 @@
 import datetime, json
 
-from flask import Blueprint, request, render_template, redirect, flash
+from flask import Blueprint, request, render_template, redirect, flash, current_app
 from flask_security import roles_required, hash_password, current_user
 from celery.result import AsyncResult
 
@@ -58,8 +58,11 @@ def index():
 
     if 'relay' in request.args:
         if mode := request.args.get('relay'):
-            trigger_relay(mode)
-            flash(f'Relay triggered {mode} successfully', 'toast-success')
+            if trigger_relay(mode) != 200:
+                current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
+                flash(f'Failed to trigger relay {mode}', 'toast-error')
+            else:
+                flash(f'Relay triggered {mode} successfully', 'toast-success')
             return redirect(request.path)
 
     washing_machine_info = get_washer_info()
