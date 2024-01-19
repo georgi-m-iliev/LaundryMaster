@@ -9,7 +9,7 @@ from app.models import WashingCycle, WashingCycleSplit, WashingMachine
 
 
 def calculate_charges(user: User):
-    """Calculate the monthly charges for a user."""
+    """ Calculate the monthly charges for a user. """
     charges: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         or_(
@@ -33,7 +33,7 @@ def calculate_charges(user: User):
 
 
 def calculate_energy_usage(user: User = None):
-    """Calculate the monthly usage of electricity for a user."""
+    """ Calculate the monthly usage of electricity for a user. """
     if user is None:
         usage: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
@@ -59,7 +59,7 @@ def calculate_energy_usage(user: User = None):
 
 
 def calculate_unpaid_cycles_cost(user: User = None):
-    """Calculate the unpaid cycles for a user or at all."""
+    """ Calculate the unpaid cycles for a user or at all. """
     if user is None:
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
@@ -93,7 +93,7 @@ def calculate_unpaid_cycles_cost(user: User = None):
 
 
 def calculate_savings(user: User):
-    """Calculate the savings from having personal washing machine."""
+    """ Calculate the savings from having personal washing machine. """
     cycles: list[WashingCycle] = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         or_(
@@ -114,7 +114,7 @@ def calculate_savings(user: User):
 
 
 def calculate_monthly_statistics(user: User, months: int = 6) -> dict:
-    """Calculate the monthly statistics for a user."""
+    """ Calculate the monthly statistics for a user. """
     if months <= 0:
         return {"labels": [], "data": [0] * months}
 
@@ -165,7 +165,7 @@ def admin_users_usage_statistics(months: int = 12) -> dict:
     users_usage_stats = {'labels': [user.first_name for user in users], 'datasets': []}
 
     users_usage_stats['datasets'].append({
-            'label': f'Cycles per user for the last {months} months',
+            'label': f'Cycles by user for the last {months} months',
             'fill': True,
             'data': [],
             'backgroundColor': '#5f74d7',
@@ -178,7 +178,7 @@ def admin_users_usage_statistics(months: int = 12) -> dict:
         users_usage_stats['datasets'][0]['data'].append(len(cycles))
 
     users_usage_stats['datasets'].append({
-            'label': f'Cycles per user for the last 30 days',
+            'label': f'Cycles by user for the last 30 days',
             'fill': True,
             'data': [],
             'backgroundColor': '#7fc2d1',
