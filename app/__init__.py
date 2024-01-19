@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from app.db import db, migrate
+from app.db import db, migrate, moment
 from app.models import User, Role
 from app.tasks import celery_init_app
 
@@ -78,5 +78,7 @@ def create_app(test_config=None):
     celery_init_app(app)
 
     sock.init_app(app)
+
+    moment.init_app(app)
 
     return app

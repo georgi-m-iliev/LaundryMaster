@@ -65,7 +65,7 @@ def index():
         is_dashboard=True,
         cycle_data=update_cycle(current_user),
         # stopwatch=get_running_time(),
-        expected_end=(datetime.datetime.now() + datetime.timedelta(minutes=get_remaining_minutes())).strftime('%H:%M'),
+        expected_end=(datetime.datetime.now() + datetime.timedelta(minutes=get_remaining_minutes())),
         total_cost=calculate_charges(current_user),
         total_energy_usage=calculate_energy_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
