@@ -106,3 +106,4 @@ pip-selfcheck.json
 ### JetBrains template
 .idea
 
+/celerybeat-schedule.db

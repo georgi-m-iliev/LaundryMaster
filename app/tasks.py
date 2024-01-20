@@ -34,6 +34,14 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.logger = logging.getLogger(__name__)
 
     app.extensions["celery"] = celery_app
+
+    celery_app.conf.beat_schedule = {
+        "Send notification to debtors every two days": {
+            "task": "send_notification_to_debtors",
+            "schedule": crontab(minute="0", hour="16", day="*", month="*", day_of_week="*/2")
+        }
+    }
+
     return celery_app
 
 
@@ -238,3 +246,11 @@ def recalculate_cycles_cost_task():
     current_app.logger.info(f"Starting task to recalculate cycles cost at {datetime.datetime.now} ...")
     recalculate_cycles_cost()
     current_app.logger.info(f"Task to recalculate cycles cost ended at {datetime.datetime.now}.")
+
+
+@shared_task(name='send_notification_to_debtors', ignore_result=True)
+def send_notification_to_debtors():
+    from app.functions import notify_debtors
+    current_app.logger.info("Will send notifications to all debtors...")
+    notify_debtors()
+    current_app.logger.info("All debtors were notified. Exiting...")
