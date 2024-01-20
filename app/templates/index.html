@@ -137,7 +137,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5 col-xl-4">
+            <div class="col-lg-5 col-xl-4" id="unpaid-cycles-form">
                 {% if unpaid_cycles %}
                 <div class="card shadow mb-4">
                     <form method="POST">
@@ -181,7 +181,20 @@
                     </form>
                 </div>
                 {% endif %}
-             </div>
+            </div>
+
         </div>
     </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function(event){
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('unpaid-cycles')) {
+            const element = document.getElementById("unpaid-cycles-form");
+            setTimeout(() => {
+                element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                window.history.replaceState({"html": document.html, "pageTitle": document.pageTitle}, "", window.location.pathname);
+            }, 1000);
+        }
+    });
+</script>
 {% endblock %}
