@@ -38,7 +38,7 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.conf.beat_schedule = {
         "Send notification to debtors every two days": {
             "task": "send_notification_to_debtors",
-            "schedule": crontab(minute="0", hour="16", day="*", month="*", day_of_week="*/2")
+            "schedule": crontab(minute="0", hour="16", day_of_week="*/2")
         }
     }
 
