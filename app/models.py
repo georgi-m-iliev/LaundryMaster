@@ -162,10 +162,11 @@ cycle_termination_reminder_notification = Notification(
     icon="cycle-reminder-icon.png",
 )
 
-unpaid_cycles_reminder_notification = Notification(
+unpaid_cycles_reminder_notification = NotificationURL(
     title='You have unpaid cycles!',
-    body='Please pay your debt to the washing machine owner!',
-    icon='unpaid-cycles-remind-icon.png'
+    body='Please pay your debt to the room owner!',
+    icon='unpaid-cycles-remind-icon.png',
+    url='/unpaid-cycles=true'
 )
 
 
