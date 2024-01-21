@@ -99,6 +99,14 @@ self.addEventListener('notificationclick', event => {
                 }
             }
 
+            //TODO: bug on android (presumably on other mobile configs too)
+            // if app not opened, action is not triggered
+            // if app opened, action is triggered
+            // on windows and chrome it works fine
+            // temporary solution: open new window always
+            return clients.openWindow(newURL);
+
+
             for (let client of matchedClients) {
                 if (client.url.startsWith(origin)) {
                     return client.navigate(newURL).then(client => client.focus());
