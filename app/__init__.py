@@ -57,6 +57,11 @@ def create_app(test_config=None):
         def handle_404(e):
             return render_template('error.html', code='404'), 404
 
+
+        @app.errorhandler(403)
+        def handle_403(e):
+            return render_template('error.html', code='403'), 403
+
         @app.errorhandler(Exception)
         def handle_exception(e):
             app.logger.error(e)

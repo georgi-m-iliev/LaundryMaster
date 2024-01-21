@@ -183,7 +183,9 @@
                                             window.location.href = "/";
                                         }, 3000);
                                     </script>
-                                {% elif code =='5xx' %}
+                                {% elif code== '403' %}
+                                    <h1 class="text-danger align-self-center">Access Denied!</h1>
+                                {% elif code == '5xx' %}
                                     <h1 class="text align-self-center p-2">We are experiencing technical difficulties :((</h1>
                                     <h2 class="text align-self-center p-2">Please try again later</h2>
                                 {% else %}
