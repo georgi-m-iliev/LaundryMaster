@@ -1,7 +1,7 @@
 import os, decimal, datetime, json, requests
 from requests.exceptions import RequestException
 
-from flask import current_app, flash
+from flask import current_app, flash, request, redirect
 from celery.result import AsyncResult
 from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
@@ -365,11 +365,16 @@ def split_cycle(user: User, split_cycle_form: SplitCycleForm):
     else:
         if cycle.splits:
             # if there are paid splits, then we cannot proceed
-            paid_splits = WashingCycleSplit.query.filter_by(cycle_id=cycle.id, paid=True).all()
+            paid_splits = [split for split in cycle.splits if split.paid]
             if len(paid_splits) > 0:
                 flash('You cannot split cycles that have paid splits', category='toast-error')
                 return redirect(request.path)
+
+        users_already_split = [split.user_id for split in cycle.splits]
         for split_participant_user_id in split_cycle_form.other_users.data:
+            if split_participant_user_id in users_already_split:
+                # user is already in split, so we skip them
+                continue
             split_participant = User.query.filter_by(id=split_participant_user_id).first()
             cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=split_participant_user_id))
             send_push_to_user(split_participant, SplitRequestNotification(user, cycle))
