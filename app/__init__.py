@@ -70,6 +70,10 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
 
+    with app.app_context():
+        # inits all tables in db
+        db.create_all()
+
     security.init_app(app, user_datastore)
     mail.init_app(app)
 
