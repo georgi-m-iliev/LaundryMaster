@@ -60,12 +60,16 @@ def index():
                 mark_cycle_paid(current_user, unpaid_cycles[idx].id)
         return redirect(request.path)
 
+    expected_end = None
+    if session.get('running'):
+        expected_end = (datetime.datetime.now() + datetime.timedelta(minutes=get_remaining_minutes()))
+
     return render_template(
         'index.html',
         is_dashboard=True,
         cycle_data=update_cycle(current_user),
         # stopwatch=get_running_time(),
-        expected_end=(datetime.datetime.now() + datetime.timedelta(minutes=get_remaining_minutes())),
+        expected_end=expected_end,
         total_cost=calculate_charges(current_user),
         total_energy_usage=calculate_energy_usage(current_user),
         unpaid_cycles_cost=calculate_unpaid_cycles_cost(current_user),
