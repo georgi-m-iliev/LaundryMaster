@@ -126,7 +126,7 @@ class CandyWashingMachine:
 
 
 def refresh_candy_token(washing_machine: WashingMachine):
-    url = 'https://account.candy-home.com/CandyApp/services/oauth2/token?device_id=b461fca47c039e37'
+    url = f'https://account.candy-home.com/CandyApp/services/oauth2/token?device_id={washing_machine.candy_device_id}'
 
     payload = {'grant_type': 'hybrid_refresh',
                'client_id': os.getenv('CANDY_CLIENT_ID'),
