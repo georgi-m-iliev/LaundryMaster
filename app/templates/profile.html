@@ -37,7 +37,7 @@
                                     {% endfor %}
                                 </div>
                                 <form method="POST">
-                                    {{ edit_form.csrf_token }}
+                                    {{ edit_form.csrf_token(id="edit-csrf-token") }}
                                     <div class="col">
                                         <div class="col">
                                             <div class="mb-3">
@@ -119,7 +119,7 @@
                                     {% endfor %}
                                 </div>
                                 <form method="POST" id="settings_form">
-                                    {{ settings_form.csrf_token }}
+                                    {{ settings_form.csrf_token(id="settings-csrf-token") }}
                                     {{ settings_form.settings_submit(class_="d-none") }}
                                     <div class="col">
                                         <div class="col">

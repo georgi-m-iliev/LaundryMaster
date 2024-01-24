@@ -96,42 +96,42 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
                 <form method="POST">
-                    {{ edit_user_form.csrf_token }}
+                    {{ edit_user_form.csrf_token(id="edit_user_form") }}
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label" for="name">
                                 <strong>Name</strong>
                             </label>
-                            {{ edit_user_form.first_name(class_="form-control") }}
+                            {{ edit_user_form.first_name(class_="form-control", id="edit_user_first_name") }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="email">
                                 <strong>Email</strong>
                             </label>
-                            {{ edit_user_form.email(class_="form-control", **{'autocomplete': 'off'}) }}
+                            {{ edit_user_form.email(class_="form-control", id="edit_user_email", **{'autocomplete': 'off'}) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="username">
                                 <strong>Username</strong>
                             </label>
-                            {{ edit_user_form.username(class_="form-control", **{'autocomplete': 'off'}) }}
+                            {{ edit_user_form.username(class_="form-control", id="edit_user_username", **{'autocomplete': 'off'}) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password">
                                 <strong>Password</strong>
                             </label>
-                            {{ edit_user_form.password(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                            {{ edit_user_form.password(class_="form-control", id="edit_user_password", **{'autocomplete': 'new-password'}) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password_confirm">
                                 <strong>Confirm Password</strong>
                             </label>
-                            {{ edit_user_form.password_confirm(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                            {{ edit_user_form.password_confirm(class_="form-control", id="edit_user_password_again", **{'autocomplete': 'new-password'}) }}
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {{ edit_user_form.profile_submit(class_="btn btn-warning", value="Edit") }}
+                        {{ edit_user_form.profile_submit(class_="btn btn-warning", id="edit_user_submit", value="Edit") }}
                     </div>
                 </form>
         </div>
@@ -146,7 +146,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST">
-                {{ edit_roles_form.csrf_token }}
+                {{ edit_roles_form.csrf_token(id="edit_roles_form") }}
                 <div class="modal-body">
                     <div class="mb-3">
                         <span class="fw-bold">Currently available roles:</span>
@@ -186,42 +186,42 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
                 <form method="POST">
-                    {{ edit_user_form.csrf_token }}
+                    {{ edit_user_form.csrf_token(id="new_user_form") }}
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label" for="name">
                                 <strong>Name</strong>
                             </label>
-                            {{ edit_user_form.first_name(class_="form-control") }}
+                            {{ edit_user_form.first_name(class_="form-control", id="new_user_first_name") }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="email">
                                 <strong>Email</strong>
                             </label>
-                            {{ edit_user_form.email(class_="form-control", **{'autocomplete': 'off'}) }}
+                            {{ edit_user_form.email(class_="form-control", id="new_user_email", **{'autocomplete': 'off'}) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="username">
                                 <strong>Username</strong>
                             </label>
-                            {{ edit_user_form.username(class_="form-control", **{'autocomplete': 'off'}) }}
+                            {{ edit_user_form.username(class_="form-control", id="new_user_username", **{'autocomplete': 'off'}) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password">
                                 <strong>Password</strong>
                             </label>
-                            {{ edit_user_form.password(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                            {{ edit_user_form.password(class_="form-control", id="new_user_password", **{'autocomplete': 'new-password'}) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password_confirm">
                                 <strong>Confirm Password</strong>
                             </label>
-                            {{ edit_user_form.password_confirm(class_="form-control", **{'autocomplete': 'new-password'}) }}
+                            {{ edit_user_form.password_confirm(class_="form-control", id="new_user_password_confirm", **{'autocomplete': 'new-password'}) }}
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {{ edit_user_form.profile_submit(class_="btn btn-success text-light", value="Add") }}
+                        {{ edit_user_form.profile_submit(class_="btn btn-success text-light", id="new_user_submit", value="Add") }}
                     </div>
                 </form>
         </div>
