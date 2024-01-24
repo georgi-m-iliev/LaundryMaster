@@ -60,13 +60,18 @@ def calculate_energy_usage(user: User = None):
 
 def calculate_unpaid_cycles_cost(user: User = None):
     """ Calculate the unpaid cycles for a user or at all. """
+    if len(WashingCycle.query.all()) == 0:
+        return 0
     if user is None:
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
             WashingCycle.paid.is_(False),
-            WashingCycle.user_id != db.session.query(roles_users).filter_by(role_id=3).first().user_id,
-            User.query.filter_by(id=WashingCycle.user_id).first().active is True
-        ).all()
+            User.query.filter_by(id=WashingCycle.user_id).first().active.is_(True)
+        )
+        room_owner = db.session.query(roles_users).filter_by(role_id=3).first()
+        if room_owner is not None:
+            unpaid = unpaid.filter(WashingCycle.user_id != room_owner.user_id)
+        unpaid = unpaid.all()
     else:
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
