@@ -182,26 +182,31 @@ def schedule_notification(user_id: int):
 def cycle_end_notification_task(user_id: int, terminate_cycle: bool):
     """ Task to send a push notification to the user about the end of their washing cycle."""
     current_app.logger.info("Starting task...")
+    user = User.query.filter_by(id=user_id).first()
     # Give a time window of 10 minutes to start a washing cycle
     time.sleep(10 * 60)
+    current_app.logger.info("Grace period for starting the program ended.")
 
     washing_machine = CandyWashingMachine.get_instance()
-    while (washing_machine.machine_state != CandyMachineState.FINISHED1 or
+    while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
            washing_machine.machine_state != CandyMachineState.FINISHED2):
 
         if washing_machine.machine_state == CandyMachineState.PAUSED:
             current_app.logger.info("Machine is paused, notifying user...")
             send_push_to_user(
-                user=User.query.filter_by(id=user_id).first(),
+                user=user,
                 notification=cycle_paused_notification
             )
             time.sleep(60)
-        if washing_machine.machine_state == CandyMachineState.IDLE:
+        elif washing_machine.machine_state == CandyMachineState.IDLE:
             current_app.logger.info("Machine is idle, waiting for it to start...")
             time.sleep(60)
-        if washing_machine.machine_state == CandyMachineState.RUNNING:
+        elif washing_machine.machine_state == CandyMachineState.RUNNING:
             current_app.logger.info("Machine is running, waiting for it to finish...")
             time.sleep(5 * 60)
+        else:
+            current_app.logger.warning(f"Non-captured state: {washing_machine.machine_state.code} - {washing_machine.machine_state.label}")
+            time.sleep(60)
         washing_machine.update()
 
     current_app.logger.info("Washing cycle has ended!")
