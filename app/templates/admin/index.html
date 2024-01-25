@@ -89,7 +89,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col col-l-2 col-xl-3 col-auto">
+            <div class="col col-l-3 col-xl-3">
                 <div class="col">
                     <div class="card shadow mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
@@ -97,8 +97,8 @@
                             <div class="dropdown no-arrow" style="padding-top: 2vh; padding-bottom: 2vh">
                             </div>
                         </div>
-                        <div class="card-body">
-                            <img class="float-start imgshadow me-2 rounded-2" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="Washing Machine">
+                        <div class="d-flex {% if relay_is_on %} d-lg-block flex-column {% else %} flex-row align-items-center {% endif %} justify-content-center card-body">
+                            <img class="mb-2 mb-lg-0 align-self-center float-none float-lg-start imgshadow me-2 rounded-2" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="Washing Machine">
                             {% if relay_is_on %}
                                 <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Washing Machine State:</label>
@@ -126,8 +126,7 @@
                                 </div>
                             {% else %}
                                 <div class="text-center">
-                                    <p class="align-self-center">Turn Washing Machine on</p>
-                                    <p class="align-self-center">to see machine details </p>
+                                    Turn Washing Machine <span class="text-success fw-bolder">on</span> to see machine details
                                 </div>
                             {% endif %}
                         </div>
