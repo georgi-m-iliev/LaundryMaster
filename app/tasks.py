@@ -162,7 +162,6 @@ def release_door(user_username: str):
         counter += 1
 
     current_app.logger.info("Task to release the door ended.")
-    CeleryTask.query.filter_by(id=current_task.request.id).delete()
 
 
 @shared_task(ignore_result=True)
@@ -233,7 +232,6 @@ def cycle_end_notification_task(user_id: int, terminate_cycle: bool):
             time.sleep(5 * 60)
 
     current_app.logger.info("Ending task....")
-    CeleryTask.query.filter_by(id=current_task.request.id).delete()
 
 
 @shared_task()
@@ -246,7 +244,6 @@ def recalculate_cycles_cost_task():
     current_app.logger.info(f"Starting task to recalculate cycles cost at {datetime.datetime.now} ...")
     recalculate_cycles_cost()
     current_app.logger.info(f"Task to recalculate cycles cost ended at {datetime.datetime.now}.")
-    CeleryTask.query.filter_by(id=current_task.request.id).delete()
 
 
 @shared_task(name='send_notification_to_debtors', ignore_result=True)

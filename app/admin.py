@@ -2,7 +2,6 @@ import datetime, json
 
 from flask import Blueprint, request, render_template, redirect, flash, current_app
 from flask_security import roles_required, hash_password, current_user
-from celery.result import AsyncResult
 
 from app.db import db
 from app.auth import user_datastore
@@ -44,9 +43,7 @@ def index():
             flash('Washing machine updated successfully', 'toast-success')
         elif update_wm_form.terminate_notification_task.data:
             if notification_task := CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION).first():
-                AsyncResult(notification_task.id).revoke(terminate=True)
-                db.session.delete(notification_task)
-                db.session.commit()
+                notification_task.terminate()
                 flash('Notification task terminated successfully', 'toast-success')
             else:
                 flash('Notification task is not scheduled', 'toast-warning')

@@ -2,7 +2,6 @@ import os, decimal, datetime, json, requests
 from requests.exceptions import RequestException
 
 from flask import current_app, flash, request, redirect
-from celery.result import AsyncResult
 from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
 
@@ -71,8 +70,7 @@ def stop_cycle(user: User):
 
             if notification_task := CeleryTask.query.filter_by(cycle_id=cycle.id).first():
                 current_app.logger.info('Stopping cycle end notification task...')
-                AsyncResult(notification_task.id).revoke(terminate=True)
-                db.session.delete(notification_task)
+                notification_task.terminate()
 
             if cycle.cost == 0:
                 db.session.delete(cycle)

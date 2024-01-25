@@ -198,3 +198,10 @@ class CeleryTask(db.Model):
     kind = db.Column(db.Enum(TaskKinds))
     timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
     cycle_id = db.Column(db.Integer, db.ForeignKey('washing_cycles.id'), nullable=True)
+
+    def terminate(self, erase: bool = True):
+        from celery.result import AsyncResult
+        AsyncResult(self.id).revoke(terminate=True)
+        if erase:
+            db.session.delete(self)
+            db.session.commit()
