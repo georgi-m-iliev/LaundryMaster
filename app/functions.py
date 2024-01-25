@@ -39,7 +39,8 @@ def start_cycle(user: User, user_settings: UserSettings):
 
         new_task = CeleryTask(
             id=cycle_end_notification_task.delay(user.id, user_settings.terminate_cycle_on_usage).id,
-            kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION
+            kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION,
+            cycle_id=new_cycle.id
         )
         db.session.add(new_task)
         db.session.commit()
@@ -71,6 +72,7 @@ def stop_cycle(user: User):
                 db.session.delete(cycle)
 
             if notification_task := CeleryTask.query.filter_by(cycle_id=cycle.id).first():
+                current_app.logger.info('Stopping cycle end notification task...')
                 AsyncResult(notification_task.id).revoke(terminate=True)
                 db.session.delete(notification_task)
 
