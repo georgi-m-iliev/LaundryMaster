@@ -126,7 +126,7 @@ class CandyWashingMachine:
 
 
 def refresh_candy_token(washing_machine: WashingMachine):
-    url = f'https://account.candy-home.com/CandyApp/services/oauth2/token?device_id={washing_machine.candy_device_id}'
+    url = f'{os.getenv("CANDY_AUTH_ENDPOINT")}/services/oauth2/token?device_id={washing_machine.candy_device_id}'
 
     payload = {'grant_type': 'hybrid_refresh',
                'client_id': os.getenv('CANDY_CLIENT_ID'),
@@ -153,7 +153,7 @@ def fetch_appliance_data():
     if not washing_machine.candy_api_token:
         refresh_candy_token(washing_machine)
 
-    url = f'https://simply-fi.herokuapp.com/api/v1/appliances/{washing_machine.candy_appliance_id}.json?with_programs=0'
+    url = f'{os.getenv("CANDY_API_ENDPOINT")}/api/v1/appliances/{washing_machine.candy_appliance_id}.json?with_programs=0'
 
     headers = {
         'Host': 'simply-fi.herokuapp.com',
