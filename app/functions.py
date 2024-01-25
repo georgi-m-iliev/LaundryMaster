@@ -68,13 +68,14 @@ def stop_cycle(user: User):
             cycle.endkwh = WashingMachine.query.first().currentkwh
             cycle.end_timestamp = db.func.current_timestamp()
             cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
-            if cycle.cost == 0:
-                db.session.delete(cycle)
 
             if notification_task := CeleryTask.query.filter_by(cycle_id=cycle.id).first():
                 current_app.logger.info('Stopping cycle end notification task...')
                 AsyncResult(notification_task.id).revoke(terminate=True)
                 db.session.delete(notification_task)
+
+            if cycle.cost == 0:
+                db.session.delete(cycle)
 
             db.session.commit()
             current_app.logger.info(f'User {user.username} successfully stopped their cycle.')
