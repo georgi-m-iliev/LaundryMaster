@@ -66,7 +66,7 @@ def calculate_unpaid_cycles_cost(user: User = None):
         unpaid: list[WashingCycle] = WashingCycle.query.filter(
             WashingCycle.end_timestamp.is_not(None),
             WashingCycle.paid.is_(False),
-            User.query.filter_by(id=WashingCycle.user_id).first().active.is_(True)
+            WashingCycle.user.has(active=True)
         )
         room_owner = db.session.query(roles_users).filter_by(role_id=3).first()
         if room_owner is not None:
