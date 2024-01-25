@@ -55,7 +55,10 @@ def index():
 
     if 'relay' in request.args:
         if mode := request.args.get('relay'):
-            if trigger_relay(mode) != 200:
+            washing_cycle = WashingCycle.query.filter_by(end_timestamp=None).first()
+            if washing_cycle:
+                flash('Cannot trigger relay while washing cycle is in progress', 'toast-error')
+            elif trigger_relay(mode) != 200:
                 current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
                 flash(f'Failed to trigger relay {mode}', 'toast-error')
             else:
