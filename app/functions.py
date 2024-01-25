@@ -222,7 +222,7 @@ def trigger_relay(mode: str):
 
 def get_energy_consumption():
     """ Queries Shelly Cloud API for energy consumption data in Watt-minute and returns in kWatt-hour. """
-    data = requests.post(
+    data = requests.get(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -239,7 +239,7 @@ def get_energy_consumption():
 
 def get_realtime_current_usage():
     """ Queries Shelly Cloud API for current usage data in Watt. """
-    data = requests.post(
+    data = requests.get(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -263,7 +263,7 @@ def update_energy_consumption():
 
 def get_relay_temperature():
     """ Queries Shelly Cloud API for relay temperature in Celsius. """
-    data = requests.post(
+    data = requests.get(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -279,7 +279,7 @@ def get_relay_temperature():
 
 def get_relays_state():
     """ Queries Shelly Cloud API for relay state. """
-    data = requests.post(
+    data = requests.get(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -295,7 +295,7 @@ def get_relays_state():
 
 def get_relay_wifi_rssi():
     """ Queries Shelly Cloud API for relay Wi-Fi RSSI. """
-    data = requests.post(
+    data = requests.get(
         url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
         params={
             'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
@@ -312,7 +312,7 @@ def get_relay_wifi_rssi():
 def get_washer_info(shelly=True):
     """ Returns a dict with washing machine information """
     if shelly:
-        shelly_request = requests.post(
+        shelly_request = requests.get(
             url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
             params={
                 'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),
