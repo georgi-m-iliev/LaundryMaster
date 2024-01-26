@@ -1,4 +1,6 @@
+import os
 import enum
+import datetime
 
 from app import db
 
@@ -90,7 +92,13 @@ class ScheduleEvent(db.Model):
     end_timestamp = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('schedule_events', lazy=True))
-    notification_task_id = db.Column(db.String(512), nullable=True)
+    notification_task = db.relationship(
+        'CeleryTask',
+        primaryjoin='foreign(CeleryTask.ref_id) == ScheduleEvent.id',
+        backref='schedule',
+        lazy=True,
+        uselist=False
+    )
 
 
 class Notification:
@@ -197,11 +205,68 @@ class CeleryTask(db.Model):
     id = db.Column(db.String(512), primary_key=True)
     kind = db.Column(db.Enum(TaskKinds))
     timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
-    cycle_id = db.Column(db.Integer, db.ForeignKey('washing_cycles.id'), nullable=True)
+    ref_id = db.Column(db.Integer, nullable=True)
 
     def terminate(self, erase: bool = True):
         from celery.result import AsyncResult
+        print(f'Terminating task {self.id}')
         AsyncResult(self.id).revoke(terminate=True)
         if erase:
             db.session.delete(self)
             db.session.commit()
+
+    @staticmethod
+    def start_release_door_task():
+        from app.tasks import release_door_task
+
+        new_task = CeleryTask(
+            id=release_door_task.delay().id,
+            kind=CeleryTask.TaskKinds.RELEASE_DOOR
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return new_task
+
+    @staticmethod
+    def start_schedule_notification_task(user_id: int, event_id: int, start_timestamp: datetime.datetime):
+        from app.tasks import schedule_notification_task
+
+        new_task = CeleryTask(
+            id=schedule_notification_task.apply_async(
+                (user_id,),
+                eta=start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5)))
+            ).id,
+            kind=CeleryTask.TaskKinds.SCHEDULE_NOTIFICATION,
+            ref_id=event_id
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return new_task
+
+    @staticmethod
+    def start_cycle_end_notification_task(user_id: int, cycle_id: int, wait_time: int = 10):
+        from app.tasks import cycle_end_notification_task
+        from app.models import UserSettings
+
+        user_settings = UserSettings.query.filter_by(user_id=user_id).first()
+
+        new_task = CeleryTask(
+            id=cycle_end_notification_task.delay(user_id, user_settings.terminate_cycle_on_usage, wait_time).id,
+            kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION,
+            ref_id=cycle_id
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return new_task
+
+    @staticmethod
+    def start_recalculate_cycles_cost_task():
+        from app.tasks import recalculate_cycles_cost_task
+
+        new_task = CeleryTask(
+            id=recalculate_cycles_cost_task.delay().id,
+            kind=CeleryTask.TaskKinds.RECALCULATE_CYCLES_COST
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return new_task

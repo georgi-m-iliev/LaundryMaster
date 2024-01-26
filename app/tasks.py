@@ -134,7 +134,7 @@ def cycle_end_notification_task_old(user_id: int, terminate_cycle: bool):
 
 
 @shared_task(ignore_result=True)
-def release_door(user_username: str):
+def release_door_task(user_username: str):
     """ Task to release the door of the washing machine. """
     current_app.logger.info(f"Starting task to release the door for {user_username}...")
 
@@ -165,7 +165,7 @@ def release_door(user_username: str):
 
 
 @shared_task(ignore_result=True)
-def schedule_notification(user_id: int):
+def schedule_notification_task(user_id: int):
     """ Task to send a push notification to the user about their scheduled washing. """
     user = User.query.filter_by(id=user_id).first()
     if user:
@@ -178,12 +178,12 @@ def schedule_notification(user_id: int):
 
 
 @shared_task(ignore_result=False)
-def cycle_end_notification_task(user_id: int, terminate_cycle: bool):
+def cycle_end_notification_task(user_id: int, terminate_cycle: bool, wait_time: int = 10):
     """ Task to send a push notification to the user about the end of their washing cycle."""
     current_app.logger.info("Starting task...")
     user = User.query.filter_by(id=user_id).first()
     # Give a time window of 10 minutes to start a washing cycle
-    time.sleep(10 * 60)
+    time.sleep(wait_time * 60)
     current_app.logger.info("Grace period for starting the program ended.")
 
     washing_machine = CandyWashingMachine.get_instance()
@@ -247,7 +247,8 @@ def recalculate_cycles_cost_task():
 
 
 @shared_task(name='send_notification_to_debtors', ignore_result=True)
-def send_notification_to_debtors():
+def send_notification_to_debtors_task():
+    """ Scheduled task to send a push notification to all debtors, reminding them to pay up. """
     from app.functions import notify_debtors
     current_app.logger.info("Will send notifications to all debtors...")
     notify_debtors()

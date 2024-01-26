@@ -10,7 +10,7 @@ from app.forms import *
 
 from app.functions import *
 from app.statistics import *
-from app.tasks import schedule_notification, release_door
+from app.tasks import schedule_notification_task, release_door_task
 
 views = Blueprint('views', __name__)
 
@@ -32,11 +32,11 @@ def handle_cycle_buttons():
             stop_cycle(current_user)
             return redirect(request.path)
         elif request.form.get('release_door') is not None:
-            release_door_task = CeleryTask(
-                id=release_door.delay(current_user.username).id,
+            new_task = CeleryTask(
+                id=release_door_task.delay(current_user.username).id,
                 kind=CeleryTask.TaskKinds.RELEASE_DOOR,
             )
-            db.session.add(release_door_task)
+            db.session.add(new_task)
             db.session.commit()
             flash('Powering the machine for 30 seconds!', category='toast-info')
             return redirect(request.path)
@@ -210,27 +210,24 @@ def schedule():
                     return redirect(request.path)
                 event.start_timestamp = start_timestamp
                 event.end_timestamp = end_timestamp
-                if event.notification_task_id:
-                    AsyncResult(event.notification_task_id).revoke(terminate=True)
-                    notification_task_id = schedule_notification.apply_async(
-                        (current_user.id,),
-                        eta=start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5)))
-                    ).id
-                    event.notification_task_id = notification_task_id
+                db.session.commit()
+
+                if event.notification_task:
+                    event.notification_task.terminate()
+                    CeleryTask.start_schedule_notification_task(current_user.id, event.id, start_timestamp)
+
             else:
                 # creating a new event and task for notification
-                notification_task_id = schedule_notification.apply_async(
-                    (current_user.id,),
-                    eta=start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5)))
-                ).id
                 event = ScheduleEvent(
                     start_timestamp=start_timestamp,
                     end_timestamp=end_timestamp,
-                    user_id=current_user.id,
-                    notification_task_id=notification_task_id
+                    user_id=current_user.id
                 )
                 db.session.add(event)
-            db.session.commit()
+                db.session.commit()
+
+                CeleryTask.start_schedule_notification_task(current_user.id, event.id, start_timestamp)
+
         return redirect(request.path)
     elif schedule_request_form.event_submit.data:
         for field, errors in schedule_request_form.errors.items():
@@ -245,6 +242,8 @@ def schedule():
         elif event.user != current_user and not current_user.has_role('room_owner'):
             flash('You can only delete your own events', category='toast-error')
         else:
+            if event.notification_task:
+                event.notification_task.terminate()
             db.session.delete(event)
             db.session.commit()
         return redirect(request.path)

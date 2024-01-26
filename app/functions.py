@@ -35,6 +35,7 @@ def start_cycle(user: User, user_settings: UserSettings):
         db.session.commit()
         current_app.logger.info(f'User {user.username} successfully started a new cycle.')
         flash('Cycle successfully started!', category='toast-success')
+        db.session.refresh(new_cycle)
 
         new_task = CeleryTask(
             id=cycle_end_notification_task.delay(user.id, user_settings.terminate_cycle_on_usage).id,
