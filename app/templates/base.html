@@ -82,17 +82,42 @@
                         <span>Washing machine</span>
                     </a>
                 </li>
-            {% for role in current_user.roles %}
-                {% if 'admin' == role %}
+                {% for role in current_user.roles %}
+                    {% if 'admin' == role %}
+                        <hr class="sidebar-divider">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">
+                                <i class="fas fa-user-shield"></i>
+                            <span>Admin panel</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
                     <hr class="sidebar-divider">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">
-                            <i class="fas fa-user-shield"></i>
-                        <span>Admin Panel</span>
-                        </a>
+                    <li class="nav-item d-none">
+                        <button class="nav-link" id="notification-allow-button">
+                            <i class="fas fa-envelope-open-text"></i>
+                            <span>Allow Notifications</span>
+                        </button>
                     </li>
-                {% endif %}
-            {% endfor %}
+                <script>
+                    if(!('Notification' in window)) {
+                        console.log('This browser does not support notifications!');
+                    }
+                    else if(Notification.permission !== "granted") {
+                        const button = document.getElementById('notification-allow-button');
+                        button.classList.remove('d-none');
+                        button.addEventListener('click', function() {
+                            console.log('User wants to receive notifications. Yay 😊')
+                            Notification.requestPermission().then(function(result) {
+                                if(result === 'granted') {
+                                    button.classList.add('d-none');
+                                    registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscriptions", "{{ current_user.id }}");
+                                }
+                            });
+                        });
+                    }
+                </script>
             </ul>
             <div class="text-center d-none d-md-inline">
                 <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
