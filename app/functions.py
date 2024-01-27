@@ -8,7 +8,7 @@ from sqlalchemy import or_, and_
 from app.db import db
 from app.auth import user_datastore
 from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
-from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification
+from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification, ScheduleEvent
 from app.forms import SplitCycleForm
 
 
@@ -439,3 +439,65 @@ def recalculate_cycles_cost():
         cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
 
     db.session.commit()
+
+
+def schedule_check_for_overlapping(start_timestamp: datetime.datetime, end_timestamp: datetime.datetime, event_id):
+    """ Checks if there are any existing events in the schedule for the interval. """
+    overlapping_events = ScheduleEvent.query.filter(
+        ScheduleEvent.id != event_id,
+        or_(and_(start_timestamp >= ScheduleEvent.start_timestamp,
+                 start_timestamp <= ScheduleEvent.end_timestamp),
+            and_(end_timestamp >= ScheduleEvent.start_timestamp,
+                 end_timestamp <= ScheduleEvent.end_timestamp)
+            )
+    ).all()
+
+    return len(overlapping_events) > 0
+
+
+def schedule_create_new_event(start_timestamp: datetime.datetime, end_timestamp: datetime.datetime, user: User):
+    """ Creates a new event in the schedule. """
+    event = ScheduleEvent(
+        start_timestamp=start_timestamp,
+        end_timestamp=end_timestamp,
+        user_id=user.id
+    )
+    db.session.add(event)
+    db.session.commit()
+
+    CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp)
+
+
+def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end_timestamp: datetime.datetime, user: User):
+    """ Updates an existing event in the schedule. """
+    event = ScheduleEvent.query.filter_by(id=event_id).first()
+    if event is None:
+        flash('Event not found', category='toast-error')
+        db.session.rollback()
+        return redirect(request.path)
+    if event.user != user:
+        flash('You can only edit your own events', category='toast-error')
+        return redirect(request.path)
+    event.start_timestamp = start_timestamp
+    event.end_timestamp = end_timestamp
+    db.session.commit()
+
+    if event.notification_task:
+        event.notification_task.terminate()
+        CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp)
+
+
+def schedule_delete_event(event_id: int, user: User):
+    """ Deletes an event from the schedule. """
+    event = ScheduleEvent.query.filter_by(id=event_id).first()
+    if event is None:
+        flash('Event not found', category='toast-error')
+        return redirect(request.path)
+    elif event.user != user and not user.has_role('room_owner'):
+        flash('You can only delete your own events', category='toast-error')
+        return redirect(request.path)
+    else:
+        if event.notification_task:
+            event.notification_task.terminate()
+        db.session.delete(event)
+        db.session.commit()

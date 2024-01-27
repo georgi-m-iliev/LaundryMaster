@@ -186,48 +186,18 @@ def schedule():
 
         end_timestamp = start_timestamp + datetime.timedelta(hours=duration)
 
-        overlapping_events = ScheduleEvent.query.filter(
-            ScheduleEvent.id != schedule_request_form.id.data,
-            or_(and_(start_timestamp >= ScheduleEvent.start_timestamp,
-                     start_timestamp <= ScheduleEvent.end_timestamp),
-                and_(end_timestamp >= ScheduleEvent.start_timestamp,
-                     end_timestamp <= ScheduleEvent.end_timestamp)
-                )).all()
-
-        if overlapping_events:
+        if schedule_check_for_overlapping(start_timestamp, end_timestamp, schedule_request_form.id.data):
             # the timeslot collides with another event
             flash('Timeslot is already reserved! Please request another one!', category='toast-warning')
         else:
             if schedule_request_form.id.data:
                 # editing an existing event and updating notification task
-                event = ScheduleEvent.query.filter_by(id=schedule_request_form.id.data).first()
-                if event is None:
-                    flash('Event not found', category='toast-error')
-                    db.session.rollback()
-                    return redirect(request.path)
-                if event.user != current_user:
-                    flash('You can only edit your own events', category='toast-error')
-                    return redirect(request.path)
-                event.start_timestamp = start_timestamp
-                event.end_timestamp = end_timestamp
-                db.session.commit()
-
-                if event.notification_task:
-                    event.notification_task.terminate()
-                    CeleryTask.start_schedule_notification_task(current_user.id, event.id, start_timestamp)
-
+                schedule_update_event(schedule_request_form.id.data, start_timestamp, end_timestamp, current_user)
+                flash('Event updated successfully', category='toast-success')
             else:
                 # creating a new event and task for notification
-                event = ScheduleEvent(
-                    start_timestamp=start_timestamp,
-                    end_timestamp=end_timestamp,
-                    user_id=current_user.id
-                )
-                db.session.add(event)
-                db.session.commit()
-
-                CeleryTask.start_schedule_notification_task(current_user.id, event.id, start_timestamp)
-
+                schedule_create_new_event(start_timestamp, end_timestamp, current_user)
+                flash('Event created successfully', category='toast-success')
         return redirect(request.path)
     elif schedule_request_form.event_submit.data:
         for field, errors in schedule_request_form.errors.items():
@@ -236,16 +206,8 @@ def schedule():
 
     if request.args.get('delete'):
         # deleting event if delete parameter is present in URL
-        event = ScheduleEvent.query.filter_by(id=request.args.get('delete')).first()
-        if event is None:
-            flash('Event not found', category='toast-error')
-        elif event.user != current_user and not current_user.has_role('room_owner'):
-            flash('You can only delete your own events', category='toast-error')
-        else:
-            if event.notification_task:
-                event.notification_task.terminate()
-            db.session.delete(event)
-            db.session.commit()
+        schedule_delete_event(int(request.args.get('delete')), current_user)
+        flash('Event deleted successfully', category='toast-success')
         return redirect(request.path)
 
     # get events for current week
