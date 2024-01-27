@@ -10,7 +10,6 @@ from app.forms import *
 
 from app.functions import *
 from app.statistics import *
-from app.tasks import schedule_notification_task, release_door_task
 
 views = Blueprint('views', __name__)
 
@@ -32,12 +31,7 @@ def handle_cycle_buttons():
             stop_cycle(current_user)
             return redirect(request.path)
         elif request.form.get('release_door') is not None:
-            new_task = CeleryTask(
-                id=release_door_task.delay(current_user.username).id,
-                kind=CeleryTask.TaskKinds.RELEASE_DOOR,
-            )
-            db.session.add(new_task)
-            db.session.commit()
+            CeleryTask.start_release_door_task()
             flash('Powering the machine for 30 seconds!', category='toast-info')
             return redirect(request.path)
 
