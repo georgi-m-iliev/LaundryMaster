@@ -427,6 +427,9 @@ def recalculate_cycles_cost():
         current_app.logger.warning('We are debugging, no changes applied to the database.')
         return
 
+    # Grace period to terminate the task if it's a mistake
+    time.sleep(10 * 60)
+
     recalc_cycles = WashingCycle.query.filter(
         WashingCycle.end_timestamp.is_not(None),
         WashingCycle.paid.is_(False)
