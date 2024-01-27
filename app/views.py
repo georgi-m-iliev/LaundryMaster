@@ -40,6 +40,7 @@ def handle_cycle_buttons():
 @views.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+    cycle_data = update_cycle(current_user)
     statistics = calculate_monthly_statistics(current_user)
     unpaid_cycles = get_unpaid_list(current_user)
     unpaid_cycles_form = UnpaidCyclesForm()
@@ -55,13 +56,13 @@ def index():
         return redirect(request.path)
 
     expected_end = None
-    if session.get('running'):
+    if cycle_data.get('state', None) == 'running':
         expected_end = (datetime.datetime.now() + datetime.timedelta(minutes=get_remaining_minutes()))
 
     return render_template(
         'index.html',
         is_dashboard=True,
-        cycle_data=update_cycle(current_user),
+        cycle_data=cycle_data,
         # stopwatch=get_running_time(),
         expected_end=expected_end,
         total_cost=calculate_charges(current_user),
