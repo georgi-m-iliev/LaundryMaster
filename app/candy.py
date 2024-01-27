@@ -4,6 +4,7 @@ import requests
 import datetime
 from enum import Enum
 from typing import Optional
+from sqlalchemy.exc import OperationalError
 
 from flask import current_app
 
@@ -122,7 +123,11 @@ class CandyWashingMachine:
         self.parse_current_status_parameters(data['appliance']['current_status_parameters'])
         if self.program_state == CandyWashProgramState.STOPPED:
             self.remaining_minutes = 0
-        self.update_db_model()
+        try:
+            self.update_db_model()
+        except OperationalError as e:
+            current_app.logger.error(f'While updating CWM object: Failed to update DB model. Error: {e}')
+            return False
 
 
 def refresh_candy_token(washing_machine: WashingMachine):
