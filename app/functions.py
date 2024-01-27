@@ -14,7 +14,6 @@ from app.forms import SplitCycleForm
 
 def start_cycle(user: User, user_settings: UserSettings):
     """ Initiates a new cycle for a user. """
-    from app.tasks import cycle_end_notification_task
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # User has an already running cycle
         current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
@@ -37,13 +36,8 @@ def start_cycle(user: User, user_settings: UserSettings):
         flash('Cycle successfully started!', category='toast-success')
         db.session.refresh(new_cycle)
 
-        new_task = CeleryTask(
-            id=cycle_end_notification_task.delay(user.id, user_settings.terminate_cycle_on_usage).id,
-            kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION,
-            cycle_id=new_cycle.id
-        )
-        db.session.add(new_task)
-        db.session.commit()
+        CeleryTask.start_cycle_end_notification_task(user.id, new_cycle.id)
+
     except RequestException:
         current_app.logger.error(f'Error with initialising a cycle for user {user.username}.')
         flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
@@ -69,9 +63,9 @@ def stop_cycle(user: User):
             cycle.end_timestamp = db.func.current_timestamp()
             cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
 
-            if notification_task := CeleryTask.query.filter_by(cycle_id=cycle.id).first():
+            if cycle.notification_task:
                 current_app.logger.info('Stopping cycle end notification task...')
-                notification_task.terminate()
+                cycle.notification_task.terminate()
 
             if cycle.cost == 0:
                 db.session.delete(cycle)

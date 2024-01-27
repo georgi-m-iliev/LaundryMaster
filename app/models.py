@@ -54,6 +54,14 @@ class WashingCycle(db.Model):
     user = db.relationship('User', backref=db.backref('washing_cycles', lazy=True))
     paid = db.Column(db.Boolean(), default=False)
     splits = db.relationship('WashingCycleSplit', backref='washing_cycle', lazy=True)
+    notification_task = db.relationship(
+        'CeleryTask',
+        primaryjoin='foreign(CeleryTask.ref_id) == WashingCycle.id',
+        backref='washing_cycles',
+        lazy=True,
+        uselist=False,
+        viewonly=True
+    )
 
 
 class WashingCycleSplit(db.Model):
@@ -97,7 +105,8 @@ class ScheduleEvent(db.Model):
         primaryjoin='foreign(CeleryTask.ref_id) == ScheduleEvent.id',
         backref='schedule',
         lazy=True,
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
 
