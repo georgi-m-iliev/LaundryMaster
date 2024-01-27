@@ -31,11 +31,7 @@ def index():
                 return redirect(request.path)
             if update_wm_form.costperkwh.data and update_wm_form.costperkwh.data != washing_machine.costperkwh:
                 washing_machine.costperkwh = update_wm_form.costperkwh.data
-                recalculate_task = CeleryTask(
-                    id=recalculate_cycles_cost_task.delay(update_wm_form.costperkwh.data).id,
-                    kind=CeleryTask.TaskKinds.RECALCULATE_CYCLES_COST,
-                )
-                db.session.add(recalculate_task)
+                CeleryTask.start_recalculate_cycles_cost_task()
             elif update_wm_form.public_wash_cost.data and \
                     update_wm_form.public_wash_cost.data != washing_machine.public_wash_cost:
                 washing_machine.public_wash_cost = update_wm_form.public_wash_cost.data
