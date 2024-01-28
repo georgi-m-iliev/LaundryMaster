@@ -6,6 +6,7 @@ import datetime
 from flask import Flask
 from celery import Celery, Task, shared_task, current_app, current_task
 from celery.schedules import crontab
+from celery.signals import task_prerun
 
 from app.db import db
 from app.models import User, WashingMachine, Notification, CeleryTask
@@ -43,6 +44,11 @@ def celery_init_app(app: Flask) -> Celery:
     }
 
     return celery_app
+
+
+@task_prerun.connect
+def on_task_init(*args, **kwargs):
+    db.engine.dispose()
 
 
 @shared_task(ignore_result=False)
