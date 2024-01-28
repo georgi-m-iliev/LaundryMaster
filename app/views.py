@@ -19,9 +19,8 @@ def handle_cycle_buttons():
     # if request is POST, then check if one of the buttons was pressed
     if request.method == 'POST':
         if request.form.get('start_cycle') is not None:
-            user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
             try:
-                start_cycle(current_user, user_settings)
+                start_cycle(current_user)
             except ChildProcessError:
                 return redirect(request.path)
             if user_settings.launch_candy_on_cycle_start:

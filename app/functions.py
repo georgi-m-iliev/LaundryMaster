@@ -12,7 +12,7 @@ from app.models import Notification, SplitRequestNotification, unpaid_cycles_rem
 from app.forms import SplitCycleForm
 
 
-def start_cycle(user: User, user_settings: UserSettings):
+def start_cycle(user: User):
     """ Initiates a new cycle for a user. """
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # User has an already running cycle
