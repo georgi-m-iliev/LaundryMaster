@@ -33,7 +33,6 @@ def celery_init_app(app: Flask) -> Celery:
         worker_log_file='latest.log'  # Use the same log file as Flask
     )
     celery_app.logger = logging.getLogger(__name__)
-
     app.extensions["celery"] = celery_app
 
     celery_app.conf.beat_schedule = {
@@ -43,12 +42,15 @@ def celery_init_app(app: Flask) -> Celery:
         }
     }
 
+    celery_app.flask_app = app
+
     return celery_app
 
 
 @task_prerun.connect
 def on_task_init(*args, **kwargs):
-    db.engine.dispose()
+    with current_app.flask_app.app_context():
+        db.engine.dispose()
 
 
 @shared_task(ignore_result=False)
