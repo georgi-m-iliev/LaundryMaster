@@ -11,7 +11,7 @@ from flask_sock import Sock
 from app.db import db
 from app.auth import user_datastore
 
-from app.models import User, WashingMachine, PushSubscription, UserSettings, WashingCycle, NotificationURL
+from app.models import User, WashingMachine, PushSubscription, WashingCycle, NotificationURL
 from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
 from app.functions import get_washer_info, get_relay_temperature, get_relay_wifi_rssi
 from app.candy import CandyWashingMachine
@@ -45,8 +45,6 @@ def adduser():
             username=request.form['username'],
             password=hash_password(request.form['password'])
         )
-        settings = UserSettings(user_id=User.query.filter_by(username=request.form['username']).first().id)
-        db.session.add(settings)
         db.session.commit()
         return {'status': 'success'}
     return {'status': 'invalid authenticator'}

@@ -7,7 +7,7 @@ from sqlalchemy import or_, and_
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, UserSettings, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
+from app.models import User, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
 from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification, ScheduleEvent
 from app.forms import SplitCycleForm
 

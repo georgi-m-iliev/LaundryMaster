@@ -24,8 +24,7 @@ def handle_cycle_buttons():
                 start_cycle(current_user)
             except ChildProcessError:
                 return redirect(request.path)
-            user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
-            if user_settings.launch_candy_on_cycle_start:
+            if current_user.settings.launch_candy_on_cycle_start:
                 return redirect(request.path + '?candy=true')
             return redirect(request.path)
         elif request.form.get('stop_cycle') is not None:
@@ -285,14 +284,13 @@ def profile():
             flash('Profile updated successfully', 'success')
         return redirect(request.path)
 
-    user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
     if settings_form.validate_on_submit() and settings_form.settings_submit.data:
-        user_settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
-        user_settings.launch_candy_on_cycle_start = settings_form.automatic_open_candy.data
+        current_user.settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
+        current_user.settings.launch_candy_on_cycle_start = settings_form.automatic_open_candy.data
         db.session.commit()
     else:
-        settings_form.automatic_stop.data = user_settings.terminate_cycle_on_usage
-        settings_form.automatic_open_candy.data = user_settings.launch_candy_on_cycle_start
+        settings_form.automatic_stop.data = current_user.settings.terminate_cycle_on_usage
+        settings_form.automatic_open_candy.data = current_user.settings.launch_candy_on_cycle_start
 
     return render_template(
         'profile.html',

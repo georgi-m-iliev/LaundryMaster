@@ -6,7 +6,7 @@ from flask_security import roles_required, hash_password, current_user
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, Role, WashingCycle, ScheduleEvent, UserSettings, WashingMachine, CeleryTask
+from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
 from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info
@@ -164,8 +164,7 @@ def users_view():
                 username=edit_user_form.username.data,
                 password=hash_password(edit_user_form.password.data)
             )
-            settings = UserSettings(user_id=User.query.filter_by(username=edit_user_form.username.data).first().id)
-            db.session.add(settings)
+            db.session.commit()
             flash('User created successfully', 'toast-success')
         db.session.commit()
         return redirect(request.path)

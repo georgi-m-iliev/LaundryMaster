@@ -5,7 +5,7 @@ import datetime
 from app import db
 
 from flask_security import UserMixin, RoleMixin
-from sqlalchemy import func
+from sqlalchemy import func, event
 
 roles_users = db.Table(
     'roles_users',
@@ -25,6 +25,7 @@ class User(db.Model, UserMixin):
     last_login = db.Column(db.DateTime(timezone=True))
     fs_uniquifier = db.Column(db.String(64), unique=True)
     roles = db.relationship('Role', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))
+    settings = db.relationship('UserSettings', backref='user', uselist=False)
 
 
 class Role(db.Model, RoleMixin):
@@ -32,6 +33,13 @@ class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True)
     description = db.Column(db.String(512))
+
+
+@event.listens_for(User, 'after_insert')
+def create_user_settings(mapper, connection, target):
+    settings = UserSettings(user_id=target.id)
+    db.session.add(settings)
+    # db.session.commit()
 
 
 class UserSettings(db.Model):
