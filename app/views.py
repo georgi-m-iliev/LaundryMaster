@@ -48,10 +48,22 @@ def index():
         unpaid_cycles_form.checkboxes.append_entry()
 
     if unpaid_cycles_form.validate_on_submit() and unpaid_cycles_form.unpaid_submit.data:
+        if not any([checkbox.data for checkbox in unpaid_cycles_form.checkboxes]):
+            flash('Nothing to update', category='toast-warning')
+            return redirect(request.path)
+        paid_amount = 0
         for checkbox in unpaid_cycles_form.checkboxes:
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
-                mark_cycle_paid(current_user, unpaid_cycles[idx].id)
+                if mark_cycle_paid(current_user, unpaid_cycles[idx].id, True):
+                    paid_amount += unpaid_cycles[idx].cost
+        flash('Selected cycles marked as paid', category='toast-success')
+        room_owner = User.query.filter(User.roles.any(name='room_owner')).first()
+        send_push_to_user(room_owner, Notification(
+            title=f'{current_user.first_name} marked cycles as paid!',
+            body=f'They marked cycles for {paid_amount} lv. as paid!',
+            icon='paid-cycles-icon.png'
+        ))
         return redirect(request.path)
 
     expected_end = None

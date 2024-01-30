@@ -378,13 +378,14 @@ def split_cycle(user: User, split_cycle_form: SplitCycleForm):
         flash('Cycle split successfully, users need to confirm to complete!', category='toast-success')
 
 
-def mark_cycle_paid(user: User, cycle_id: int):
+def mark_cycle_paid(user: User, cycle_id: int, mass_marking: bool = False):
     """ Marks a cycle as paid. """
     cycle = WashingCycle.query.filter_by(id=cycle_id).first()
     if cycle is None:
-        flash('Cycle not found', category='toast-error')
+        flash(f'Cycle #{cycle_id} not found', category='toast-error')
     elif [split.accepted for split in cycle.splits].count(False):
-        flash('You can mark the cycle as paid only after all users have accepted the split', category='toast-warning')
+        flash(f'Cycle #{cycle_id} couldn\'t be marked as paid!'
+              'You can mark the cycle as paid only after all users have accepted the split', category='toast-warning')
     elif cycle.user_id != user.id:
         split = WashingCycleSplit.query.filter_by(
             cycle_id=cycle_id,
@@ -394,17 +395,25 @@ def mark_cycle_paid(user: User, cycle_id: int):
             if split.accepted:
                 split.paid = True
                 db.session.commit()
-                flash('Cycle marked as paid', category='toast-success')
+                if not mass_marking:
+                    flash(f'Cycle #{cycle_id} marked as paid', category='toast-success')
+                return True
             else:
-                flash('You can only mark accepted cycles as paid', category='toast-error')
+                flash(f'Cycle #{cycle_id} couldn\'t be marked as paid!'
+                      'You can only mark accepted cycles as paid', category='toast-error')
         else:
-            flash('You can only mark your own cycles as paid', category='toast-error')
+            flash(f'Cycle #{cycle_id} couldn\'t be marked as paid!'
+                  'You can only mark your own cycles as paid', category='toast-error')
     elif cycle.paid:
-        flash('Cycle already marked as paid', category='toast-error')
+        flash(f'Cycle #{cycle_id} already marked as paid', category='toast-error')
     else:
         cycle.paid = True
         db.session.commit()
-        flash('Cycle marked as paid', category='toast-success')
+        if not mass_marking:
+            flash(f'Cycle #{cycle_id} marked as paid', category='toast-success')
+        return True
+
+    return False
 
 
 def notify_debtors():
