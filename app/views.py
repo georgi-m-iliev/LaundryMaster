@@ -1,4 +1,5 @@
 import datetime, json
+from requests.exceptions import RequestException
 
 from flask import current_app, Blueprint, render_template, request, redirect, session, flash
 from flask_security import login_required, user_authenticated, current_user, hash_password, roles_required
@@ -305,7 +306,16 @@ def profile():
 @login_required
 @roles_required('user')
 def washing_machine():
-    washing_machine_info = get_washer_info()
+    try:
+        washing_machine_info = get_washer_info()
+    except RequestException:
+        washing_machine_info = {
+            'relay_ison': None,
+            'running_time': None,
+            'current_usage': None,
+            'relay_temperature': None,
+            'relay_wifi_rssi': None,
+        }
 
     return render_template(
         'washing-machine.html',

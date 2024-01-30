@@ -1,4 +1,5 @@
 import datetime, json
+from requests.exceptions import RequestException
 
 from flask import Blueprint, request, render_template, redirect, flash, current_app
 from flask_security import roles_required, hash_password, current_user
@@ -60,8 +61,16 @@ def index():
             else:
                 flash(f'Relay triggered {mode} successfully', 'toast-success')
             return redirect(request.path)
-
-    washing_machine_info = get_washer_info()
+    try:
+        washing_machine_info = get_washer_info()
+    except RequestException:
+        washing_machine_info = {
+            'relay_ison': None,
+            'running_time': None,
+            'current_usage': None,
+            'relay_temperature': None,
+            'relay_wifi_rssi': None,
+        }
 
     return render_template(
         'admin/index.html',

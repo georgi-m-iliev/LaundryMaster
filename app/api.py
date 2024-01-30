@@ -1,7 +1,9 @@
 import os, json, time
+from requests.exceptions import RequestException
+
 from sqlalchemy.exc import OperationalError
 
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, current_app
 from flask_security import login_required, roles_required, current_user
 from flask_security.utils import hash_password
 from flask_sock import Sock
@@ -157,8 +159,12 @@ def ws_washing_machine_info(ws):
         shelly = True
 
     while True:
-        ws.send(json.dumps(get_washer_info(shelly)))
-        time.sleep(1)
+        try:
+            ws.send(json.dumps(get_washer_info(shelly)))
+            time.sleep(1)
+        except RequestException as ex:
+            current_app.logger.error(f'Error fetching washing machine info. Error: {ex}')
+            return
 
 
 @api.route('/export_washing_cycles.csv', methods=['GET'])
