@@ -24,6 +24,7 @@ def handle_cycle_buttons():
                 start_cycle(current_user)
             except ChildProcessError:
                 return redirect(request.path)
+            user_settings = UserSettings.query.filter_by(user_id=current_user.id).first()
             if user_settings.launch_candy_on_cycle_start:
                 return redirect(request.path + '?candy=true')
             return redirect(request.path)
