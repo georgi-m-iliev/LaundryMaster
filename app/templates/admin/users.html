@@ -53,14 +53,17 @@
                                         onclick="window.location += '?delete=' + this.parentNode.parentNode.id;">
                                     <i class="fas fa-solid fa-eraser"></i>
                                 </button>
-                                <button class="btn btn-outline-success" type="button" title="Activate"
-                                        onclick="window.location += '?activate=' + this.parentNode.parentNode.id;">
-                                    <i class="fas fa-solid fa-play-circle"></i>
-                                </button>
-                                <button class="btn btn-outline-dark" type="button" title="Deactivate"
-                                        onclick=" window.location += '?deactivate=' + this.parentNode.parentNode.id;">
-                                    <i class="fas fa-solid fa-stop-circle"></i>
-                                </button>
+                                {% if user.active %}
+                                    <button class="btn btn-outline-dark" type="button" title="Deactivate"
+                                            onclick="window.location += '?deactivate=' + this.parentNode.parentNode.id;">
+                                        <i class="fas fa-solid fa-stop-circle"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-outline-success" type="button" title="Activate"
+                                            onclick="window.location += '?activate=' + this.parentNode.parentNode.id;">
+                                        <i class="fas fa-solid fa-play-circle"></i>
+                                    </button>
+                                {% endif %}
                                 <button class="btn btn-outline-primary" type="button" title="Roles"
                                         data-bs-toggle="modal" data-bs-target="#changeRolesModal"
                                         onclick="window.history.replaceState(document.html, document.pageTitle, window.location.pathname + '?user_id=' + this.parentNode.parentNode.id);">
