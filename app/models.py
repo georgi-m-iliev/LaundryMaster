@@ -233,11 +233,11 @@ class CeleryTask(db.Model):
             db.session.commit()
 
     @staticmethod
-    def start_release_door_task():
+    def start_release_door_task(username: str):
         from app.tasks import release_door_task
 
         new_task = CeleryTask(
-            id=release_door_task.delay().id,
+            id=release_door_task.delay(username).id,
             kind=CeleryTask.TaskKinds.RELEASE_DOOR
         )
         db.session.add(new_task)
