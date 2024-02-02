@@ -34,8 +34,8 @@
     <script src="{{ url_for('static', filename='assets/js/chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='assets/js/bs-init.js') }}"></script>
 
-    <script src="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler.js"></script>
-    <link href="https://cdn.dhtmlx.com/scheduler/edge/dhtmlxscheduler_material.css" rel="stylesheet" type="text/css">
+    <script src="{{ url_for('static', filename='assets/js/dhtmlxscheduler.js') }}"></script>
+    <link href="{{ url_for('static', filename='assets/css/dhtmlxscheduler_material.css') }}" rel="stylesheet" type="text/css">
 
     {{ moment.include_moment() }}
 </head>
