@@ -197,47 +197,61 @@ def cycle_end_notification_task(user_id: int, terminate_cycle: bool, wait_time: 
     washing_machine = CandyWashingMachine.get_instance()
     while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
            washing_machine.machine_state != CandyMachineState.FINISHED2):
+        while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
+               washing_machine.machine_state != CandyMachineState.FINISHED2):
 
-        if washing_machine.machine_state == CandyMachineState.PAUSED:
-            current_app.logger.info("Machine is paused, notifying user...")
-            send_push_to_user(
-                user=user,
-                notification=cycle_paused_notification
-            )
-            time.sleep(60)
-        elif washing_machine.machine_state == CandyMachineState.IDLE:
-            current_app.logger.info("Machine is idle, waiting for it to start...")
-            time.sleep(60)
-        elif washing_machine.machine_state == CandyMachineState.RUNNING:
-            current_app.logger.info("Machine is running, waiting for it to finish...")
-            time.sleep(5 * 60)
-        else:
-            current_app.logger.warning(f"Non-captured state: {washing_machine.machine_state.code} - {washing_machine.machine_state.label}")
-            time.sleep(60)
-        washing_machine.update()
+            if washing_machine.machine_state == CandyMachineState.PAUSED:
+                current_app.logger.info("Machine is paused, notifying user...")
+                send_push_to_user(
+                    user=user,
+                    notification=cycle_paused_notification
+                )
+                time.sleep(60)
+            elif washing_machine.machine_state == CandyMachineState.IDLE:
+                current_app.logger.info("Machine is idle, waiting for it to start...")
+                time.sleep(60)
+            elif washing_machine.machine_state == CandyMachineState.RUNNING:
+                current_app.logger.info("Machine is running, waiting for it to finish...")
+                time.sleep(5 * 60)
+            else:
+                current_app.logger.warning(
+                    f"Non-captured state: {washing_machine.machine_state.code} - {washing_machine.machine_state.label}")
+                time.sleep(60)
+            washing_machine.update()
 
-    current_app.logger.info("Washing cycle has ended!")
-    if terminate_cycle:
-        # Terminate cycle if enabled in settings
-        current_app.logger.info("Automatic termination of cycle...")
-        stop_cycle(user)
-    else:
-        # Otherwise, remind the user that the cycle must be terminated if the washing has ended!
-        current_app.logger.info("User doesn't want automatic cycle termination, reminding them to terminate it.")
+        current_app.logger.info("Program cycle has ended! Notifying user...")
         send_push_to_user(
             user=user,
             notification=cycle_ended_notification
         )
 
-        time.sleep(10 * 60)
-        current_app.logger.info("User was notified but didn't terminate the cycle, reminding them...")
-        for _ in range(10):
-            current_app.logger.info("Sending reminder to user...")
-            send_push_to_user(
-                user=user,
-                notification=cycle_termination_reminder_notification
-            )
-            time.sleep(5 * 60)
+        if terminate_cycle:
+            # Terminate cycle if enabled in settings
+            current_app.logger.info("Automatic termination of cycle...")
+            stop_cycle(user)
+            break
+        else:
+            # Otherwise, watch for other program starts and notify user until cycle is terminated!
+            current_app.logger.info("User doesn't want automatic cycle termination. Waiting for user to terminate...")
+            time.sleep(10 * 60)
+
+            current_app.logger.info("User was notified but didn't terminate the cycle, reminding them...")
+            new_program_started = False
+            for _ in range(10):
+                washing_machine.update()
+                if (washing_machine.machine_state != CandyMachineState.FINISHED1 and
+                        washing_machine.machine_state != CandyMachineState.FINISHED2):
+                    # User was notified but another program has started, start all over again
+                    new_program_started = True
+                    break
+                current_app.logger.info("Sending reminder to user...")
+                send_push_to_user(
+                    user=user,
+                    notification=cycle_termination_reminder_notification
+                )
+                time.sleep(5 * 60)
+            if not new_program_started:
+                break
 
     current_app.logger.info("Ending task....")
 
