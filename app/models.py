@@ -191,7 +191,7 @@ unpaid_cycles_reminder_notification = NotificationURL(
     title='You have unpaid cycles!',
     body='Please pay your debt to the room owner!',
     icon='unpaid-cycles-remind-icon.png',
-    url='/unpaid-cycles=true'
+    url='/?unpaid-cycles=true'
 )
 
 
