@@ -32,6 +32,7 @@ def celery_init_app(app: Flask) -> Celery:
         worker_task_log_format='%(asctime)s %(levelname)-8s - Task %(task_id)s - %(message)s',
         worker_log_file='latest.log'  # Use the same log file as Flask
     )
+    celery_app.conf.broker_transport_options = {'global_keyprefix': os.getenv('CELERY_REDIS_PREFIX', 'celery')}
     celery_app.logger = logging.getLogger(__name__)
     app.extensions["celery"] = celery_app
 
