@@ -17,7 +17,7 @@ def start_cycle(user: User):
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # User has an already running cycle
         current_app.logger.error(f"User {user.username} tried to start a cycle, but one was already active.")
-        flash(message='You already have a cycle running!', category='toast-warning')
+        flash('You already have a cycle running!', category='toast-warning')
         raise ChildProcessError('User already has a cycle running!')
 
     # No cycle running, create new cycle
@@ -55,7 +55,7 @@ def stop_cycle(user: User):
         if trigger_relay('off') != 200:
             current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
             flash('Request to turn off the relay failed!\nPlease try again!', category='toast-error')
-            return
+            raise ChildProcessError('Request to turn off the relay failed!')
 
         try:
             update_energy_consumption()
@@ -77,12 +77,15 @@ def stop_cycle(user: User):
             current_app.logger.error(
                 f'Error with terminating a cycle for user {user.username} due to failure of energy consumption update.')
             flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
+            raise ChildProcessError('Error with updating energy consumption!')
         except Exception as e:
             current_app.logger.error(f'Error with terminating a cycle for user {user.username}. {e.__str__()}')
             flash('Unexpected error occurred!\nPlease try again!', category='toast-error')
+            raise ChildProcessError('Error with terminating a cycle.')
     else:
         current_app.logger.error(f"User {user.username} tried to stop a cycle, but they didn't start one.")
         flash('You do not have a running cycle!', category='toast-warning')
+        raise ChildProcessError('User does not have a running cycle!')
 
 
 def update_cycle(user: User):
