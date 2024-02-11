@@ -195,7 +195,7 @@ def cycle_end_notification_task(user_id: int, terminate_cycle: bool, wait_time: 
     time.sleep(wait_time * 60)
     current_app.logger.info("Grace period for starting the program ended.")
 
-    washing_machine = CandyWashingMachine.get_instance()
+    washing_machine = CandyWashingMachine()
     while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
            washing_machine.machine_state != CandyMachineState.FINISHED2):
         while (washing_machine.machine_state != CandyMachineState.FINISHED1 and

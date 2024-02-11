@@ -185,7 +185,7 @@ def export_washing_cycles():
 @login_required
 @roles_required('admin')
 def get_candy_data():
-    machine = CandyWashingMachine.get_instance()
+    machine = CandyWashingMachine()
     return {'result': machine.json()}
 
 
@@ -196,7 +196,7 @@ def ws_candy_data(ws):
     if request.args.get('interval'):
         interval = int(request.args.get('interval'))
 
-    machine = CandyWashingMachine.get_instance()
+    machine = CandyWashingMachine()
     while True:
         ws.send(machine.json())
         time.sleep(interval)

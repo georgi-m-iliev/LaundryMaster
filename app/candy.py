@@ -62,7 +62,27 @@ class CandyWashProgramState(CandyStatusCode):
 
 
 class CandyWashingMachine:
+    _instance = None
+    _instance_initialized = None
+    last_updated = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            print('Singleton class has no instance yet, creating one...')
+            cls._instance = super(CandyWashingMachine, cls).__new__(cls)
+            cls._instance_initialized = False
+        else:
+            print('Singleton class already has an instance, returning it...')
+        return cls._instance
+
     def __init__(self):
+
+        if self._instance_initialized:
+            print('Singleton class already initialized, updating it...')
+            self.update()
+            return
+        print('Initializing singleton class...')
+        self._instance_initialized = True
         self.current_status = None
         self.machine_state: CandyMachineState = CandyMachineState.UNKNOWN
         self.program_state: CandyWashProgramState = CandyWashProgramState.UNKNOWN
@@ -74,6 +94,7 @@ class CandyWashingMachine:
         self.remote_control: bool = False
         self.fill_percent: Optional[int] = None  # 0...100
         self.washing_machine: WashingMachine = WashingMachine.query.first()
+        self.update()
 
     def parse_current_status_parameters(self, json_data):
         self.machine_state = CandyMachineState.from_code(int(json_data["MachMd"]))
@@ -86,11 +107,11 @@ class CandyWashingMachine:
         self.remote_control = json_data["WiFiStatus"] == "1"
         self.fill_percent = int(json_data["FillR"]) if "FillR" in json_data else None
 
-    @classmethod
-    def get_instance(cls):
-        obj = cls()
-        obj.update()
-        return obj
+    # @classmethod
+    # def get_instance(cls):
+    #     obj = cls()
+    #     obj.update()
+    #     return obj
 
     def asdict(self):
         return {
@@ -103,21 +124,24 @@ class CandyWashingMachine:
             'spin_speed': self.spin_speed,
             'remaining_minutes': self.remaining_minutes,
             'remote_control': self.remote_control,
-            'fill_percent': self.fill_percent
+            'fill_percent': self.fill_percent,
+            'last_updated': self.last_updated.strftime('%Y-%m-%d %H:%M:%S') if self.last_updated else None
         }
 
     def json(self):
         return json.dumps(self.asdict())
 
     def update_db_model(self):
-        db.session.refresh(self.washing_machine)
-        data = self.asdict()
-        data['last_updated'] = datetime.datetime.now()
-        self.washing_machine.candy_appliance_data = data
-
+        self.washing_machine: WashingMachine = WashingMachine.query.first()
+        self.washing_machine.candy_appliance_data = self.asdict()
         db.session.commit()
 
     def update(self):
+        if self.last_updated and (datetime.datetime.now() - self.last_updated).seconds < int(os.getenv('CANDY_VALIDITY', 60)):
+            print('CWM is up to date!')
+            return
+        print('Updating CWM...')
+        self.last_updated = datetime.datetime.now()
         data = fetch_appliance_data()
         self.current_status = data['appliance']['current_status']
         self.parse_current_status_parameters(data['appliance']['current_status_parameters'])
