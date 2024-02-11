@@ -1,17 +1,16 @@
 import os
-import tempfile
-
 import pytest
+import tempfile
+from dotenv import load_dotenv
 from sqlalchemy.sql import text
-
 
 from app import create_app
 from app.db import db
 
-
-
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf8')
+
+load_dotenv()
 
 
 @pytest.fixture
