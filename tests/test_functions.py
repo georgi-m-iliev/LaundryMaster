@@ -2,10 +2,13 @@ import pytest
 import datetime
 from unittest.mock import Mock, patch, call
 
+from flask import request
+
 import app.functions
 from app.db import db
 from app.functions import *
-from app.models import User, WashingCycle
+from app.models import User, WashingCycle, WashingCycleSplit
+from app.forms import SplitCycleForm
 
 
 @patch('app.functions.trigger_relay')
@@ -179,4 +182,111 @@ def test_update_cycle_washing_machine_busy(app):
         assert result['user'] == active_user.first_name
 
 
+@patch('app.functions.send_push_to_user')
+@patch('app.functions.flash')
+def test_split_cycle(mock_flash, mock_send_push, app):
+    """ Testing the split cycle function when all conditions are satisfied. """
+    with app.app_context():
+        current_user = User.query.filter_by(username='ivan').first()
+        other_user = User.query.filter_by(username='andrei').first()
+        cycle = WashingCycle(
+            user_id=1, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=False
+        )
+        db.session.add(cycle)
+        db.session.commit()
+        split_form = SplitCycleForm()
+        split_form.cycle_id.data = cycle.id
+        split_form.other_users.data = [other_user.id]
 
+        split_cycle(current_user, split_form)
+        db.session.refresh(cycle)
+
+        assert len(cycle.splits) > 0
+        assert cycle.splits[0].user_id == other_user.id
+        assert mock_send_push.called
+        assert other_user in mock_send_push.call_args[0]
+        mock_flash.assert_called_with('Cycle split successfully, users need to confirm to complete!', category='toast-success')
+
+
+@patch('app.functions.send_push_to_user')
+@patch('app.functions.flash')
+def test_split_cycle_not_owned_by_user(mock_flash, mock_send_push, app):
+    """Testing the split cycle function when the cycle is not owned by the current user. """
+    with app.app_context():
+        current_user = User.query.filter_by(username='ivan').first()
+        other_user = User.query.filter_by(username='andrei').first()
+        cycle = WashingCycle(
+            user_id=other_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=False
+        )
+        db.session.add(cycle)
+        db.session.commit()
+        split_form = SplitCycleForm()
+        split_form.cycle_id.data = cycle.id
+        split_form.other_users.data = [other_user.id]
+
+        split_cycle(current_user, split_form)
+
+        assert len(cycle.splits) == 0
+        assert mock_send_push.called is False
+        mock_flash.assert_called_with('You can only split your own cycles', category='toast-error')
+
+
+@patch('app.functions.send_push_to_user')
+@patch('app.functions.flash')
+def test_split_cycle_already_paid(mock_flash, mock_send_push, app):
+    """Testing the split cycle function when the cycle is not owned by the current user. """
+    with app.app_context():
+        current_user = User.query.filter_by(username='ivan').first()
+        other_user = User.query.filter_by(username='andrei').first()
+        cycle = WashingCycle(
+            user_id=current_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=True
+        )
+        db.session.add(cycle)
+        db.session.commit()
+        split_form = SplitCycleForm()
+        split_form.cycle_id.data = cycle.id
+        split_form.other_users.data = [other_user.id]
+
+        split_cycle(current_user, split_form)
+
+        assert len(cycle.splits) == 0
+        assert mock_send_push.called is False
+        mock_flash.assert_called_with('You cannot split paid cycles', category='toast-error')
+
+
+@patch('app.functions.send_push_to_user')
+@patch('app.functions.redirect')
+@patch('app.functions.flash')
+def test_split_cycle_already_paid_split(mock_flash, mock_redirect, mock_send_push, app):
+    """ Testing the split cycle function when a split is already paid. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        other_user = User.query.filter_by(username='andrei').first()
+        cycle = WashingCycle(
+            user_id=current_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=False
+        )
+        cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=other_user.id, accepted=True, paid=True))
+        db.session.add(cycle)
+        db.session.commit()
+        split_form = SplitCycleForm()
+        split_form.cycle_id.data = cycle.id
+        split_form.other_users.data = [other_user.id]
+
+        split_cycle(current_user, split_form)
+
+        assert len(cycle.splits) == 1
+        assert mock_send_push.called is False
+        assert mock_redirect.called
+        mock_flash.assert_called_with('You cannot split cycles that have paid splits', category='toast-error')
