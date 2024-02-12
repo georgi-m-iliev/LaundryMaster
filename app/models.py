@@ -6,6 +6,7 @@ from app import db
 
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy import func, event
+from sqlalchemy.orm import Session
 
 roles_users = db.Table(
     'roles_users',
@@ -38,8 +39,12 @@ class Role(db.Model, RoleMixin):
 @event.listens_for(User, 'after_insert')
 def create_user_settings(mapper, connection, target):
     settings = UserSettings(user_id=target.id)
-    db.session.add(settings)
-    # db.session.commit()
+
+    @event.listens_for(Session, 'after_flush', once=True)
+    def receive_after_flush(session, context):
+        session.add(settings)
+
+    event.remove(Session, 'after_flush', receive_after_flush)
 
 
 class UserSettings(db.Model):
