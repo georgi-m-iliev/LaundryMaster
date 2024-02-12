@@ -1,0 +1,1316 @@
+[
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BABY",
+            "created_at": "2020-10-07T07:39:05.546Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BABY_SANITIZER",
+            "dry": "0",
+            "id": "899838a1-1d15-4d15-814e-a6894c279be6",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BABY_SANITIZER",
+            "options": "2",
+            "parent": "1",
+            "position": "190",
+            "soil_level": "3",
+            "spin_speed": "MAX",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.879Z",
+            "description": "WM_WD_PROGRAM_IOT_WASH_NAME_MASKS_SANIFICATION_DESCRIPTION",
+            "dry": "0",
+            "id": "e40658f7-883e-42ab-8255-5aff9bfa528c",
+            "interface_type": "Bianca",
+            "name": "WM_WD_PROGRAM_IOT_WASH_NAME_MASKS_SANIFICATION",
+            "options": "0",
+            "parent": "1",
+            "position": "1",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BABY",
+            "created_at": "2020-10-07T07:39:05.557Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_CUDDLY_TOYS",
+            "dry": "0",
+            "id": "122d1e40-143d-4fcb-8123-174cd4964439",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_CUDDLY_TOYS",
+            "options": "0",
+            "parent": "11",
+            "position": "192",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BABY",
+            "created_at": "2020-10-07T07:39:05.564Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_PLAYSUITS",
+            "dry": "0",
+            "id": "3319e470-6479-4fc5-9e4e-dc4c8fa14f23",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_PLAYSUITS",
+            "options": "16",
+            "parent": "2",
+            "position": "193",
+            "soil_level": "2",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BUSINESS",
+            "created_at": "2020-10-07T07:39:05.571Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_MEN_S_TROUSERS",
+            "dry": "0",
+            "id": "2de6cf9a-c48f-41db-8053-ed342510172a",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_MEN_S_TROUSERS",
+            "options": "0",
+            "parent": "9",
+            "position": "194",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BUSINESS",
+            "created_at": "2020-10-07T07:39:05.576Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_SHIRTS",
+            "dry": "0",
+            "id": "18baf2bb-5e73-44e7-8118-79b1a3e31db7",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_SHIRTS",
+            "options": "16",
+            "parent": "9",
+            "position": "195",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.581Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BATHROBE",
+            "dry": "0",
+            "id": "88ec9a44-3491-4293-82d1-b8ca76a56963",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BATHROBE",
+            "options": "16",
+            "parent": "9",
+            "position": "196",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.593Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BED_LINEN_COLOURED",
+            "dry": "0",
+            "id": "0c6a3cdd-4ae5-4841-a491-5f1038cc3bc9",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BED_LINEN_COLOURED",
+            "options": "0",
+            "parent": "10",
+            "position": "8",
+            "soil_level": "2",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.608Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_CURTAINS_COLOURED",
+            "dry": "0",
+            "id": "9dbcac4f-478e-47f9-ba49-1ceadfb9d904",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_CURTAINS_COLOURED",
+            "options": "0",
+            "parent": "11",
+            "position": "10",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.587Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BED_LINEN",
+            "dry": "0",
+            "id": "810496dd-32c5-4e13-acc0-10f1de0793de",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BED_LINEN",
+            "options": "16",
+            "parent": "1",
+            "position": "7",
+            "soil_level": "2",
+            "spin_speed": "MAX",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.599Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_CURTAINS",
+            "dry": "0",
+            "id": "aa06f9f5-e83b-48dc-a34c-93f014df832f",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_CURTAINS",
+            "options": "1",
+            "parent": "4",
+            "position": "9",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.616Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DELICATE_TABLECLOTHS",
+            "dry": "0",
+            "id": "5cb33c59-f67d-4628-bee7-e1c81668f30f",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DELICATE_TABLECLOTHS",
+            "options": "0",
+            "parent": "2",
+            "position": "11",
+            "soil_level": "1",
+            "spin_speed": "800",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.623Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DENIM_JEANS",
+            "dry": "0",
+            "id": "ed3edd15-614f-4f89-adb1-0cbbacb86d9c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DENIM_JEANS",
+            "options": "16",
+            "parent": "9",
+            "position": "12",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.628Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DUVET_N_QUILTS",
+            "dry": "0",
+            "id": "c053b48f-4304-495a-9315-9d0a65ebe873",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DUVET_N_QUILTS",
+            "options": "0",
+            "parent": "11",
+            "position": "13",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.638Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_MATS",
+            "dry": "0",
+            "id": "a3923b5b-aa24-4c7e-8752-5acb15993a4c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_MATS",
+            "options": "1",
+            "parent": "10",
+            "position": "14",
+            "soil_level": "2",
+            "spin_speed": "800",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.647Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_SWIMSUITS_AND_BIKINIS",
+            "dry": "0",
+            "id": "468423c4-3281-479e-8b63-0befdeb65f90",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_SWIMSUITS_AND_BIKINIS",
+            "options": "0",
+            "parent": "7",
+            "position": "15",
+            "soil_level": "0",
+            "spin_speed": "900",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.655Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TABLECLOTHS",
+            "dry": "0",
+            "id": "82fb2555-7b6c-469e-8588-7f0e5897deb4",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TABLECLOTHS",
+            "options": "2",
+            "parent": "1",
+            "position": "16",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:05.665Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TABLECLOTHS_COLOURED",
+            "dry": "0",
+            "id": "89c73d6a-13f2-4873-a1f5-27a0ac323359",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TABLECLOTHS_COLOURED",
+            "options": "0",
+            "parent": "10",
+            "position": "17",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_ENERGY_SAVER_E_RAPIDI",
+            "created_at": "2020-10-07T07:39:05.673Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_RAPID_DELICATES_30_MIN",
+            "dry": "0",
+            "id": "fb6fb640-f6fa-42fe-bf8b-983af9d2968b",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_RAPID_DELICATES_30_MIN",
+            "options": "0",
+            "parent": "6",
+            "position": "18",
+            "soil_level": "2",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_ENERGY_SAVER_E_RAPIDI",
+            "created_at": "2020-10-07T07:39:05.679Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_REFRESH_14_MIN",
+            "dry": "0",
+            "id": "7d22eebc-0e30-4cf6-92e0-a900afa7fa5d",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_REFRESH_14_MIN",
+            "options": "0",
+            "parent": "5",
+            "position": "19",
+            "soil_level": "1",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_ENERGY_SAVER_E_RAPIDI",
+            "created_at": "2020-10-07T07:39:05.695Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TIME_SAVER_COTTON",
+            "dry": "0",
+            "id": "5677ff41-89a3-4514-910e-eefe280c50cd",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TIME_SAVER_COTTON",
+            "options": "0",
+            "parent": "10",
+            "position": "20",
+            "soil_level": "1",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_ENERGY_SAVER_E_RAPIDI",
+            "created_at": "2020-10-07T07:39:05.701Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TIME_SAVER_MIXED",
+            "dry": "0",
+            "id": "500d6f70-eedd-499a-8fd6-b1d551f05ea2",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TIME_SAVER_MIXED",
+            "options": "0",
+            "parent": "2",
+            "position": "21",
+            "soil_level": "1",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.710Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BLEACHING",
+            "dry": "0",
+            "id": "6c3f160e-74da-40f9-9737-948a54f65091",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BLEACHING",
+            "options": "0",
+            "parent": "8",
+            "position": "22",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "0"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.720Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BLOODSTAINS",
+            "dry": "0",
+            "id": "7103cc2c-dcfd-4cbe-96b3-19aef867de40",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BLOODSTAINS",
+            "options": "2",
+            "parent": "1",
+            "position": "23",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.726Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_CHOCOLATE_STAINS",
+            "dry": "0",
+            "id": "d1d47fb1-9447-4efe-b745-7283bfa6c17c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_CHOCOLATE_STAINS",
+            "options": "2",
+            "parent": "1",
+            "position": "24",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.732Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_COLORED_ANTI_STAIN",
+            "dry": "0",
+            "id": "bc8ad5b2-0a44-4f0d-a85c-90b62679f41e",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_COLORED_ANTI_STAIN",
+            "options": "2",
+            "parent": "1",
+            "position": "25",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.737Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_FRUIT_STAINS",
+            "dry": "0",
+            "id": "1cf34cf2-d8a7-440f-84cd-1459ff63fa1b",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_FRUIT_STAINS",
+            "options": "2",
+            "parent": "1",
+            "position": "26",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.743Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_PERFECT_WHITE",
+            "dry": "0",
+            "id": "a6320143-f332-45bc-8e88-48a453bee104",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_PERFECT_WHITE",
+            "options": "2",
+            "parent": "1",
+            "position": "27",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.748Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_STAINS_REMOVER",
+            "dry": "0",
+            "id": "829cfa19-640e-4a02-bca8-15fb9be0d5ab",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_STAINS_REMOVER",
+            "options": "2",
+            "parent": "1",
+            "position": "28",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_MACCHIE",
+            "created_at": "2020-10-07T07:39:05.753Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_WINE_STAINS",
+            "dry": "0",
+            "id": "53b0b366-af31-4805-8ca4-611b2813447b",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_WINE_STAINS",
+            "options": "2",
+            "parent": "1",
+            "position": "29",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.758Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_ANTI_MITES",
+            "dry": "0",
+            "id": "adbe35be-1fc4-47ea-bf48-260a7b886593",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_ANTI_MITES",
+            "options": "2",
+            "parent": "1",
+            "position": "30",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.764Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_ANTI_ODOR",
+            "dry": "0",
+            "id": "f5a0cd45-3024-45c6-b01e-12abd1d2b92d",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_ANTI_ODOR",
+            "options": "2",
+            "parent": "1",
+            "position": "31",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "60"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.769Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DELICATE_ANTIALLERGY",
+            "dry": "0",
+            "id": "24a8a871-84a5-440e-a292-42d38ef51b83",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DELICATE_ANTIALLERGY",
+            "options": "0",
+            "parent": "11",
+            "position": "32",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.774Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_NEW_CLOTHES",
+            "dry": "0",
+            "id": "3762c43a-b847-47e9-9ed6-380c902d45b4",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_NEW_CLOTHES",
+            "options": "0",
+            "parent": "6",
+            "position": "33",
+            "soil_level": "2",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "20"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.782Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_PETS",
+            "dry": "0",
+            "id": "a330e59d-3a55-4b98-ab8c-534ae72ad3b8",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_PETS",
+            "options": "1",
+            "parent": "9",
+            "position": "34",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.788Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_BACKPACKS",
+            "dry": "0",
+            "id": "d19365c9-c0f2-412c-ae8c-5108ae578569",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_BACKPACKS",
+            "options": "0",
+            "parent": "11",
+            "position": "35",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.794Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DIVING_SUITS",
+            "dry": "0",
+            "id": "fe1ed056-6d4f-4917-be7b-2a35bd54ae85",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DIVING_SUITS",
+            "options": "0",
+            "parent": "11",
+            "position": "36",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "0"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.800Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_GYM_FIT",
+            "dry": "0",
+            "id": "d59ffbc7-0c95-4ccc-a49b-61c335ac1c75",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_GYM_FIT",
+            "options": "0",
+            "parent": "7",
+            "position": "37",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.807Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_SKI_SUIT",
+            "dry": "0",
+            "id": "f6a305a5-96b3-40ac-96d4-c013bb675cb2",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_SKI_SUIT",
+            "options": "0",
+            "parent": "11",
+            "position": "38",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.812Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TECHNICAL_FABRICS",
+            "dry": "0",
+            "id": "f2bef3d0-5797-483b-813a-2a5869876663",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TECHNICAL_FABRICS",
+            "options": "0",
+            "parent": "7",
+            "position": "39",
+            "soil_level": "0",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.820Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TECHNICAL_JACKETS",
+            "dry": "0",
+            "id": "4e8e1faf-0bb7-41b9-8a8e-ef1f147e764e",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TECHNICAL_JACKETS",
+            "options": "0",
+            "parent": "11",
+            "position": "40",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:05.829Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_TRAINERS",
+            "dry": "0",
+            "id": "b151b3d6-aac6-4f8d-8fcc-603d46ac3d08",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_TRAINERS",
+            "options": "0",
+            "parent": "11",
+            "position": "41",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "20"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.836Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_CASHMERE",
+            "dry": "0",
+            "id": "52ab9121-e1be-47db-b419-1f468e5ad830",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_CASHMERE",
+            "options": "0",
+            "parent": "3",
+            "position": "42",
+            "soil_level": "0",
+            "spin_speed": "600",
+            "steam": "0",
+            "temperature": "20"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.842Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_COLORED",
+            "dry": "0",
+            "id": "b790abf2-9246-4bfe-a781-96db25351d3c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_COLORED",
+            "options": "0",
+            "parent": "10",
+            "position": "43",
+            "soil_level": "2",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.848Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DARK",
+            "dry": "0",
+            "id": "d1cccf39-6e57-46f1-9db2-a625ba8fe610",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DARK",
+            "options": "16",
+            "parent": "2",
+            "position": "44",
+            "soil_level": "2",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.856Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DELICATE_COLORED",
+            "dry": "0",
+            "id": "760cd4fe-3c20-416b-a24a-a062cf73a819",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DELICATE_COLORED",
+            "options": "0",
+            "parent": "2",
+            "position": "45",
+            "soil_level": "1",
+            "spin_speed": "800",
+            "steam": "0",
+            "temperature": "20"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.862Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_DOWN_JACKETS",
+            "dry": "0",
+            "id": "bd0ca611-01c8-4275-a2a2-f471f9fb6da9",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_DOWN_JACKETS",
+            "options": "0",
+            "parent": "11",
+            "position": "46",
+            "soil_level": "0",
+            "spin_speed": "400",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.867Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_LINGERIE",
+            "dry": "0",
+            "id": "211f47ac-9219-4816-89ee-96be457baeba",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_LINGERIE",
+            "options": "0",
+            "parent": "7",
+            "position": "47",
+            "soil_level": "0",
+            "spin_speed": "800",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:05.872Z",
+            "description": "DUAL_WM_WD_PROGRAM_DOWNLOAD_DESCRIPTION_SILK",
+            "dry": "0",
+            "id": "6ea9b1a9-c659-4c5d-9353-80bf24e5d177",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_WD_PROGRAM_DOWNLOAD_NAME_SILK",
+            "options": "0",
+            "parent": "3",
+            "position": "48",
+            "soil_level": "0",
+            "spin_speed": "800",
+            "steam": "0",
+            "temperature": "30"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:05.884Z",
+            "description": "WM_WD_PROGRAM_IOT_WASH_NAME_MASKS_REFRESH_DESCRIPTION",
+            "dry": "0",
+            "id": "553d9502-71cd-46d6-9e03-eedc96171400",
+            "interface_type": "Bianca",
+            "name": "WM_WD_PROGRAM_IOT_WASH_NAME_MASKS_REFRESH",
+            "options": "0",
+            "parent": "12",
+            "position": "3",
+            "soil_level": "3",
+            "spin_speed": "1000",
+            "steam": "0",
+            "temperature": "40"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:06.372Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_TABLECLOTHS_DESCRIPTION",
+            "dry": "1",
+            "id": "916b66cf-9478-417a-860d-926efc5bbb3f",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_TABLECLOTHS",
+            "options": "0",
+            "parent": "101",
+            "position": "124",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:06.379Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DENIM_JEANS_DESCRIPTION",
+            "dry": "1",
+            "id": "69d36d15-70c1-4cad-8d74-3698ecf0edf6",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DENIM_JEANS",
+            "options": "0",
+            "parent": "101",
+            "position": "125",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BABY",
+            "created_at": "2020-10-07T07:39:06.384Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_CUDDLY_TOYS_DESCRIPTION",
+            "dry": "1",
+            "id": "1fc5045b-ce3f-4856-a2ad-5d7260dec50b",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_CUDDLY_TOYS",
+            "options": "0",
+            "parent": "102",
+            "position": "126",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:06.389Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BATHROBE_DESCRIPTION",
+            "dry": "1",
+            "id": "d56205ce-e43f-412f-80dd-2e9dc79fc78d",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BATHROBE",
+            "options": "0",
+            "parent": "101",
+            "position": "127",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:06.394Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_ANTI_MITES_DESCRIPTION",
+            "dry": "1",
+            "id": "277bbdab-efbc-4605-823b-ad1258fad1b9",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_ANTI_MITES",
+            "options": "0",
+            "parent": "101",
+            "position": "128",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BABY",
+            "created_at": "2020-10-07T07:39:06.399Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BABY_DESCRIPTION",
+            "dry": "2",
+            "id": "c918f1e3-704b-4d3f-b08d-da9b41d3ff42",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BABY",
+            "options": "0",
+            "parent": "101",
+            "position": "129",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:06.404Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BED_LINEN_DESCRIPTION",
+            "dry": "2",
+            "id": "cf9f6781-99cf-4fbb-9bfa-de762c12e2f4",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BED_LINEN",
+            "options": "0",
+            "parent": "101",
+            "position": "130",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPECIAL_DRY",
+            "created_at": "2020-10-07T07:39:06.409Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_EASY_IRON_COTTON_DESCRIPTION",
+            "dry": "3",
+            "id": "4fd87583-4bc8-4770-9d1c-d59045708c09",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_EASY_IRON_COTTON",
+            "options": "0",
+            "parent": "101",
+            "position": "131",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BUSINESS",
+            "created_at": "2020-10-07T07:39:06.414Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_SHIRTS_DESCRIPTION",
+            "dry": "2",
+            "id": "64a7d399-1a5f-4159-af6a-0216743ef2a9",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_SHIRTS",
+            "options": "0",
+            "parent": "102",
+            "position": "132",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:06.419Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_GYM_FIT_DESCRIPTION",
+            "dry": "2",
+            "id": "376c3923-d854-440e-89cb-666af907827a",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_GYM_FIT",
+            "options": "0",
+            "parent": "102",
+            "position": "133",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_TESSUTI_DELICATI",
+            "created_at": "2020-10-07T07:39:06.424Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_LINGERIE_DESCRIPTION",
+            "dry": "2",
+            "id": "63a0ba21-d118-49ec-a631-cfe20a5d720c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_LINGERIE",
+            "options": "0",
+            "parent": "102",
+            "position": "134",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:06.429Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_CURTAINS_DESCRIPTION",
+            "dry": "2",
+            "id": "5ecf2c96-df01-4763-9267-9ee59a619a2c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_CURTAINS",
+            "options": "0",
+            "parent": "102",
+            "position": "135",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SALUTE_E_BENESSERE",
+            "created_at": "2020-10-07T07:39:06.434Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DELICATES_ANTIALLERGY_DESCRIPTION",
+            "dry": "2",
+            "id": "f8544661-7634-457c-89ca-9ffa48aca9ab",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DELICATES_ANTIALLERGY",
+            "options": "0",
+            "parent": "102",
+            "position": "136",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:06.441Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_TECHNICAL_FABRICS_DESCRIPTION",
+            "dry": "2",
+            "id": "0230c753-d38a-4d23-8c92-0b7fe2615ae4",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_TECHNICAL_FABRICS",
+            "options": "0",
+            "parent": "102",
+            "position": "137",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:06.449Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_SWIMSUITS_AND_BIKINIS_DESCRIPTION",
+            "dry": "2",
+            "id": "14e5536b-acb9-4517-b73f-8b6903328882",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_SWIMSUITS_AND_BIKINIS",
+            "options": "0",
+            "parent": "102",
+            "position": "138",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_CASA",
+            "created_at": "2020-10-07T07:39:06.457Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DELICATE_TABLECLOTHS_DESCRIPTION",
+            "dry": "2",
+            "id": "1c21f272-aa5c-4c2b-bf23-a7b92a46475b",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DELICATE_TABLECLOTHS",
+            "options": "0",
+            "parent": "102",
+            "position": "139",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_BABY",
+            "created_at": "2020-10-07T07:39:06.469Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_PLAYSUITS_DESCRIPTION",
+            "dry": "2",
+            "id": "2d85c297-7d25-4297-8c2c-70e231f5b8ed",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_PLAYSUITS",
+            "options": "0",
+            "parent": "102",
+            "position": "140",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPECIAL_DRY",
+            "created_at": "2020-10-07T07:39:06.478Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_EASY_IRON_SYNTHETICS_DESCRIPTION",
+            "dry": "3",
+            "id": "f4951c75-fefe-43b4-854b-c96ad1b08429",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_EASY_IRON_SYNTHETICS",
+            "options": "0",
+            "parent": "102",
+            "position": "141",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPORT",
+            "created_at": "2020-10-07T07:39:06.485Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BACKPACKS_DESCRIPTION",
+            "dry": "6",
+            "id": "77c3d63d-fa44-4682-8e3e-2c8d1f95b142",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_BACKPACKS",
+            "options": "0",
+            "parent": "102",
+            "position": "142",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_ENERGY_SAVER_E_RAPIDI",
+            "created_at": "2020-10-07T07:39:06.491Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_RAPID_60_MIN_DELICATES_DESCRIPTION",
+            "dry": "7",
+            "id": "aee0606c-03ea-4826-aea9-2e7719643eba",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_RAPID_60_MIN_DELICATES",
+            "options": "0",
+            "parent": "102",
+            "position": "143",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPECIAL_DRY",
+            "created_at": "2020-10-07T07:39:06.499Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_AIR_REFRESH_DESCRIPTION",
+            "dry": "8",
+            "id": "de0a83db-40c8-461d-a278-8f0b0b3c6ab2",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_AIR_REFRESH",
+            "options": "0",
+            "parent": "102",
+            "position": "144",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPECIAL_DRY",
+            "created_at": "2020-10-07T07:39:06.508Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_WARM_EMBRACE_DESCRIPTION",
+            "dry": "8",
+            "id": "75f27541-4bbb-4889-ac6d-7144da501ffe",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_WARM_EMBRACE",
+            "options": "0",
+            "parent": "102",
+            "position": "145",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    },
+    {
+        "wm_wd_program": {
+            "area": "DUAL_WM_WD_PROGRAMS_DOWNLOAD_MENU_SPECIAL_DRY",
+            "created_at": "2020-10-07T07:39:06.515Z",
+            "description": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DEHUMIDIFIER_DESCRIPTION",
+            "dry": "8",
+            "id": "d6f2bd94-d974-4ac6-8d31-79d96a50d14c",
+            "interface_type": "Bianca",
+            "name": "DUAL_WM_PROGRAM_DOWNLOAD_DRY_DEHUMIDIFIER",
+            "options": "0",
+            "parent": "102",
+            "position": "146",
+            "soil_level": "255",
+            "spin_speed": "255",
+            "steam": "0",
+            "temperature": "255"
+        }
+    }
+]

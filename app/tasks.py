@@ -14,7 +14,8 @@ from app.models import (schedule_reminder_notification, cycle_paused_notificatio
                         cycle_termination_reminder_notification)
 from app.functions import (send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage,
                            trigger_relay, recalculate_cycles_cost)
-from app.candy import CandyWashingMachine, CandyMachineState, fetch_appliance_data
+from app.candy import CandyWashingMachine, CandyMachineState
+from app.forms import StartProgramForm
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -276,3 +277,9 @@ def send_notification_to_debtors_task():
     current_app.logger.info("Will send notifications to all debtors...")
     notify_debtors()
     current_app.logger.info("All debtors were notified. Exiting...")
+
+
+@shared_task()
+def start_programs(start_program_form: StartProgramForm, user_id: int):
+    """ Task to start programs on the washing machine through the Candy API. """
+    pass

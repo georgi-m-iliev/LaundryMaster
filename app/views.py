@@ -38,6 +38,20 @@ def handle_cycle_buttons():
             return redirect(request.path)
 
 
+@views.context_processor
+def inject_start_program_form():
+    start_program_form = StartProgramForm()
+    if start_program_form.start_program_submit.data and start_program_form.validate_on_submit():
+        from app.candy import CandyWashingMachine
+        candy = CandyWashingMachine()
+        try:
+            candy.start_program(current_user, start_program_form)
+            flash('Program start command sent successfully', category='toast-success')
+        except RuntimeError as e:
+            flash(f'Error: {e}', category='toast-error')
+    return {'start_program_form': start_program_form}
+
+
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/index', methods=['GET', 'POST'])
 @login_required

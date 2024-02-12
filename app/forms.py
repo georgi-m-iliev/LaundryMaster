@@ -115,3 +115,51 @@ class UpdateWashingMachineForm(FlaskForm):
     public_wash_cost = DecimalField('public_wash_cost', validators=[Optional()])
     terminate_notification_task = SubmitField(id='terminate-notification-task', name='terminate-notification-task')
     update_washing_machine_submit = SubmitField('Update', id='update-wm-submit', name='update-wm-submit')
+
+
+class StartProgramForm(FlaskForm):
+    from app.candy import ProgramWashTemperature, ProgramWashSpinSpeed, ProgramWashSoilLevel, ProgramDryLevel
+
+    type = SelectField('type', choices=[('', ''), ('wash', 'Wash'), ('dry', 'Dry'), ('comb', 'Wash & Dry')])
+
+    wash_program = SelectField('wash_program')
+    wash_temp = SelectField('wash_temp', choices=[e.value for e in ProgramWashTemperature], default=40)
+    wash_spin_speed = SelectField('wash_spin_speed', choices=[e.value for e in ProgramWashSpinSpeed], default=10)
+    wash_soil_level = SelectField('wash_soil_level', choices=[e.value for e in ProgramWashSoilLevel])
+    dry_after = BooleanField('dry_after')
+
+    dry_program = SelectField('dry_program')
+    dry_level = SelectField('dry_level',
+                            choices=[e.value for e in ProgramDryLevel if e.name != 'NO_DRY'],
+                            default=2)
+
+    comb_program = SelectField('comb_program')
+    comb_temp = SelectField('comb_temp', choices=[e.value for e in ProgramWashTemperature], default=40)
+    comb_spin_speed = SelectField('comb_spin_speed', choices=[e.value for e in ProgramWashSpinSpeed], default=10)
+    comb_soil_level = SelectField('comb_soil_level', choices=[e.value for e in ProgramWashSoilLevel])
+    comb_dry_level = SelectField('comb_dry_level',
+                                 choices=[e.value for e in ProgramDryLevel if e.name != 'NO_DRY'],
+                                 default=2)
+
+    start_program_submit = SubmitField('Start', id='start-program-submit', name='start-program-submit')
+
+    def __init__(self):
+        from app.candy import CandyWashingMachine
+        super().__init__()
+        CandyWashingMachine.get_programs()
+        self.wash_program.choices = [(p['id'], p['name']) for p in CandyWashingMachine.programs if p['program_type'] == 'W']
+        self.dry_program.choices = [(p['id'], p['name']) for p in CandyWashingMachine.programs if p['program_type'] == 'D']
+        self.comb_program.choices = [(p['id'], p['name']) for p in CandyWashingMachine.programs if p['program_type'] == 'W' and p['drying_type']]
+
+    def validate_type(form, field):
+        if field.data == 'wash':
+            if form.wash_program.data == '':
+                raise ValidationError('Please select a wash program')
+        elif field.data == 'dry':
+            if form.dry_program.data == '':
+                raise ValidationError('Please select a dry program')
+        elif field.data == 'comb':
+            if form.comb_program.data == '':
+                raise ValidationError('Please select a comb program')
+        else:
+            raise ValidationError('Please select a program type')
