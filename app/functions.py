@@ -8,7 +8,7 @@ from sqlalchemy import or_, and_
 from app.db import db
 from app.auth import user_datastore
 from app.models import User, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
-from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification, ScheduleEvent
+from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification, ScheduleEvent, NotificationURL
 from app.forms import SplitCycleForm
 
 
@@ -473,6 +473,15 @@ def schedule_create_new_event(start_timestamp: datetime.datetime, end_timestamp:
 
     CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp)
 
+    interested_users = User.query.filter(User.roles.any(name='room_owner')).all()
+    for interested_user in interested_users:
+        send_push_to_user(interested_user, NotificationURL(
+            title=f'{user.first_name} scheduled washing on {start_timestamp.strftime("%d-%m at %H:%M")}.',
+            body='Go check the schedule for more details.',
+            icon='cycle-reminder-icon.png',
+            url='/schedule'
+        ))
+
 
 def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end_timestamp: datetime.datetime, user: User):
     """ Updates an existing event in the schedule. """
@@ -492,6 +501,15 @@ def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end
         event.notification_task.terminate()
         CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp)
 
+    interested_users = User.query.filter(User.roles.any(name='room_owner')).all()
+    for interested_user in interested_users:
+        send_push_to_user(interested_user, NotificationURL(
+            title=f'{user.first_name} rescheduled washing on {start_timestamp.strftime("%d-%m at %H:%M")}.',
+            body='Go check the schedule for more details.',
+            icon='cycle-reminder-icon.png',
+            url='/schedule'
+        ))
+
 
 def schedule_delete_event(event_id: int, user: User):
     """ Deletes an event from the schedule. """
@@ -507,3 +525,12 @@ def schedule_delete_event(event_id: int, user: User):
             event.notification_task.terminate()
         db.session.delete(event)
         db.session.commit()
+
+    interested_users = User.query.filter(User.roles.any(name='room_owner')).all()
+    for interested_user in interested_users:
+        send_push_to_user(interested_user, NotificationURL(
+            title=f'{user.first_name} canceled washing on {event.start_timestamp.strftime("%d-%m at %H:%M")}.',
+            body='Go check the schedule for more details.',
+            icon='cycle-reminder-icon.png',
+            url='/schedule'
+        ))
