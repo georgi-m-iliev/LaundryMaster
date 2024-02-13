@@ -33,8 +33,11 @@ def handle_cycle_buttons():
             except ChildProcessError:
                 return redirect(request.path)
         elif request.form.get('release_door') is not None:
-            CeleryTask.start_release_door_task(current_user.username)
-            flash('Powering the machine for 30 seconds!', category='toast-info')
+            try:
+                CeleryTask.start_release_door_task(current_user.username)
+                flash('Powering the machine for 30 seconds!', category='toast-info')
+            except RuntimeError as e:
+                flash(f'Error! {e}', category='toast-error')
             return redirect(request.path)
 
 

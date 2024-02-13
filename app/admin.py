@@ -32,7 +32,11 @@ def index():
                 return redirect(request.path)
             if update_wm_form.costperkwh.data and update_wm_form.costperkwh.data != washing_machine.costperkwh:
                 washing_machine.costperkwh = update_wm_form.costperkwh.data
-                CeleryTask.start_recalculate_cycles_cost_task()
+                try:
+                    CeleryTask.start_recalculate_cycles_cost_task()
+                    flash('Recalculation tasks scheduled successfully', 'toast-success')
+                except RuntimeError as e:
+                    flash(f'Error! {e}', 'toast-error')
             elif update_wm_form.public_wash_cost.data and \
                     update_wm_form.public_wash_cost.data != washing_machine.public_wash_cost:
                 washing_machine.public_wash_cost = update_wm_form.public_wash_cost.data

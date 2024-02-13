@@ -241,6 +241,10 @@ class CeleryTask(db.Model):
     def start_release_door_task(username: str):
         from app.tasks import release_door_task
 
+        release_door_tasks = CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.RELEASE_DOOR).all()
+        if release_door_tasks:
+            raise RuntimeError('There is already a release door task running!')
+
         new_task = CeleryTask(
             id=release_door_task.delay(username).id,
             kind=CeleryTask.TaskKinds.RELEASE_DOOR
@@ -284,6 +288,10 @@ class CeleryTask(db.Model):
     @staticmethod
     def start_recalculate_cycles_cost_task():
         from app.tasks import recalculate_cycles_cost_task
+
+        recalculate_cycles_cost_tasks = CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.RECALCULATE_CYCLES_COST).all()
+        if recalculate_cycles_cost_tasks:
+            raise RuntimeError('There is already a recalculate cycles cost task scheduled!')
 
         new_task = CeleryTask(
             id=recalculate_cycles_cost_task.delay().id,

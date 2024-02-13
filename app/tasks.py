@@ -172,6 +172,11 @@ def release_door_task(user_username: str):
         counter += 1
 
     current_app.logger.info("Task to release the door ended.")
+    # After successfully finishing the task, delete it from the database
+    task = CeleryTask.query.filter_by(id=current_task.request.id).first()
+    if task:
+        db.session.delete(task)
+        db.session.commit()
 
 
 @shared_task(ignore_result=True)
