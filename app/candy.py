@@ -90,9 +90,9 @@ class ProgramWashSoilLevel(Enum):
 
 class ProgramDryLevel(Enum):
     NO_DRY = (0, 'No dry')
-    IRON_DRY = (1, 'Iron dry')
-    CUPBOARD_DRY = (2, 'Cupboard dry')
-    EXTRA_DRY = (3, 'Extra dry')
+    IRON_DRY = (2, 'Iron dry')
+    CUPBOARD_DRY = (3, 'Cupboard dry')
+    EXTRA_DRY = (1, 'Extra dry')
 
 
 class CandyWashingMachine:
