@@ -21,15 +21,15 @@ admin = Blueprint('admin', __name__)
 def index():
     update_wm_form = UpdateWashingMachineForm()
     washing_machine = WashingMachine.query.first()
-    update_wm_form.costperkwh.data = washing_machine.costperkwh
-    update_wm_form.public_wash_cost.data = washing_machine.public_wash_cost
 
     if update_wm_form.validate_on_submit():
         if update_wm_form.update_washing_machine_submit.data:
+            # Check if data is unchanged
             if update_wm_form.costperkwh.data == washing_machine.costperkwh and \
                     update_wm_form.public_wash_cost.data == washing_machine.public_wash_cost:
                 flash('Nothing to update', 'toast-info')
                 return redirect(request.path)
+
             if update_wm_form.costperkwh.data and update_wm_form.costperkwh.data != washing_machine.costperkwh:
                 washing_machine.costperkwh = update_wm_form.costperkwh.data
                 try:
@@ -40,8 +40,14 @@ def index():
             elif update_wm_form.public_wash_cost.data and \
                     update_wm_form.public_wash_cost.data != washing_machine.public_wash_cost:
                 washing_machine.public_wash_cost = update_wm_form.public_wash_cost.data
+                flash('Public wash cost updated successfully', 'toast-success')
             db.session.commit()
-            flash('Washing machine updated successfully', 'toast-success')
+        elif update_wm_form.cancel_recalculation_unpaid_cycles.data:
+            if recalculation_task := CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.RECALCULATE_CYCLES_COST).first():
+                recalculation_task.terminate()
+                flash('Recalculation task terminated successfully', 'toast-success')
+            else:
+                flash('Recalculation task is not scheduled', 'toast-warning')
         elif update_wm_form.terminate_notification_task.data:
             if notification_task := CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.CYCLE_NOTIFICATION).first():
                 notification_task.terminate()
@@ -53,6 +59,9 @@ def index():
         for field, errors in update_wm_form.errors.items():
             for error in errors:
                 flash(error, category='toast-error')
+
+    update_wm_form.costperkwh.data = washing_machine.costperkwh
+    update_wm_form.public_wash_cost.data = washing_machine.public_wash_cost
 
     if 'relay' in request.args:
         if mode := request.args.get('relay'):

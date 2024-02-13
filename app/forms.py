@@ -119,6 +119,7 @@ class UpdateWashingMachineForm(FlaskForm):
         ]
     )
     public_wash_cost = DecimalField('public_wash_cost', validators=[Optional()])
+    cancel_recalculation_unpaid_cycles = SubmitField(id='cancel-recalculation-unpaid-cycles', name='cancel-recalculation-unpaid-cycles')
     terminate_notification_task = SubmitField(id='terminate-notification-task', name='terminate-notification-task')
     update_washing_machine_submit = SubmitField('Update', id='update-wm-submit', name='update-wm-submit')
 
