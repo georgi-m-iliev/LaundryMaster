@@ -299,6 +299,10 @@ def profile():
             db.session.commit()
             flash('Profile updated successfully', 'success')
         return redirect(request.path)
+    else:
+        edit_form.first_name.render_kw['placeholder'] = current_user.first_name
+        edit_form.email.render_kw['placeholder'] = current_user.email
+        edit_form.username.render_kw['placeholder'] = current_user.username
 
     if settings_form.validate_on_submit() and settings_form.settings_submit.data:
         current_user.settings.terminate_cycle_on_usage = settings_form.automatic_stop.data

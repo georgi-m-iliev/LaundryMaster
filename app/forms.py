@@ -32,16 +32,22 @@ class PasswordResetForm(FlaskForm):
 
 
 class EditProfileForm(FlaskForm):
-    first_name = StringField('first_name', validators=[Optional()])
-    email = StringField('email', validators=[Email(), Optional()])
-    username = StringField('username', validators=[Optional()])
-    password = PasswordField('password', validators=[Length(min=6, max=128), Optional()])
-    password_confirm = PasswordField('password_again',
-                                     validators=[
-                                         Length(min=6, max=128),
-                                         EqualTo('password', message="Passwords don't match"),
-                                         Optional()
-                                     ])
+    first_name = StringField('first_name', validators=[Optional()], render_kw={'placeholder': 'First Name'})
+    email = StringField('email', validators=[Email(), Optional()], render_kw={'placeholder': 'Email'})
+    username = StringField('username', validators=[Optional()], render_kw={'placeholder': 'Username'})
+    password = PasswordField(
+        'password',
+        validators=[Length(min=6, max=128), Optional()],
+        render_kw={'placeholder': '********'}
+    )
+    password_confirm = PasswordField(
+        'password_again',
+        validators=[
+            Length(min=6, max=128),
+            EqualTo('password', message="Passwords don't match"),
+            Optional()
+        ],
+        render_kw={'placeholder': '********'})
     profile_submit = SubmitField('Save Changes', id='profile-submit', name='profile-submit')
 
 
