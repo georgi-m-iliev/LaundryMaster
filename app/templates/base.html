@@ -285,6 +285,7 @@
     registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscriptions", "{{ current_user.id }}");
 </script>
 <script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
+
 <div class="modal fade" id="launchCandyModal" tabindex="-1" aria-labelledby="launchCandyModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -295,74 +296,77 @@
             <form method="POST">
                 {{ start_program_form.csrf_token }}
                 <div class="modal-body">
-                <!--
-                <p>Click to launch Candy app</p>
-                <a href="candy://main" id="candy-link">
-                    <svg viewBox="0 0 400 136"><g fill="none" fill-rule="evenodd"><path d="M0 0h400v136H0z"></path><path d="M345.113 60.343l-15.118 15.048-5.098-14.787h-18.52l12.075 27.411-12.001 11.895h15.876s3.084-.38 4.369-.83c1.277-.463 3.098-2.31 3.098-2.31L366 60.39l-20.887-.047zM145.592 83.126l10.806-10.295 1.035 10.037-11.841.258zm86.172-22.522l-8.752 19.694-11.828-19.694H190.48l-11.709 25.55-5.915-25.81h-18.523s-2.698.021-5.002 1.002c-1.793.763-3.388 2.092-3.388 2.092l-17.333 15.27c-10.714 8.432-29.468 13.301-34.709 13.54-24.955 1.133-30.163-15.906-28.427-23.96 4.448-20.808 36.73-25.73 53.691-25.73 8.029 0 14.621 1.583 19.716 2.987l4.907-8.735-3.598-.758c-4.48-.563-11.447-2.07-23.345-2.106-48.105-.16-72.804 13.341-80.331 30.65-8.485 19.55 5.853 37.243 46.154 37.243 7.315 0 21.773-.638 35.364-5.537h13.127l6.714-5.967h20.324l.856 6.377h22.142l-.016-.149h11.825l9.439-20.643 12.371 20.632 19.205.011 16.469-35.959h-18.724zm57.117 17.376c-2.325 9.005-15.634 9.597-20.153 9.597h-5.372l7.956-17.979h5.364c4.907 0 14.124.921 12.205 8.382zm-3.122-17.376h-30.285l-16.48 35.96h30.283c24.237.194 34.084-9.12 37.356-16.266 3.622-7.913.494-19.694-20.874-19.694z" fill="#00B1F0"></path></g></svg>
-                </a>
-                -->
-                    <div class="mb-3">
-                        <label for="program_type" class="form-label">What kind of program do you want?</label>
-                        {{ start_program_form.type(class="form-control form-select", id="program_type") }}
+                    <div id="launch-candy" class="d-none">
+                        <p>Click to launch Candy app</p>
+                        <a href="candy://main" id="candy-link">
+                            <svg viewBox="0 0 400 136"><g fill="none" fill-rule="evenodd"><path d="M0 0h400v136H0z"></path><path d="M345.113 60.343l-15.118 15.048-5.098-14.787h-18.52l12.075 27.411-12.001 11.895h15.876s3.084-.38 4.369-.83c1.277-.463 3.098-2.31 3.098-2.31L366 60.39l-20.887-.047zM145.592 83.126l10.806-10.295 1.035 10.037-11.841.258zm86.172-22.522l-8.752 19.694-11.828-19.694H190.48l-11.709 25.55-5.915-25.81h-18.523s-2.698.021-5.002 1.002c-1.793.763-3.388 2.092-3.388 2.092l-17.333 15.27c-10.714 8.432-29.468 13.301-34.709 13.54-24.955 1.133-30.163-15.906-28.427-23.96 4.448-20.808 36.73-25.73 53.691-25.73 8.029 0 14.621 1.583 19.716 2.987l4.907-8.735-3.598-.758c-4.48-.563-11.447-2.07-23.345-2.106-48.105-.16-72.804 13.341-80.331 30.65-8.485 19.55 5.853 37.243 46.154 37.243 7.315 0 21.773-.638 35.364-5.537h13.127l6.714-5.967h20.324l.856 6.377h22.142l-.016-.149h11.825l9.439-20.643 12.371 20.632 19.205.011 16.469-35.959h-18.724zm57.117 17.376c-2.325 9.005-15.634 9.597-20.153 9.597h-5.372l7.956-17.979h5.364c4.907 0 14.124.921 12.205 8.382zm-3.122-17.376h-30.285l-16.48 35.96h30.283c24.237.194 34.084-9.12 37.356-16.266 3.622-7.913.494-19.694-20.874-19.694z" fill="#00B1F0"></path></g></svg>
+                        </a>
+                        <a href="#" id="start-program-form-link">Or start a new program here!</a>
                     </div>
-                    <div id="wash" class="d-none">
+                    <div id="start-program-form" class="d-none">
                         <div class="mb-3">
-                            <label for="wash_program" class="form-label">Washing Programs</label>
-                            {{ start_program_form.wash_program(class="form-control form-select") }}
+                            <label for="program_type" class="form-label">What kind of program do you want?</label>
+                            {{ start_program_form.type(class="form-control form-select", id="program_type") }}
                         </div>
-                        <div class="mb-3">
-                            <label for="wash_temp" class="form-label">Washing Temperature?</label>
-                            {{ start_program_form.wash_temp(class="form-control form-select") }}
+                        <div id="wash" class="d-none">
+                            <div class="mb-3">
+                                <label for="wash_program" class="form-label">Washing Programs</label>
+                                {{ start_program_form.wash_program(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="wash_temp" class="form-label">Washing Temperature?</label>
+                                {{ start_program_form.wash_temp(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="wash_spin_speed" class="form-label">Washing Spin Speed</label>
+                                {{ start_program_form.wash_spin_speed(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="wash_soil_level" class="form-label">Washing Dirty Level</label>
+                                {{ start_program_form.wash_soil_level(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3 form-check">
+                                <label class="form-check-label" for="dry_after">Dry after washing?</label>
+                                {{ start_program_form.dry_after(class="form-check-input pull-right") }}
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="wash_spin_speed" class="form-label">Washing Spin Speed</label>
-                            {{ start_program_form.wash_spin_speed(class="form-control form-select") }}
+                        <div id="dry" class="d-none">
+                            <div class="mb-3">
+                                <label for="dry_program" class="form-label">Drying Programs</label>
+                                {{ start_program_form.dry_program(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="dry_level" class="form-label">Drying Level</label>
+                                {{ start_program_form.dry_level(class="form-control form-select") }}
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="wash_soil_level" class="form-label">Washing Dirty Level</label>
-                            {{ start_program_form.wash_soil_level(class="form-control form-select") }}
-                        </div>
-                        <div class="mb-3 form-check">
-                            <label class="form-check-label" for="dry_after">Dry after washing?</label>
-                            {{ start_program_form.dry_after(class="form-check-input pull-right") }}
-                        </div>
-                    </div>
-                    <div id="dry" class="d-none">
-                        <div class="mb-3">
-                            <label for="dry_program" class="form-label">Drying Programs</label>
-                            {{ start_program_form.dry_program(class="form-control form-select") }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="dry_level" class="form-label">Drying Level</label>
-                            {{ start_program_form.dry_level(class="form-control form-select") }}
-                        </div>
-                    </div>
-                    <div id="comb" class="d-none">
-                        <div class="mb-3">
-                            <label for="comb_program" class="form-label">Combined program</label>
-                            {{ start_program_form.comb_program(class="form-control form-select") }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="comb_temp" class="form-label">Washing Temperature</label>
-                            {{ start_program_form.comb_temp(class="form-control form-select") }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="comb_spin_speed" class="form-label">Washing Spin Speed</label>
-                            {{ start_program_form.comb_spin_speed(class="form-control form-select") }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="comb_soil_level" class="form-label">Washing Dirty Level</label>
-                            {{ start_program_form.comb_soil_level(class="form-control form-select") }}
-                        </div>
-                        <div class="mb-3">
-                            <label for="comb_dry_level" class="form-label">Drying Level</label>
-                            {{ start_program_form.comb_dry_level(class="form-control form-select") }}
+                        <div id="comb" class="d-none">
+                            <div class="mb-3">
+                                <label for="comb_program" class="form-label">Combined program</label>
+                                {{ start_program_form.comb_program(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="comb_temp" class="form-label">Washing Temperature</label>
+                                {{ start_program_form.comb_temp(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="comb_spin_speed" class="form-label">Washing Spin Speed</label>
+                                {{ start_program_form.comb_spin_speed(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="comb_soil_level" class="form-label">Washing Dirty Level</label>
+                                {{ start_program_form.comb_soil_level(class="form-control form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="comb_dry_level" class="form-label">Drying Level</label>
+                                {{ start_program_form.comb_dry_level(class="form-control form-select") }}
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    {{ start_program_form.start_program_submit(class="btn btn-primary", value="Start") }}
+                    {{ start_program_form.start_program_submit(class="btn btn-primary", value="Start", id="start-program-form-submit") }}
                 </div>
             </form>
         </div>
@@ -374,6 +378,24 @@
     const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
     function initCandyModal()  {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const launchCandy = document.getElementById('launch-candy');
+        const startProgramFormLink = document.getElementById('start-program-form-link');
+        const startProgramForm = document.getElementById('start-program-form');
+        const startProgramFormSubmit = document.getElementById('start-program-form-submit');
+        if ((/android/i.test(userAgent)) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream)) {
+            launchCandy.classList.remove('d-none');
+            startProgramFormSubmit.classList.add('d-none');
+            startProgramFormLink.addEventListener('click', function() {
+                launchCandy.classList.add('d-none');
+                startProgramForm.classList.remove('d-none');
+                startProgramFormSubmit.classList.remove('d-none');
+            });
+        } else {
+            launchCandy.classList.add('d-none');
+            startProgramForm.classList.remove('d-none');
+        }
+
         candyModal.modal('show');
 
         candyModal.on('hidden.bs.modal', function () {
