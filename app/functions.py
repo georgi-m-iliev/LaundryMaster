@@ -4,6 +4,7 @@ from requests.exceptions import RequestException
 from flask import current_app, flash, request, redirect
 from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
+from requests_cache import CachedSession, RedisCache
 
 from app.db import db
 from app.auth import user_datastore
@@ -309,7 +310,12 @@ def get_relay_wifi_rssi():
 def get_washer_info(shelly=True):
     """ Returns a dict with washing machine information """
     if shelly:
-        shelly_request = requests.get(
+        cache_session = CachedSession(
+            backend=RedisCache() if not current_app.debug else 'sqlite',
+            cache_name='shelly_cache',
+            expire_after=30
+        )
+        shelly_request = cache_session.get(
             url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
             params={
                 'auth_key': os.getenv('SHELLY_CLOUD_AUTH_KEY'),

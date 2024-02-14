@@ -109,3 +109,4 @@ pip-selfcheck.json
 
 /celerybeat-schedule.db
 .env.development
+*_cache.sqlite
