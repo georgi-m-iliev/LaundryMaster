@@ -3,7 +3,7 @@ import datetime
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectMultipleField, SelectField, FieldList
-from wtforms import IntegerField, DateTimeLocalField, ValidationError, DateField, DecimalField
+from wtforms import IntegerField, DateTimeLocalField, ValidationError, DateField, DecimalField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional, NumberRange
 
 
@@ -124,3 +124,6 @@ class UpdateWashingMachineForm(FlaskForm):
     update_washing_machine_submit = SubmitField('Update', id='update-wm-submit', name='update-wm-submit')
 
 
+class WashingMachineNotesForm(FlaskForm):
+    notes = TextAreaField('note', validators=[Optional()])
+    notes_submit = SubmitField('Save', id='notes-submit', name='notes-submit')

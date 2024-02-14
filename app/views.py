@@ -334,6 +334,21 @@ def washing_machine():
             'relay_wifi_rssi': None,
         }
 
+    washing_machine_obj = WashingMachine.query.first()
+    washing_machine_notes_form = WashingMachineNotesForm()
+
+    if washing_machine_notes_form.notes_submit.data and washing_machine_notes_form.validate_on_submit():
+        if washing_machine_notes_form.notes.data != washing_machine_obj.notes:
+            washing_machine_obj.notes = washing_machine_notes_form.notes.data
+            db.session.commit()
+            current_app.logger.info(f'User {current_user.username} updated washing machine notes')
+            flash('Notes updated successfully!', category='toast-success')
+        else:
+            flash('Nothing to update.', category='toast-warning')
+        return redirect(request.path)
+    else:
+        washing_machine_notes_form.notes.data = washing_machine_obj.notes
+
     return render_template(
         'washing-machine.html',
         is_washer=True,
@@ -343,5 +358,6 @@ def washing_machine():
         relay_temperature=washing_machine_info['relay_temperature'],
         relay_wifi_rssi=washing_machine_info['relay_wifi_rssi'],
         candy_user=os.getenv('CANDY_USER'),
-        candy_password=os.getenv('CANDY_PASSWORD')
+        candy_password=os.getenv('CANDY_PASSWORD'),
+        washing_machine_notes_form=washing_machine_notes_form
     )
