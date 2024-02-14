@@ -4,9 +4,12 @@ import requests
 import datetime
 from enum import Enum
 from typing import Optional
+
+from flask_wtf import FlaskForm
 from sqlalchemy.exc import OperationalError
 
 from flask import current_app
+from wtforms import SelectField, BooleanField, SubmitField, ValidationError
 
 from app.db import db
 from app.models import WashingMachine, User
@@ -95,6 +98,54 @@ class ProgramDryLevel(Enum):
     EXTRA_DRY = (1, 'Extra dry')
 
 
+class StartProgramForm(FlaskForm):
+    from app.candy import ProgramWashTemperature, ProgramWashSpinSpeed, ProgramWashSoilLevel, ProgramDryLevel
+
+    type = SelectField('type', choices=[('', ''), ('wash', 'Wash'), ('dry', 'Dry'), ('comb', 'Wash & Dry')])
+
+    wash_program = SelectField('wash_program')
+    wash_temp = SelectField('wash_temp', choices=[e.value for e in ProgramWashTemperature], default=40)
+    wash_spin_speed = SelectField('wash_spin_speed', choices=[e.value for e in ProgramWashSpinSpeed], default=10)
+    wash_soil_level = SelectField('wash_soil_level', choices=[e.value for e in ProgramWashSoilLevel])
+    dry_after = BooleanField('dry_after')
+
+    dry_program = SelectField('dry_program')
+    dry_level = SelectField('dry_level',
+                            choices=[e.value for e in ProgramDryLevel if e.name != 'NO_DRY'],
+                            default=2)
+
+    comb_program = SelectField('comb_program')
+    comb_temp = SelectField('comb_temp', choices=[e.value for e in ProgramWashTemperature], default=40)
+    comb_spin_speed = SelectField('comb_spin_speed', choices=[e.value for e in ProgramWashSpinSpeed], default=10)
+    comb_soil_level = SelectField('comb_soil_level', choices=[e.value for e in ProgramWashSoilLevel])
+    comb_dry_level = SelectField('comb_dry_level',
+                                 choices=[e.value for e in ProgramDryLevel if e.name != 'NO_DRY'],
+                                 default=2)
+
+    start_program_submit = SubmitField('Start', id='start-program-submit', name='start-program-submit')
+
+    def __init__(self):
+        from app.candy import CandyWashingMachine
+        super().__init__()
+        CandyWashingMachine.get_programs()
+        self.wash_program.choices = [(p['id'], p['name']) for p in CandyWashingMachine.programs if p['program_type'] == 'W']
+        self.dry_program.choices = [(p['id'], p['name']) for p in CandyWashingMachine.programs if p['program_type'] == 'D']
+        self.comb_program.choices = [(p['id'], p['name']) for p in CandyWashingMachine.programs if p['program_type'] == 'W' and p['drying_type']]
+
+    def validate_type(form, field):
+        if field.data == 'wash':
+            if form.wash_program.data == '':
+                raise ValidationError('Please select a wash program')
+        elif field.data == 'dry':
+            if form.dry_program.data == '':
+                raise ValidationError('Please select a dry program')
+        elif field.data == 'comb':
+            if form.comb_program.data == '':
+                raise ValidationError('Please select a comb program')
+        else:
+            raise ValidationError('Please select a program type')
+
+
 class CandyWashingMachine:
     _instance = None
     _instance_initialized = None
@@ -129,7 +180,6 @@ class CandyWashingMachine:
         self.remaining_minutes: int = -1
         self.remote_control: bool = False
         self.fill_percent: Optional[int] = None  # 0...100
-        self.washing_machine: WashingMachine = WashingMachine.query.first()
         self.update()
 
     def parse_current_status_parameters(self, json_data):
@@ -168,8 +218,8 @@ class CandyWashingMachine:
         return json.dumps(self.asdict())
 
     def update_db_model(self):
-        self.washing_machine: WashingMachine = WashingMachine.query.first()
-        self.washing_machine.candy_appliance_data = self.asdict()
+        washing_machine = WashingMachine.query.first()
+        washing_machine.candy_appliance_data = self.asdict()
         db.session.commit()
 
     def update(self):
@@ -178,7 +228,7 @@ class CandyWashingMachine:
             return
         print('Updating CWM...')
         self.last_updated = datetime.datetime.now()
-        data = fetch_appliance_data(self.washing_machine)
+        data = fetch_appliance_data()
         self.current_status = data['appliance']['current_status']
         self.parse_current_status_parameters(data['appliance']['current_status_parameters'])
         if self.program_state == CandyWashProgramState.STOPPED:
@@ -206,7 +256,7 @@ class CandyWashingMachine:
             'StSt': '0',
         }
         body = '&'.join(f'{key}={value}' for key, value in body_args.items())
-        send_command(self.washing_machine, body)
+        send_command(body)
 
     def trigger_pause_program(self, user: User):
         current_app.logger.info(f'User {user.username} triggered pause on the washing machine')
@@ -215,17 +265,22 @@ class CandyWashingMachine:
             'StSt': '3',
         }
         body = '&'.join(f'{key}={value}' for key, value in body_args.items())
-        send_command(self.washing_machine, body)
+        send_command(body)
 
-    def start_program(self, user: User, start_program_form):
+    def start_program(self, user: User, start_program_form: StartProgramForm):
         body = process_start_program_form(start_program_form)
         current_app.logger.info(f'User {user.username} started program in mode: {start_program_form.type.data}')
         current_app.logger.debug(f'Sending command to start program: {body}')
-        command_response = send_command(self.washing_machine, body)
+        command_response = send_command(body)
         current_app.logger.debug(f'Response from Candy API: {command_response}')
 
 
-def refresh_candy_token(washing_machine: WashingMachine):
+def refresh_candy_token():
+    """ Refreshes the Candy API token for the washing machine """
+    washing_machine = WashingMachine.query.first()
+    if not washing_machine.candy_api_refresh_token:
+        current_app.logger.error('Tried to refresh the bearer token, but failed. No refresh token found')
+        raise RuntimeError('No refresh token found for Candy API')
     url = f'{os.getenv("CANDY_AUTH_ENDPOINT")}/services/oauth2/token?device_id={washing_machine.candy_device_id}'
 
     payload = {'grant_type': 'hybrid_refresh',
@@ -247,10 +302,11 @@ def refresh_candy_token(washing_machine: WashingMachine):
     current_app.logger.info('Successfully refreshed Candy API token')
 
 
-def fetch_appliance_data(washing_machine: WashingMachine):
+def fetch_appliance_data():
     """ Fetches appliance data from Candy API """
+    washing_machine = WashingMachine.query.first()
     if not washing_machine.candy_api_token:
-        refresh_candy_token(washing_machine)
+        refresh_candy_token()
 
     url = f'{os.getenv("CANDY_API_ENDPOINT")}/api/v1/appliances/{washing_machine.candy_appliance_id}.json?with_programs=0'
 
@@ -268,8 +324,8 @@ def fetch_appliance_data(washing_machine: WashingMachine):
 
     response = requests.request("GET", url, headers=headers)
     if response.status_code == 401:
-        refresh_candy_token(washing_machine)
-        return fetch_appliance_data(washing_machine)
+        refresh_candy_token()
+        return fetch_appliance_data()
     elif response.status_code != 200:
         current_app.logger.error(f'Tried to fetch data from Candy API, but failed. More info: {response.text}')
         raise RuntimeError('Failed to fetch data from Candy API')
@@ -277,10 +333,11 @@ def fetch_appliance_data(washing_machine: WashingMachine):
     return response.json()
 
 
-def send_command(washing_machine: WashingMachine, command_body: str):
+def send_command(command_body: str):
     """ Sends command to washing machine through Candy API """
+    washing_machine = WashingMachine.query.first()
     if not washing_machine.candy_api_token:
-        refresh_candy_token(washing_machine)
+        refresh_candy_token()
 
     url = f'{os.getenv("CANDY_API_ENDPOINT")}/api/v1/commands.json'
 
@@ -301,8 +358,8 @@ def send_command(washing_machine: WashingMachine, command_body: str):
         "body": command_body
     })
     if response.status_code == 401:
-        refresh_candy_token(washing_machine)
-        return send_command(washing_machine, command_body)
+        refresh_candy_token()
+        return send_command(command_body)
     elif response.status_code != 200:
         current_app.logger.error(f'Tried to send command to washing machine, but failed. More info: {response.text}')
         raise RuntimeError('Failed to send command to washing machine')
@@ -310,7 +367,7 @@ def send_command(washing_machine: WashingMachine, command_body: str):
     return response.json()
 
 
-def process_start_program_form(start_program_form):
+def process_start_program_form(start_program_form: StartProgramForm):
     """ Builds a command body for starting the washing machine through the Candy API. """
     body_args = {
         'Write': '1',
@@ -359,6 +416,6 @@ def process_start_program_form(start_program_form):
         body_args['PrStr'] = wash_program['name']
         body_args['TmpTgt'] = start_program_form.comb_temp.data
         body_args['SpdTgt'] = start_program_form.comb_spin_speed.data
-        body_args['Dry'] = start_program_form.comb_dry.data
+        body_args['Dry'] = start_program_form.comb_dry_level.data
 
     return '&'.join(f'{key}={value}' for key, value in body_args.items())

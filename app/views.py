@@ -1,12 +1,7 @@
-import datetime, json
-from requests.exceptions import RequestException
+from flask import Blueprint, render_template
+from flask_security import login_required, current_user, hash_password, roles_required
 
-from flask import current_app, Blueprint, render_template, request, redirect, session, flash
-from flask_security import login_required, user_authenticated, current_user, hash_password, roles_required
-from sqlalchemy import or_, and_
-
-from app.db import db
-from app.models import *
+from app.candy import StartProgramForm
 from app.forms import *
 
 from app.functions import *

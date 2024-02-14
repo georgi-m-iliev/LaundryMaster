@@ -14,8 +14,7 @@ from app.models import (schedule_reminder_notification, cycle_paused_notificatio
                         cycle_termination_reminder_notification)
 from app.functions import (send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage,
                            trigger_relay, recalculate_cycles_cost)
-from app.candy import CandyWashingMachine, CandyMachineState
-from app.forms import StartProgramForm
+from app.candy import CandyWashingMachine, CandyMachineState, StartProgramForm
 
 
 def celery_init_app(app: Flask) -> Celery:
