@@ -91,7 +91,7 @@ class WashingMachine(db.Model):
     currentkwh = db.Column(db.Numeric(20, 4))
     costperkwh = db.Column(db.Numeric(10, 2))
     public_wash_cost = db.Column(db.Numeric(10, 2))
-    notification_task_id = db.Column(db.String(512))
+    notes = db.Column(db.Text())
     candy_device_id = db.Column(db.String(512), nullable=False)
     candy_appliance_id = db.Column(db.String(512), nullable=False)
     candy_api_token = db.Column(db.String(5000), nullable=True)
