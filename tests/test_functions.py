@@ -417,7 +417,7 @@ def test_schedule_delete_event(mock_flash, mock_redirect, mock_send_push, app):
             schedule_delete_event(event_id=event.id, user=current_user)
             assert mock_notification_task.terminate.called
 
-        assert ScheduleEvent.query.get(event.id) is None
+        assert ScheduleEvent.query.filter_by(id=event.id).first() is None
         assert mock_send_push.call_count == 1
 
 
@@ -433,7 +433,7 @@ def test_schedule_delete_event_invalid_id(mock_flash, mock_redirect, mock_send_p
             schedule_delete_event(event_id=event_id, user=current_user)
             assert not mock_notification_task.terminate.called
 
-        assert ScheduleEvent.query.get(event_id) is None
+        assert ScheduleEvent.query.filter_by(id=event_id).first() is None
         mock_flash.assert_called_with('Event not found', category='toast-error')
         assert mock_redirect.called
         assert mock_send_push.call_count == 0
@@ -461,7 +461,7 @@ def test_schedule_delete_event_wrong_user(mock_flash, mock_redirect, mock_send_p
             schedule_delete_event(event_id=event.id, user=current_user)
             assert not mock_notification_task.terminate.called
 
-        assert ScheduleEvent.query.get(event.id) is not None
+        assert ScheduleEvent.query.filter_by(id=event.id).first() is not None
         mock_flash.assert_called_with('You can only delete your own events', category='toast-error')
         assert mock_redirect.called
         assert mock_send_push.call_count == 0

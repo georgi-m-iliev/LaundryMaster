@@ -45,7 +45,7 @@ def test_reset_password(client, app):
         assert verify_password('new_password', user.password)
 
 
-@patch('app.api.send_push_to_all')
+@patch('app.api.send_push_to_all', create=True)
 def test_trigger_push(mock_send_push_to_all, client, app):
     """ Testing triggering a push notification. """
     login(client, app, 'georgi', 'password')
@@ -70,7 +70,7 @@ def test_trigger_push(mock_send_push_to_all, client, app):
     assert mock_send_push_to_all.call_args[1]['notification'].url == notification.url
 
 
-@patch('app.api.send_push_to_all')
+@patch('app.api.send_push_to_all', create=True)
 def test_trigger_push_unauthorized(mock_send_push_to_all, client, app):
     """ Testing triggering a push notification with a non-privileged user. """
     login(client, app, 'ivan', 'password')
@@ -90,7 +90,7 @@ def test_trigger_push_unauthorized(mock_send_push_to_all, client, app):
     assert not mock_send_push_to_all.called
 
 
-@patch('app.api.send_push_to_user')
+@patch('app.api.send_push_to_user', create=True)
 def test_trigger_push_by_id(mock_send_push_to_all, client, app):
     """ Testing triggering a push notification to a user by id. """
     with app.test_request_context():
@@ -118,7 +118,7 @@ def test_trigger_push_by_id(mock_send_push_to_all, client, app):
         assert mock_send_push_to_all.call_args[1]['notification'].url == notification.url
 
 
-@patch('app.api.send_push_to_all')
+@patch('app.api.send_push_to_all', create=True)
 def test_trigger_push_by_id_unauthorized(mock_send_push_to_all, client, app):
     """ Testing triggering a push notification to a user by id with a non-privileged user. """
     with app.test_request_context():
