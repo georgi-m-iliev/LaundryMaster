@@ -6,6 +6,13 @@
 <div class="container-fluid">
     <h3 class="text-dark mb-4">Washing Cycles</h3>
     <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <p class="text-danger m-0 fw-bold">Washing Cycles In Decreasing Order By Date</p>
+            <a class="btn btn-danger btn-sm d-none d-sm-inline-block" role="button" href="/api/export_washing_cycles.csv?excel=true" target="_blank">
+                <i class="fas fa-download fa-sm text-white-50"></i>
+                &nbsp;Export cycles data
+            </a>
+        </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
                 <table class="table my-0" id="dataTable">

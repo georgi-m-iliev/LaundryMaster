@@ -169,7 +169,12 @@ def ws_washing_machine_info(ws):
 @login_required
 @roles_required('admin')
 def export_washing_cycles():
-    cycles: list[WashingCycle] = WashingCycle.query.all()
+    query = WashingCycle.query
+    if request.args.get('count'):
+        query.limit(request.args.get('count'))
+
+    cycles: list[WashingCycle] = query.order_by(WashingCycle.start_timestamp.desc()).all()
+
     csv = 'id,user,date,used_kwh,cost\n'
     for cycle in cycles:
         csv += f'{cycle.id},{cycle.user_id},{cycle.start_timestamp.strftime("%Y-%m-%d")},{cycle.endkwh - cycle.startkwh},{cycle.cost}\n'
