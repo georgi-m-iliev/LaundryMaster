@@ -8,7 +8,10 @@
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-danger m-0 fw-bold">Alter Users' Data</p>
-            <button type="button" class="btn btn-success text-light" data-bs-toggle="modal" data-bs-target="#newUserModal">Add User</button>
+            <a class="btn btn-success btn-sm d-none d-sm-inline-block text-light" role="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                <i class="fas fa-user-plus fa-sm text-white-50"></i>
+                &nbsp;Add User
+            </a>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
