@@ -1,4 +1,4 @@
-import os, json, time
+import os, json, time, datetime
 from requests.exceptions import RequestException
 
 from sqlalchemy.exc import OperationalError
@@ -11,7 +11,7 @@ from flask_sock import Sock
 from app.db import db
 from app.auth import user_datastore
 
-from app.models import User, WashingMachine, PushSubscription, WashingCycle, NotificationURL
+from app.models import User, WashingMachine, PushSubscription, WashingCycle, NotificationURL, ScheduleEvent, CeleryTask
 from app.functions import send_push_to_all, send_push_to_user, get_realtime_current_usage, get_running_time
 from app.functions import get_washer_info, get_relay_temperature, get_relay_wifi_rssi
 from app.candy import CandyWashingMachine
@@ -206,3 +206,50 @@ def ws_candy_data(ws):
         ws.send(machine.json())
         time.sleep(interval)
         machine.update()
+
+
+@api.route('/schedule_events', methods=['POST'])
+@login_required
+def schedule_events_post():
+    event = ScheduleEvent(
+        user_id=current_user.id,
+        start_timestamp=datetime.datetime.strptime(request.form['start_date'], '%Y-%m-%d %H:%M'),
+        end_timestamp=datetime.datetime.strptime(request.form['end_date'], '%Y-%m-%d %H:%M'),
+    )
+    db.session.add(event)
+    db.session.commit()
+    CeleryTask.start_schedule_notification_task(current_user.id, event.id, event.start_timestamp)
+    return {'action': 'post'}
+
+
+@api.route('/schedule_events/<event_id>', methods=['GET', 'PUT', 'DELETE'])
+@login_required
+def schedule_events(event_id: int):
+    event = ScheduleEvent.query.filter_by(id=event_id).first()
+    if not event:
+        return {'action': 'error', 'tid': {'message': 'Event not found!'}}, 404
+    if not current_user.has_role('admin') and current_user != event.user:
+        return {'action': 'error', 'tid': {'message': 'Action unauthorized!'}}, 403
+
+    if request.method == 'GET':
+        return {'action': 'get', 'tid': {
+            'id': event.id,
+            'start_date': event.start_timestamp.strftime('%Y-%m-%d %H:%M'),
+            'end_date': event.end_timestamp.strftime('%Y-%m-%d %H:%M'),
+            'text': event.text,
+            'color': '7fc2d1'
+        }}
+    elif request.method == 'PUT':
+        event.start_timestamp = datetime.datetime.strptime(request.form['start_date'], '%Y-%m-%d %H:%M')
+        event.end_timestamp = datetime.datetime.strptime(request.form['end_date'], '%Y-%m-%d %H:%M')
+        if event.notification_task:
+            event.notification_task.terminate()
+            CeleryTask.start_schedule_notification_task(event.user_id, event.id, event.start_timestamp)
+        db.session.commit()
+        return {'action': 'put'}
+    elif request.method == 'DELETE':
+        if event.notification_task:
+            event.notification_task.terminate()
+        db.session.delete(event)
+        db.session.commit()
+        return {'action': 'delete'}

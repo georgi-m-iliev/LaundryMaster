@@ -397,9 +397,45 @@ def test_schedule_update_event_wrong_user(mock_flash, mock_redirect, mock_celery
 
 
 @patch('app.functions.send_push_to_user')
+@patch('app.functions.CeleryTask')
 @patch('app.functions.redirect')
 @patch('app.functions.flash')
-def test_schedule_delete_event(mock_flash, mock_redirect, mock_send_push, app):
+def test_schedule_update_event_past(mock_flash, mock_redirect, mock_celery_task, mock_send_push, app):
+    """ Testing the update schedule event function with wrong user. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        event = ScheduleEvent(
+            timestamp=datetime.datetime.now() - datetime.timedelta(hours=2),
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=6),
+            end_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            user_id=current_user.id
+        )
+        db.session.add(event)
+        db.session.commit()
+        db.session.refresh(event)
+
+        new_start_timestamp = event.start_timestamp + datetime.timedelta(hours=1)
+        new_end_timestamp = event.end_timestamp + datetime.timedelta(hours=1)
+
+        with patch.object(ScheduleEvent, 'notification_task', return_value='task id') as mock_notification_task:
+            schedule_update_event(
+                event_id=event.id,
+                start_timestamp=new_start_timestamp,
+                end_timestamp=new_end_timestamp,
+                user=current_user
+            )
+            assert not mock_notification_task.terminate.called
+
+        db.session.refresh(event)
+
+        mock_flash.assert_called_with('You cannot edit past events', category='toast-error')
+        assert mock_redirect.called
+        assert not mock_celery_task.start_schedule_notification_task.called
+        assert mock_send_push.call_count == 0
+
+
+@patch('app.functions.send_push_to_user')
+def test_schedule_delete_event(mock_send_push, app):
     """ Testing the delete schedule event function in normal conditions. """
     with app.test_request_context('/'):
         current_user = User.query.filter_by(username='ivan').first()

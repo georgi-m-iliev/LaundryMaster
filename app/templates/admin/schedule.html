@@ -34,6 +34,18 @@
                 scheduler.config.first_hour = 8;
                 {#scheduler.config.last_hour = 19;#}
 
+                // connect backend to scheduler
+                const dp = scheduler.createDataProcessor({
+                    url: "/api/schedule_events",
+                    mode: "REST"
+                });
+
+                dp.attachEvent("onAfterUpdate", function(id, action, tid, response){
+                   if (action == "error") {
+                       alert(tid['message'])
+                   }
+                });
+
                 scheduler.init('scheduler_here', new Date(), "month");
                 scheduler.plugins({
                     tooltip: true

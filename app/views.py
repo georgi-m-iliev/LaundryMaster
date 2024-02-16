@@ -256,9 +256,7 @@ def schedule():
             'id': event.id,
             'start_date': event.start_timestamp.strftime('%Y-%m-%d %H:%M'),
             'end_date': event.end_timestamp.strftime('%Y-%m-%d %H:%M'),
-            'text': f'Timeslot {event.start_timestamp.strftime("%Y-%m-%d %H:%M")} - '
-                    f'{event.end_timestamp.strftime("%Y-%m-%d %H:%M")} reserved by {event.user.first_name} on '
-                    f'{event.timestamp.strftime("%Y-%m-%d %H:%M")}',
+            'text': event.text,
             'color': '7fc2d1'
         })
 

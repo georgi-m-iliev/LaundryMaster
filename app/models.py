@@ -122,6 +122,10 @@ class ScheduleEvent(db.Model):
         viewonly=True
     )
 
+    @property
+    def text(self):
+        return f'Timeslot {self.start_timestamp.strftime("%Y-%m-%d %H:%M")} - {self.end_timestamp.strftime("%Y-%m-%d %H:%M")} reserved by {self.user.first_name} on {self.timestamp.strftime("%Y-%m-%d %H:%M")}'
+
 
 class Notification:
     def __init__(self, title, body, icon):
