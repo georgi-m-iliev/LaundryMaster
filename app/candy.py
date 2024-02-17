@@ -249,7 +249,8 @@ class CandyWashingMachine:
                 cls.downloaded_programs = json.load(f)
         return cls.programs + cls.downloaded_programs
 
-    def stop_program(self, user: User):
+    @staticmethod
+    def stop_program(user: User):
         current_app.logger.info(f'User {user.username} stopped the washing machine')
         body_args = {
             'Write': '1',
@@ -258,7 +259,8 @@ class CandyWashingMachine:
         body = '&'.join(f'{key}={value}' for key, value in body_args.items())
         send_command(body)
 
-    def trigger_pause_program(self, user: User):
+    @staticmethod
+    def trigger_pause_program(user: User):
         current_app.logger.info(f'User {user.username} triggered pause on the washing machine')
         body_args = {
             'Write': '1',
@@ -267,7 +269,8 @@ class CandyWashingMachine:
         body = '&'.join(f'{key}={value}' for key, value in body_args.items())
         send_command(body)
 
-    def start_program(self, user: User, start_program_form: StartProgramForm):
+    @staticmethod
+    def start_program(user: User, start_program_form: StartProgramForm):
         body = process_start_program_form(start_program_form)
         current_app.logger.info(f'User {user.username} started program in mode: {start_program_form.type.data}')
         current_app.logger.debug(f'Sending command to start program: {body}')
@@ -353,10 +356,10 @@ def send_command(command_body: str):
         'Authorization': f'Bearer {washing_machine.candy_api_token}'
     }
 
-    response = requests.request("POST", url, headers=headers, data={
+    response = requests.request("POST", url, headers=headers, data=json.dumps({
         "appliance_id": washing_machine.candy_appliance_id,
         "body": command_body
-    })
+    }))
     if response.status_code == 401:
         refresh_candy_token()
         return send_command(command_body)
