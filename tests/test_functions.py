@@ -1,5 +1,6 @@
 import pytest
 import datetime
+import random
 from unittest.mock import Mock, patch, call
 
 from flask import request
@@ -501,3 +502,108 @@ def test_schedule_delete_event_wrong_user(mock_flash, mock_redirect, mock_send_p
         mock_flash.assert_called_with('You can only delete your own events', category='toast-error')
         assert mock_redirect.called
         assert mock_send_push.call_count == 0
+
+
+@patch('app.functions.flash')
+def test_mark_cycle_paid_non_split(mock_flash, app):
+    """ Testing the mark cycle paid function in normal conditions. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        cycle = WashingCycle(
+            user_id=current_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=False
+        )
+        db.session.add(cycle)
+        db.session.commit()
+        db.session.refresh(cycle)
+
+        mark_cycle_paid(current_user, cycle.id)
+        db.session.refresh(cycle)
+
+        assert cycle.paid is True
+        mock_flash.assert_called_with(f'Cycle #{cycle.id} marked as paid', category='toast-success')
+
+
+@patch('app.functions.flash')
+def test_mark_cycle_paid_non_split_paid(mock_flash, app):
+    """ Testing the mark cycle paid function when cycle is paid. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        cycle = WashingCycle(
+            user_id=current_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=True
+        )
+        db.session.add(cycle)
+        db.session.commit()
+        db.session.refresh(cycle)
+
+        mark_cycle_paid(current_user, cycle.id)
+        db.session.refresh(cycle)
+
+        assert cycle.paid is True
+        mock_flash.assert_called_with(f'Cycle #{cycle.id} already marked as paid', category='toast-error')
+
+
+@patch('app.functions.flash')
+def test_mark_cycle_paid_split_accepted(mock_flash, app):
+    """ Testing the mark cycle paid function when cycle is split and accepted. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        cycle_user = User.query.filter_by(username='andrei').first()
+        cycle = WashingCycle(
+            user_id=cycle_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=True
+        )
+        cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=current_user.id, accepted=True, paid=False))
+        db.session.add(cycle)
+        db.session.commit()
+        db.session.refresh(cycle)
+
+        mark_cycle_paid(current_user, cycle.id)
+        db.session.refresh(cycle)
+
+        assert cycle.paid is True
+        mock_flash.assert_called_with(f'Cycle #{cycle.id} marked as paid', category='toast-success')
+
+
+@patch('app.functions.flash')
+def test_mark_cycle_paid_split_not_accepted(mock_flash, app):
+    """ Testing the mark cycle paid function when cycle is split and not accepted. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        cycle_user = User.query.filter_by(username='andrei').first()
+        cycle = WashingCycle(
+            user_id=cycle_user.id, startkwh=0, endkwh=2.3, cost=0.46,
+            start_timestamp=datetime.datetime.now() - datetime.timedelta(hours=4),
+            end_timestamp=datetime.datetime.now(),
+            paid=False
+        )
+        cycle.splits.append(WashingCycleSplit(cycle_id=cycle.id, user_id=current_user.id, accepted=False, paid=False))
+        db.session.add(cycle)
+        db.session.commit()
+        db.session.refresh(cycle)
+
+        mark_cycle_paid(current_user, cycle.id)
+        db.session.refresh(cycle)
+
+        assert cycle.paid is False
+        mock_flash.assert_called_with(f'Cycle #{cycle.id} couldn\'t be marked as paid!'
+                      'You can mark the cycle as paid only after all users have accepted the split', category='toast-warning')
+
+
+@patch('app.functions.flash')
+def test_mark_cycle_paid_split_not_accepted(mock_flash, app):
+    """ Testing the mark cycle paid function when cycle is split and not accepted. """
+    with app.test_request_context('/'):
+        current_user = User.query.filter_by(username='ivan').first()
+        cycle_id = random.randint(100, 150)
+
+        mark_cycle_paid(current_user, cycle_id)
+
+        mock_flash.assert_called_with(f'Cycle #{cycle_id} not found', category='toast-error')
