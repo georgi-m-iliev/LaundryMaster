@@ -313,7 +313,7 @@ def get_washer_info(shelly=True):
         cache_session = CachedSession(
             backend=RedisCache() if not current_app.debug else 'sqlite',
             cache_name='shelly_cache',
-            expire_after=30
+            expire_after=1 if current_app.debug else 30
         )
         shelly_request = cache_session.get(
             url="{}/device/status".format(os.getenv('SHELLY_CLOUD_ENDPOINT')),
