@@ -398,13 +398,13 @@
 
         candyModal.modal('show');
 
-        candyModal.on('hidden.bs.modal', function () {
+        //candyModal.on('hidden.bs.modal', function () {
             window.history.replaceState(
                 {"html": document.html, "pageTitle": document.pageTitle},
                 "",
                 window.location.pathname
             );
-        });
+        //});
 
         const wash = document.getElementById('wash');
         const dry = document.getElementById('dry');
