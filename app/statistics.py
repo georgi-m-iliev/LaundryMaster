@@ -109,7 +109,11 @@ def calculate_savings(user: User):
         db.func.extract('month', WashingCycle.end_timestamp) == datetime.datetime.now().month
     ).all()
 
-    public_wash_cost = WashingMachine.query.first().public_wash_cost
+    washing_machine = WashingMachine.query.first()
+    if not washing_machine:
+        return 0
+
+    public_wash_cost = washing_machine.public_wash_cost
 
     result = 0
     for cycle in cycles:
