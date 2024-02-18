@@ -24,10 +24,15 @@ def start_cycle(user: User):
     # No cycle running, create new cycle
     current_app.logger.info(f'User {user.username} is starting a new cycle.')
 
-    if trigger_relay('on') != 200:
-        current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
-        flash('Request to turn on the relay failed!\nPlease try again!', category='toast-error')
-        raise ChildProcessError('Request to turn on the relay failed!')
+    try:
+        if trigger_relay('on') != 200:
+            current_app.logger.error("Request to turn on the relay through Shelly Cloud API FAILED!")
+            flash('Request to turn on the relay failed!\nPlease try again!', category='toast-error')
+            raise ChildProcessError('Request to turn on the relay failed!')
+    except requests.exceptions.ConnectionError:
+        current_app.logger.error("Shelly Cloud API request failed! API is probably down...")
+        flash('Request to turn off the relay failed!\nPlease try again!', category='toast-error')
+        raise ChildProcessError('Request to turn off the relay failed!')
 
     try:
         new_cycle = WashingCycle(user_id=user.id, startkwh=get_energy_consumption())
@@ -53,8 +58,13 @@ def stop_cycle(user: User):
         # Cycle belonging to current user was found, stopping it
         current_app.logger.info(f'User {user.username} is stopping their cycle.')
 
-        if trigger_relay('off') != 200:
-            current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
+        try:
+            if trigger_relay('off') != 200:
+                current_app.logger.error("Request to turn off the relay through Shelly Cloud API FAILED!")
+                flash('Request to turn off the relay failed!\nPlease try again!', category='toast-error')
+                raise ChildProcessError('Request to turn off the relay failed!')
+        except requests.exceptions.ConnectionError:
+            current_app.logger.error("Shelly Cloud API request failed! API is probably down...")
             flash('Request to turn off the relay failed!\nPlease try again!', category='toast-error')
             raise ChildProcessError('Request to turn off the relay failed!')
 
@@ -64,9 +74,12 @@ def stop_cycle(user: User):
             cycle.end_timestamp = db.func.current_timestamp()
             cycle.cost = (cycle.endkwh - cycle.startkwh) * WashingMachine.query.first().costperkwh
 
-            if cycle.notification_task:
-                current_app.logger.info('Stopping cycle end notification task...')
-                cycle.notification_task.terminate()
+            try:
+                if cycle.notification_task:
+                    current_app.logger.info('Stopping cycle end notification task...')
+                    cycle.notification_task.terminate()
+            except Exception as e:
+                current_app.logger.error(f'Error with stopping cycle end notification task... {e}')
 
             if cycle.cost == 0:
                 db.session.delete(cycle)
