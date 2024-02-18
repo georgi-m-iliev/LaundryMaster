@@ -45,6 +45,22 @@ def inject_start_program_form():
             flash('Program start command sent successfully', category='toast-success')
         except RuntimeError as e:
             flash(f'Error: {e}', category='toast-error')
+    elif start_program_form.start_program_submit.data:
+        for field, errors in start_program_form.errors.items():
+            for error in errors:
+                flash(f'{error} about {field}', category='toast-error')
+    elif start_program_form.stop_program_submit.data:
+        try:
+            CandyWashingMachine.stop_program(current_user)
+            flash('Program stop command sent successfully', category='toast-success')
+        except RuntimeError as e:
+            flash(f'Error: {e}', category='toast-error')
+    elif start_program_form.pause_program_submit.data:
+        try:
+            CandyWashingMachine.trigger_pause_program(current_user)
+            flash('Program pause command sent successfully', category='toast-success')
+        except RuntimeError as e:
+            flash(f'Error: {e}', category='toast-error')
     return {'start_program_form': start_program_form}
 
 

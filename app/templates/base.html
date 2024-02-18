@@ -132,17 +132,22 @@
                         <i class="fas fa-bars"></i>
                     </button>
                     {% if request.path != '/' %}
-                    <form method="POST" class="">
-                        <img style="max-height: 3.5vw;" class="rounded-2 mx-3 d-none d-md-inline-block align-middle" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="washing machine icon">
+                        <form method="POST" class="">
+                            <img style="max-height: 3.5vw;" class="rounded-2 mx-3 d-none d-md-inline-block align-middle" src="{{ url_for('static', filename='assets/img/washing-machine.png') }}" alt="washing machine icon">
+                            {% if cycle_data['state'] == 'running' %}
+                            <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
+                            {% elif cycle_data['state'] == 'available' %}
+                            <button type="submit" name="start_cycle" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
+                            <button type="submit" name="release_door" class="btn text-light btn-info"><i class="fas fa-solid fa-lock-open"></i></button>
+                            {% elif cycle_data['state'] == 'unavailable' %}
+                            <span class="text-warning">Washing Machine is busy!</span>
+                            {% endif %}
+                        </form>
                         {% if cycle_data['state'] == 'running' %}
-                        <button type="submit" name="stop_cycle" class="btn btn-danger"><i class="fas fa-solid fa-stop"></i></button>
-                        {% elif cycle_data['state'] == 'available' %}
-                        <button type="submit" name="start_cycle" class="btn text-light btn-success"><i class="fas fa-solid fa-play"></i></button>
-                        <button type="submit" name="release_door" class="btn text-light btn-info"><i class="fas fa-solid fa-lock-open"></i></button>
-                        {% elif cycle_data['state'] == 'unavailable' %}
-                        <span class="text-warning">Washing Machine is busy!</span>
+                            <button type="button" id="program-menu" class="btn btn-dark">
+                                <i class="fas fa-solid fa-keyboard"></i>
+                            </button>
                         {% endif %}
-                    </form>
                     {% endif %}
                     <ul class="navbar-nav flex-nowrap ms-auto">
 {#                        <li class="nav-item dropdown no-arrow mx-1">#}
@@ -290,7 +295,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Start A New Washing Cycle</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Washing Program Menu</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST">
@@ -364,9 +369,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    {{ start_program_form.start_program_submit(class="btn btn-primary", value="Start", id="start-program-form-submit") }}
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                        {{ start_program_form.stop_program_submit(class="btn btn-danger", value="Stop", id="stop-program-form-submit") }}
+                        {{ start_program_form.pause_program_submit(class="btn btn-warning text-light", value="Pause", id="pause-program-form-submit") }}
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {{ start_program_form.start_program_submit(class="btn btn-success text-light", value="Start", id="start-program-form-submit") }}
+                    </div>
                 </div>
             </form>
         </div>
@@ -374,8 +385,14 @@
 </div>
 <script>
     const params = new URLSearchParams(window.location.search);
-    const candyModal = $('#launchCandyModal')
-    const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+    const candyModal = $('#launchCandyModal');
+    const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+
+    function showStartForm(launchCandy, startProgramForm, startProgramFormSubmit) {
+        launchCandy.classList.add('d-none');
+        startProgramForm.classList.remove('d-none');
+        startProgramFormSubmit.classList.remove('d-none');
+    }
 
     function initCandyModal()  {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -383,13 +400,15 @@
         const startProgramFormLink = document.getElementById('start-program-form-link');
         const startProgramForm = document.getElementById('start-program-form');
         const startProgramFormSubmit = document.getElementById('start-program-form-submit');
-        if ((/android/i.test(userAgent)) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream)) {
+
+        if(params.has('candy') == false) {
+            showStartForm(launchCandy, startProgramForm, startProgramFormSubmit);
+        }
+        else if ((/android/i.test(userAgent)) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream)) {
             launchCandy.classList.remove('d-none');
             startProgramFormSubmit.classList.add('d-none');
-            startProgramFormLink.addEventListener('click', function() {
-                launchCandy.classList.add('d-none');
-                startProgramForm.classList.remove('d-none');
-                startProgramFormSubmit.classList.remove('d-none');
+            startProgramFormLink.addEventListener('click', function (){
+                showStartForm(launchCandy, startProgramForm, startProgramFormSubmit);
             });
         } else {
             launchCandy.classList.add('d-none');
@@ -398,13 +417,13 @@
 
         candyModal.modal('show');
 
-        //candyModal.on('hidden.bs.modal', function () {
+        if(params.has('candy')) {
             window.history.replaceState(
                 {"html": document.html, "pageTitle": document.pageTitle},
                 "",
                 window.location.pathname
             );
-        //});
+        }
 
         const wash = document.getElementById('wash');
         const dry = document.getElementById('dry');
@@ -447,6 +466,9 @@
                 initCandyModal();
             }
         }
+        document.getElementById('program-menu').addEventListener('click', function() {
+            initCandyModal();
+        });
     });
 </script>
 </body>

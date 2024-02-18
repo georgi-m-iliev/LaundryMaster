@@ -123,6 +123,8 @@ class StartProgramForm(FlaskForm):
                                  default=2)
 
     start_program_submit = SubmitField('Start', id='start-program-submit', name='start-program-submit')
+    stop_program_submit = SubmitField('Stop', id='stop-program-submit', name='stop-program-submit')
+    pause_program_submit = SubmitField('Pause', id='pause-program-submit', name='pause-program-submit')
 
     def __init__(self):
         from app.candy import CandyWashingMachine
