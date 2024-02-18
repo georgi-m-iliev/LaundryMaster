@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from flask_security import login_required, current_user, hash_password, roles_required
 
-from app.candy import StartProgramForm
+from app.candy import StartProgramForm, CandyWashingMachine
 from app.forms import *
 
 from app.functions import *
@@ -40,10 +40,8 @@ def handle_cycle_buttons():
 def inject_start_program_form():
     start_program_form = StartProgramForm()
     if start_program_form.start_program_submit.data and start_program_form.validate_on_submit():
-        from app.candy import CandyWashingMachine
-        candy = CandyWashingMachine()
         try:
-            candy.start_program(current_user, start_program_form)
+            CandyWashingMachine.start_program(current_user, start_program_form)
             flash('Program start command sent successfully', category='toast-success')
         except RuntimeError as e:
             flash(f'Error: {e}', category='toast-error')
