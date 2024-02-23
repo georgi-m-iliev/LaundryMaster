@@ -12,14 +12,16 @@ from app.models import User, WashingCycle, WashingCycleSplit, ScheduleEvent
 from app.forms import SplitCycleForm
 
 
+@patch('app.functions.get_energy_consumption')
 @patch('app.functions.trigger_relay')
 @patch('app.functions.flash')
 @patch('app.functions.CeleryTask')
-def test_start_cycle(mock_celery_task, mock_flash, mock_trigger_relay, app):
+def test_start_cycle(mock_celery_task, mock_flash, mock_trigger_relay, mock_get_energy_consumption, app):
     """ Testing start cycle function in normal conditions. """
     with app.test_request_context():
         user = User.query.first()
         mock_trigger_relay.return_value = 200
+        mock_get_energy_consumption.return_value = 10
 
         start_cycle(user)
 
@@ -71,10 +73,11 @@ def test_start_cycle_already_running(mock_celery_task, mock_flash, app):
         mock_flash.assert_called_with('You already have a cycle running!', category='toast-warning')
 
 
+@patch('app.functions.get_energy_consumption')
 @patch('app.functions.trigger_relay')
 @patch('app.functions.update_energy_consumption')
 @patch('app.functions.flash')
-def test_stop_cycle(mock_flash, mock_update_consumption, mock_trigger_relay, app):
+def test_stop_cycle(mock_flash, mock_update_consumption, mock_trigger_relay, mock_get_energy_consumption, app):
     """ Testing stop cycle function in normal conditions. """
     with app.test_request_context():
         user = User.query.first()
@@ -82,6 +85,7 @@ def test_stop_cycle(mock_flash, mock_update_consumption, mock_trigger_relay, app
         db.session.add(cycle)
         db.session.commit()
         mock_trigger_relay.return_value = 200
+        mock_get_energy_consumption.return_value = 10
 
         with patch.object(WashingCycle, 'notification_task', return_value='task id') as mock_notification_task:
             stop_cycle(user)
