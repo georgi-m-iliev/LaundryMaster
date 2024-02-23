@@ -169,7 +169,7 @@ def ws_washing_machine_info(ws):
 @login_required
 @roles_required('admin')
 def export_washing_cycles():
-    query = WashingCycle.query
+    query = WashingCycle.query.filter(WashingCycle.end_timestamp.is_not(None))
     if request.args.get('count'):
         query.limit(request.args.get('count'))
 
