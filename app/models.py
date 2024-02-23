@@ -1,6 +1,7 @@
 import os
 import enum
 import datetime
+from pytz import timezone
 
 from app import db
 
@@ -261,10 +262,13 @@ class CeleryTask(db.Model):
     def start_schedule_notification_task(user_id: int, event_id: int, start_timestamp: datetime.datetime):
         from app.tasks import schedule_notification_task
 
+        sofia_time = datetime.datetime.now().astimezone(timezone('Europe/Sofia'))
+        eta = start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5))) + sofia_time.utcoffset()
+
         new_task = CeleryTask(
             id=schedule_notification_task.apply_async(
                 (user_id,),
-                eta=start_timestamp - datetime.timedelta(minutes=int(os.getenv('SCHEDULE_REMINDER_DELTA', 5)))
+                eta=eta
             ).id,
             kind=CeleryTask.TaskKinds.SCHEDULE_NOTIFICATION,
             ref_id=event_id
