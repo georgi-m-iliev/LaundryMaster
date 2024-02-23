@@ -231,8 +231,11 @@ def schedule():
                 flash('Event updated successfully', category='toast-success')
             else:
                 # creating a new event and task for notification
-                schedule_create_new_event(start_timestamp, end_timestamp, current_user)
-                flash('Event created successfully', category='toast-success')
+                try:
+                    schedule_create_new_event(start_timestamp, end_timestamp, current_user)
+                    flash('Event created successfully', category='toast-success')
+                except PermissionError:
+                    flash('You are making too many schedule requests! Slow down...', category='toast-error')
         return redirect(request.path)
     elif schedule_request_form.event_submit.data:
         for field, errors in schedule_request_form.errors.items():

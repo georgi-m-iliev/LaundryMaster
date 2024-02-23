@@ -482,6 +482,15 @@ def schedule_check_for_overlapping(start_timestamp: datetime.datetime, end_times
 
 def schedule_create_new_event(start_timestamp: datetime.datetime, end_timestamp: datetime.datetime, user: User):
     """ Creates a new event in the schedule. """
+    # get number of events for the user for the current week
+    user_events = ScheduleEvent.query.filter(
+        ScheduleEvent.user_id == user.id,
+        ScheduleEvent.timestamp >= datetime.datetime.now() - datetime.timedelta(hours=4)
+    ).all()
+
+    if len(user_events) >= 3:
+        raise PermissionError('Too many requests in a short timespan.')
+
     event = ScheduleEvent(
         start_timestamp=start_timestamp,
         end_timestamp=end_timestamp,
