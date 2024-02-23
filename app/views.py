@@ -76,7 +76,7 @@ def index():
     for _ in range(len(unpaid_cycles)):
         unpaid_cycles_form.checkboxes.append_entry()
 
-    if unpaid_cycles_form.validate_on_submit() and unpaid_cycles_form.unpaid_submit.data:
+    if unpaid_cycles_form.unpaid_submit.data and unpaid_cycles_form.validate_on_submit():
         if not any([checkbox.data for checkbox in unpaid_cycles_form.checkboxes]):
             flash('Nothing to update', category='toast-warning')
             return redirect(request.path)
@@ -123,14 +123,14 @@ def index():
 def usage_view(cycle_id=None):
     mark_paid_form = MarkPaidForm()
 
-    if mark_paid_form.validate_on_submit() and mark_paid_form.mark_paid_submit.data:
+    if mark_paid_form.mark_paid_submit.data and mark_paid_form.validate_on_submit():
         mark_cycle_paid(current_user, mark_paid_form.cycle_id.data)
 
     other_users = User.query.filter(User.id != current_user.id, User.active).all()
     split_cycle_form = SplitCycleForm()
     split_cycle_form.other_users.choices = [(user.id, user.first_name) for user in other_users]
 
-    if split_cycle_form.validate_on_submit() and split_cycle_form.split_submit.data:
+    if split_cycle_form.split_submit.data and split_cycle_form.validate_on_submit():
         split_cycle(current_user, split_cycle_form)
         return redirect(request.path)
     elif split_cycle_form.split_submit.data:
@@ -208,7 +208,7 @@ def split_cycle_actions(cycle_id, action=None):
 def schedule():
     schedule_request_form = ScheduleEventRequestForm()
 
-    if schedule_request_form.validate_on_submit() and schedule_request_form.event_submit.data:
+    if schedule_request_form.event_submit.data and schedule_request_form.validate_on_submit():
         # first calculate timestamps and check for correctness
         start_timestamp = schedule_request_form.start_timestamp.data
         duration = 0
@@ -295,7 +295,7 @@ def profile():
     edit_form = EditProfileForm()
     settings_form = EditSettingsForm()
 
-    if edit_form.validate_on_submit() and edit_form.profile_submit.data:
+    if edit_form.profile_submit.data and edit_form.validate_on_submit():
         if not edit_form.first_name.data and not edit_form.email.data and not edit_form.username.data and \
                 not edit_form.password.data:
             flash('Nothing to update', category='profile')
@@ -317,7 +317,7 @@ def profile():
         edit_form.email.render_kw['placeholder'] = current_user.email
         edit_form.username.render_kw['placeholder'] = current_user.username
 
-    if settings_form.validate_on_submit() and settings_form.settings_submit.data:
+    if settings_form.settings_submit.data and settings_form.validate_on_submit():
         current_user.settings.terminate_cycle_on_usage = settings_form.automatic_stop.data
         current_user.settings.launch_candy_on_cycle_start = settings_form.automatic_open_candy.data
         db.session.commit()
