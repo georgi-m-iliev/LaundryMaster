@@ -11,6 +11,7 @@ from app.auth import user_datastore
 from app.models import User, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
 from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification, ScheduleEvent, NotificationURL
 from app.forms import SplitCycleForm
+from app.statistics import calculate_unpaid_cycles_cost
 
 
 def start_cycle(user: User):
@@ -440,6 +441,9 @@ def mark_cycle_paid(user: User, cycle_id: int, mass_marking: bool = False):
 
 def notify_debtors():
     """ Sends push notifications to all users owing money. """
+    if calculate_unpaid_cycles_cost() < os.getenv('DEBTS_THRESHOLD', 5):
+        current_app.logger.info('Debts are below the threshold, no notifications sent.')
+        return
     room_owner = User.query.filter(User.roles.any(name='room_owner')).first()
     debtors = {cycle.user for cycle in WashingCycle.query.filter_by(paid=False).all()} - {room_owner}
     for debtor in debtors:
