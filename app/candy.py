@@ -389,7 +389,7 @@ def process_start_program_form(start_program_form: StartProgramForm):
         'OptMsk2': '0',
         'Lang': '1',
         'Stm': '0',  # Steam - 0 or 'steam'
-        'Dry': '3',  # From 'dry' field in programs
+        'Dry': '0',  # From 'dry' field in programs
         'ED': '0',
         'RecipeId': '0',
         'StartCheckUp': '0',
