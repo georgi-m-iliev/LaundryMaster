@@ -113,7 +113,7 @@ def trigger_push():
 def trigger_push_by_id(user_id: int):
     json_data = request.get_json()
     send_push_to_user(
-        user=User.query.get(user_id),
+        user=User.query.filter_by(id=user_id).first(),
         notification=NotificationURL(
             title=json_data.get('title'),
             body=json_data.get('body'),
