@@ -327,7 +327,7 @@ def fetch_appliance_data():
         'Authorization': f'Bearer {washing_machine.candy_api_token}'
     }
 
-    response = requests.request("GET", url, headers=headers)
+    response = requests.get(url, headers=headers)
     if response.status_code == 401:
         refresh_candy_token()
         return fetch_appliance_data()
@@ -355,10 +355,11 @@ def send_command(command_body: str):
         'App-Version-Name': '3.7.1',
         'Player-Id': '3c08af96-fb58-4595-ba22-23afd515d03f',
         'App-Version-Code': '211',
+        'Content-Type': 'application/json',
         'Authorization': f'Bearer {washing_machine.candy_api_token}'
     }
 
-    response = requests.request("POST", url, headers=headers, data=json.dumps({
+    response = requests.post(url, headers=headers, data=json.dumps({
         "appliance_id": washing_machine.candy_appliance_id,
         "body": command_body
     }))
