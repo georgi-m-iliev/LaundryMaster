@@ -227,6 +227,7 @@ class CeleryTask(db.Model):
         SCHEDULE_NOTIFICATION = 2
         RELEASE_DOOR = 3
         RECALCULATE_CYCLES_COST = 4
+        WASH_THEN_DRY = 5
 
     __tablename__ = 'tasks'
     id = db.Column(db.String(512), primary_key=True)
@@ -304,6 +305,26 @@ class CeleryTask(db.Model):
         new_task = CeleryTask(
             id=recalculate_cycles_cost_task.delay().id,
             kind=CeleryTask.TaskKinds.RECALCULATE_CYCLES_COST
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return new_task
+
+    @staticmethod
+    def start_wash_then_dry_task(user_id, start_program_form):
+        from app.tasks import schedule_program_start_task
+        from app.candy import process_start_program_form
+
+        wash_then_dry_tasks = CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.WASH_THEN_DRY).all()
+        if wash_then_dry_tasks:
+            raise RuntimeError('There is already a wash and dry request scheduled!')
+
+        wash_command, dry_command = process_start_program_form(start_program_form)
+
+        new_task = CeleryTask(
+            id=schedule_program_start_task.delay(wash_command, dry_command, user_id).id,
+            kind=CeleryTask.TaskKinds.WASH_THEN_DRY,
+            ref_id=user_id
         )
         db.session.add(new_task)
         db.session.commit()

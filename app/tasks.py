@@ -14,7 +14,7 @@ from app.models import (schedule_reminder_notification, cycle_paused_notificatio
                         cycle_termination_reminder_notification)
 from app.functions import (send_push_to_user, stop_cycle, update_energy_consumption, get_realtime_current_usage,
                            trigger_relay, recalculate_cycles_cost)
-from app.candy import CandyWashingMachine, CandyMachineState, StartProgramForm
+from app.candy import CandyWashingMachine, CandyMachineState, StartProgramForm, send_command
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -284,6 +284,42 @@ def send_notification_to_debtors_task():
 
 
 @shared_task()
-def start_programs(start_program_form: StartProgramForm, user_id: int):
+def schedule_program_start_task(wash_command, dry_command, user_id: int):
     """ Task to start programs on the washing machine through the Candy API. """
-    pass
+    user = User.query.filter_by(id=user_id).first()
+
+    current_app.logger.info("Starting wash program...")
+    send_command(wash_command)
+
+    washing_machine = CandyWashingMachine()
+    while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
+           washing_machine.machine_state != CandyMachineState.FINISHED2):
+
+        if washing_machine.machine_state == CandyMachineState.PAUSED:
+            current_app.logger.info("Machine is paused, notifying user...")
+            send_push_to_user(
+                user=user,
+                notification=cycle_paused_notification
+            )
+            time.sleep(60)
+        elif washing_machine.machine_state == CandyMachineState.IDLE:
+            current_app.logger.info("Machine is idle, waiting for it to start...")
+            time.sleep(60)
+        elif washing_machine.machine_state == CandyMachineState.RUNNING:
+            current_app.logger.info("Machine is running, waiting for it to finish...")
+            time.sleep(5 * 60)
+        else:
+            current_app.logger.warning(
+                f"Non-captured state: {washing_machine.machine_state.code} - {washing_machine.machine_state.label}")
+            time.sleep(60)
+        washing_machine.update()
+
+    current_app.logger.info("Wash program has ended! Starting drying program...")
+    send_command(dry_command)
+    current_app.logger.info("Drying program command has been sent, ending...")
+
+    # After successfully finishing the task, delete it from the database
+    task = CeleryTask.query.filter_by(id=current_task.request.id).first()
+    if task:
+        db.session.delete(task)
+        db.session.commit()

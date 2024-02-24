@@ -41,8 +41,13 @@ def inject_start_program_form():
     start_program_form = StartProgramForm()
     if start_program_form.start_program_submit.data and start_program_form.validate_on_submit():
         try:
-            CandyWashingMachine.start_program(current_user, start_program_form)
-            flash('Program start command sent successfully', category='toast-success')
+            if start_program_form.dry_after.data:
+                # start programs asynchronously
+                CeleryTask.start_wash_then_dry_task(current_user.id, start_program_form)
+                flash('Wash and dry programs scheduled successfully', category='toast-success')
+            else:
+                CandyWashingMachine.start_program(current_user, start_program_form)
+                flash('Program start command sent successfully', category='toast-success')
         except RuntimeError as e:
             flash(f'Error: {e}', category='toast-error')
     elif start_program_form.start_program_submit.data:

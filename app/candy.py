@@ -375,53 +375,62 @@ def send_command(command_body: str):
 
 def process_start_program_form(start_program_form: StartProgramForm):
     """ Builds a command body for starting the washing machine through the Candy API. """
-    body_args = {
-        'Write': '1',
-        'StSt': '1',
-        'DelVl': '0',
-        'PrNm': None,  # Program position from program_position
-        'PrCode': None,  # from 'pr_code' field in programs
-        'PrStr': None,  # Program name - human-readable
-        'TmpTgt': '0',  # Washing temperature -  0, 20, 30, 40, to max
-        'SLevTgt': '0',
-        'SpdTgt': '0',  # Washing spin speed - divided by 100
-        'OptMsk1': '0',
-        'OptMsk2': '0',
-        'Lang': '1',
-        'Stm': '0',  # Steam - 0 or 'steam'
-        'Dry': '0',  # From 'dry' field in programs
-        'ED': '0',
-        'RecipeId': '0',
-        'StartCheckUp': '0',
-        'DispTestOn': '1'
-    }
+    def get_body(type: ProgramType):
+        body_args = {
+            'Write': '1',
+            'StSt': '1',
+            'DelVl': '0',
+            'PrNm': None,  # Program position from program_position
+            'PrCode': None,  # from 'pr_code' field in programs
+            'PrStr': None,  # Program name - human-readable
+            'TmpTgt': '0',  # Washing temperature -  0, 20, 30, 40, to max
+            'SLevTgt': '0',
+            'SpdTgt': '0',  # Washing spin speed - divided by 100
+            'OptMsk1': '0',
+            'OptMsk2': '0',
+            'Lang': '1',
+            'Stm': '0',  # Steam - 0 or 'steam'
+            'Dry': '0',  # From 'dry' field in programs
+            'ED': '0',
+            'RecipeId': '0',
+            'StartCheckUp': '0',
+            'DispTestOn': '1'
+        }
+        if type == ProgramType.WASH:
+            program_id = start_program_form.wash_program.data
+            program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
+            body_args['PrNm'] = program['selector_position']
+            body_args['PrCode'] = program['pr_code']
+            body_args['PrStr'] = program['name']
+            body_args['TmpTgt'] = start_program_form.wash_temp.data
+            body_args['SpdTgt'] = start_program_form.wash_spin_speed.data
+        elif type == ProgramType.DRY:
+            program_id = start_program_form.dry_program.data
+            program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
+            body_args['PrNm'] = program['selector_position']
+            body_args['PrCode'] = program['pr_code']
+            body_args['PrStr'] = program['name']
+            if program['dry'] == '255':
+                body_args['Dry'] = start_program_form.dry_level.data
+            else:
+                body_args['Dry'] = program['dry']
+        elif type == ProgramType.COMB:
+            program_id = start_program_form.comb_program.data
+            program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
+            body_args['PrNm'] = program['selector_position']
+            body_args['PrCode'] = program['pr_code']
+            body_args['PrStr'] = program['name']
+            body_args['TmpTgt'] = start_program_form.comb_temp.data
+            body_args['SpdTgt'] = start_program_form.comb_spin_speed.data
+            body_args['Dry'] = start_program_form.comb_dry_level.data
+        return '&'.join(f'{key}={value}' for key, value in body_args.items())
+
+    if start_program_form.dry_after.data:
+        return get_body(ProgramType.WASH), get_body(ProgramType.DRY)
 
     if start_program_form.type.data == 'wash':
-        program_id = start_program_form.wash_program.data
-        program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
-        body_args['PrNm'] = program['selector_position']
-        body_args['PrCode'] = program['pr_code']
-        body_args['PrStr'] = program['name']
-        body_args['TmpTgt'] = start_program_form.wash_temp.data
-        body_args['SpdTgt'] = start_program_form.wash_spin_speed.data
+        return get_body(ProgramType.WASH)
     elif start_program_form.type.data == 'dry':
-        program_id = start_program_form.dry_program.data
-        program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
-        body_args['PrNm'] = program['selector_position']
-        body_args['PrCode'] = program['pr_code']
-        body_args['PrStr'] = program['name']
-        if program['dry'] == '255':
-            body_args['Dry'] = start_program_form.dry_level.data
-        else:
-            body_args['Dry'] = program['dry']
+        return get_body(ProgramType.DRY)
     elif start_program_form.type.data == 'comb':
-        program_id = start_program_form.comb_program.data
-        program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
-        body_args['PrNm'] = program['selector_position']
-        body_args['PrCode'] = program['pr_code']
-        body_args['PrStr'] = program['name']
-        body_args['TmpTgt'] = start_program_form.comb_temp.data
-        body_args['SpdTgt'] = start_program_form.comb_spin_speed.data
-        body_args['Dry'] = start_program_form.comb_dry_level.data
-
-    return '&'.join(f'{key}={value}' for key, value in body_args.items())
+        return get_body(ProgramType.COMB)
