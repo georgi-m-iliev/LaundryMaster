@@ -290,6 +290,11 @@ def schedule_program_start_task(wash_command, dry_command, user_id: int):
 
     current_app.logger.info("Starting wash program...")
     send_command(wash_command)
+    send_push_to_user(user, Notification(
+        title="Washing program started",
+        body="Your washing program has started.",
+        icon='cycle-done-icon.png'
+    ))
 
     washing_machine = CandyWashingMachine()
     while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
@@ -317,6 +322,11 @@ def schedule_program_start_task(wash_command, dry_command, user_id: int):
     current_app.logger.info("Wash program has ended! Starting drying program...")
     send_command(dry_command)
     current_app.logger.info("Drying program command has been sent, ending...")
+    send_push_to_user(user, Notification(
+        title="Drying program started",
+        body="Your drying program has started.",
+        icon='cycle-done-icon.png'
+    ))
 
     # After successfully finishing the task, delete it from the database
     task = CeleryTask.query.filter_by(id=current_task.request.id).first()
