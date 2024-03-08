@@ -296,7 +296,11 @@ def schedule_program_start_task(wash_command, dry_command, user_id: int):
         icon='cycle-done-icon.png'
     ))
 
+    # allow some time for the command to propagate to the machine
+    time.sleep(5 * 60)
+
     washing_machine = CandyWashingMachine()
+    has_ran = False
     while (washing_machine.machine_state != CandyMachineState.FINISHED1 and
            washing_machine.machine_state != CandyMachineState.FINISHED2):
 
@@ -311,6 +315,7 @@ def schedule_program_start_task(wash_command, dry_command, user_id: int):
             current_app.logger.info("Machine is idle, waiting for it to start...")
             time.sleep(60)
         elif washing_machine.machine_state == CandyMachineState.RUNNING:
+            has_ran = True
             current_app.logger.info("Machine is running, waiting for it to finish...")
             time.sleep(5 * 60)
         else:
@@ -319,14 +324,22 @@ def schedule_program_start_task(wash_command, dry_command, user_id: int):
             time.sleep(60)
         washing_machine.update()
 
-    current_app.logger.info("Wash program has ended! Starting drying program...")
-    send_command(dry_command)
-    current_app.logger.info("Drying program command has been sent, ending...")
-    send_push_to_user(user, Notification(
-        title="Drying program started",
-        body="Your drying program has started.",
-        icon='cycle-done-icon.png'
-    ))
+    if not has_ran:
+        current_app.logger.warning("Wash program didn't start, ending task...")
+        send_push_to_user(user, Notification(
+            title="Washing program failed",
+            body="Your washing program failed to start. Please try again!",
+            icon='cycle-done-icon.png'
+        ))
+    else:
+        current_app.logger.info("Wash program has ended! Starting drying program...")
+        send_command(dry_command)
+        current_app.logger.info("Drying program command has been sent, ending...")
+        send_push_to_user(user, Notification(
+            title="Drying program started",
+            body="Your drying program has started.",
+            icon='cycle-done-icon.png'
+        ))
 
     # After successfully finishing the task, delete it from the database
     task = CeleryTask.query.filter_by(id=current_task.request.id).first()
