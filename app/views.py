@@ -363,6 +363,14 @@ def washing_machine():
             db.session.commit()
             current_app.logger.info(f'User {current_user.username} updated washing machine notes')
             flash('Notes updated successfully!', category='toast-success')
+            if washing_machine_obj.notes:
+                send_push_to_all(
+                    Notification(
+                        title=f'{current_user.first_name} updated washing machine notes!',
+                        body=f'Body: {washing_machine_obj.notes}',
+                        icon='icon-android-homescreen.png'
+                    )
+                )
         else:
             flash('Nothing to update.', category='toast-warning')
         return redirect(request.path)
