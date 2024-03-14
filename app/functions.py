@@ -569,3 +569,9 @@ def schedule_delete_event(event_id: int, user: User):
             icon='cycle-reminder-icon.png',
             url='/schedule'
         ))
+
+
+def on_washing_machine_notes_limit_breach(request_limit):
+    current_app.logger.warning(f'Rate limit breached by {request.remote_addr}. Key: {request_limit.key}')
+    flash('Rate limit reached! You can do this action once every 10 minutes!', category='toast-error')
+    return redirect(request.path)

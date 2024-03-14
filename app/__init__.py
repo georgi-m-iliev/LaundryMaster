@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from app.db import db, migrate, moment
+from app.db import db, migrate, moment, limiter
 from app.models import User, Role
 from app.tasks import celery_init_app
 
@@ -57,15 +57,14 @@ def create_app(test_config=None):
         def handle_404(e):
             return render_template('error.html', code='404'), 404
 
-
         @app.errorhandler(403)
         def handle_403(e):
             return render_template('error.html', code='403'), 403
 
-        @app.errorhandler(Exception)
-        def handle_exception(e):
-            app.logger.error(e)
-            return render_template('error.html', code=None), 500
+        # @app.errorhandler(Exception)
+        # def handle_exception(e):
+        #     app.logger.error(e)
+        #     return render_template('error.html', code=None), 500
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -89,5 +88,12 @@ def create_app(test_config=None):
     sock.init_app(app)
 
     moment.init_app(app)
+
+    if not app.debug:
+        app.config['RATELIMIT_STORAGE_URI'] = 'redis://localhost:6379'
+        app.config['RATELIMIT_STORAGE_OPTIONS'] = {'socket_connect_timeout': 30}
+        app.config['RATELIMIT_KEY_PREFIX'] = 'fl_ratelimiter'
+
+    limiter.init_app(app)
 
     return app

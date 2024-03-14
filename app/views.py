@@ -3,6 +3,7 @@ from flask_security import login_required, current_user, hash_password, roles_re
 
 from app.candy import StartProgramForm, CandyWashingMachine
 from app.forms import *
+from app.db import limiter
 
 from app.functions import *
 from app.statistics import *
@@ -342,6 +343,7 @@ def profile():
 @views.route('/washing-machine', methods=['GET', 'POST'])
 @login_required
 @roles_required('user')
+@limiter.limit('1 per 10 minutes', methods=['POST'], on_breach=on_washing_machine_notes_limit_breach)
 def washing_machine():
     try:
         washing_machine_info = get_washer_info()
