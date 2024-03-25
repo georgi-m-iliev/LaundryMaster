@@ -575,3 +575,23 @@ def on_washing_machine_notes_limit_breach(request_limit):
     current_app.logger.warning(f'Rate limit breached by {request.remote_addr}. Key: {request_limit.key}')
     flash('Rate limit reached! You can do this action once every 10 minutes!', category='toast-error')
     return redirect(request.path)
+
+
+def admin_stop_cycle(user: User):
+    if not user.roles.any(name='admin'):
+        flash('You are not an admin! Access denied', category='toast-error')
+        return redirect(request.path)
+
+    cycle: WashingCycle = WashingCycle.query.filter_by(end_timestamp=None).first()
+    if not cycle:
+        flash('No cycle to stop!', category='toast-warning')
+        return redirect(request.path)
+
+    current_app.logger.info(f'Admin {user.username} is stopping the cycle for user {cycle.user.username}.')
+    stop_cycle(cycle.user)
+    send_push_to_user(cycle.user, Notification(
+        title='Cycle stopped by admin',
+        body='The admin has stopped your cycle.',
+        icon='cycle-reminder-icon.png'
+    ))
+    flash('Cycle stopped by admin', category='toast-success')

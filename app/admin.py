@@ -9,11 +9,21 @@ from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
-from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info
+from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle
 from app.tasks import recalculate_cycles_cost_task
 from app.candy import CandyWashingMachine
 
 admin = Blueprint('admin', __name__)
+
+
+@admin.before_request
+def handle_admin_stop():
+    if request.method == 'POST' and request.form.get('admin_stop') is not None:
+        try:
+            admin_stop_cycle(current_user)
+        except ChildProcessError:
+            pass
+        return redirect(request.path)
 
 
 @admin.route('/', methods=['GET', 'POST'])
