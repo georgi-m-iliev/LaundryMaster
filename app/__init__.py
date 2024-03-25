@@ -93,6 +93,8 @@ def create_app(test_config=None):
         app.config['RATELIMIT_STORAGE_URI'] = 'redis://localhost:6379'
         app.config['RATELIMIT_STORAGE_OPTIONS'] = {'socket_connect_timeout': 30}
         app.config['RATELIMIT_KEY_PREFIX'] = 'fl_ratelimiter'
+    else:
+        app.config['RATELIMIT_ENABLED'] = False
 
     limiter.init_app(app)
 
