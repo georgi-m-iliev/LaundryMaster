@@ -2,6 +2,7 @@ import os, decimal, datetime, json, requests, time
 from requests.exceptions import RequestException
 
 from flask import current_app, flash, request, redirect
+from flask_security import roles_required
 from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
 from requests_cache import CachedSession, RedisCache
@@ -577,11 +578,8 @@ def on_washing_machine_notes_limit_breach(request_limit):
     return redirect(request.path)
 
 
+@roles_required('admin')
 def admin_stop_cycle(user: User):
-    if not user.roles.any(name='admin'):
-        flash('You are not an admin! Access denied', category='toast-error')
-        return redirect(request.path)
-
     cycle: WashingCycle = WashingCycle.query.filter_by(end_timestamp=None).first()
     if not cycle:
         flash('No cycle to stop!', category='toast-warning')
