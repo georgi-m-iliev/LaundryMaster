@@ -29,16 +29,15 @@ function updateSubscriptionOnServer(subscription, apiEndpoint, user_id) {
 
 }
 
-function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, user_id) {
+async function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, user_id) {
     const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
-    swRegistration.pushManager.subscribe({
+    return swRegistration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey
     })
         .then(function (subscription) {
             console.log('User is subscribed.');
             return updateSubscriptionOnServer(subscription, apiEndpoint, user_id);
-
         })
         .then(function (response) {
             if (!response.ok) {
@@ -50,6 +49,7 @@ function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, 
             if (responseData.status !== "success") {
                 throw new Error('Bad response from server.');
             }
+            return responseData;
         })
         .catch(function (err) {
             console.log('Failed to subscribe the user: ', err);
@@ -58,15 +58,13 @@ function subscribeUser(swRegistration, applicationServerPublicKey, apiEndpoint, 
 
 function registerServiceWorker(serviceWorkerUrl, applicationServerPublicKey, apiEndpoint, user_id) {
     console.log("Register service worker called!");
-    let swRegistration = null;
     if ('serviceWorker' in navigator && 'PushManager' in window) {
         console.log('Service Worker and Push is supported');
 
-        navigator.serviceWorker.register(serviceWorkerUrl)
-            .then(function (swReg) {
+        return navigator.serviceWorker.register(serviceWorkerUrl)
+            .then(async function (swReg) {
                 console.log('Service Worker is registered', swReg);
-                subscribeUser(swReg, applicationServerPublicKey, apiEndpoint, user_id);
-                swRegistration = swReg;
+                return await subscribeUser(swReg, applicationServerPublicKey, apiEndpoint, user_id);
             })
             .catch(function (error) {
                 console.error('Service Worker Error', error);
@@ -74,5 +72,4 @@ function registerServiceWorker(serviceWorkerUrl, applicationServerPublicKey, api
     } else {
         console.warn('Push messaging is not supported');
     }
-    return swRegistration;
 }

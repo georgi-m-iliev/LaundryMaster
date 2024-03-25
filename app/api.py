@@ -3,7 +3,7 @@ from requests.exceptions import RequestException
 
 from sqlalchemy.exc import OperationalError
 
-from flask import Blueprint, request, make_response, current_app
+from flask import Blueprint, request, make_response, current_app, render_template
 from flask_security import login_required, roles_required, current_user
 from flask_security.utils import hash_password
 from flask_sock import Sock
@@ -253,3 +253,19 @@ def schedule_events(event_id: int):
         db.session.delete(event)
         db.session.commit()
         return {'action': 'delete'}
+
+
+@api.route('/push_subscribe_guest', methods=['GET', 'POST'])
+def test():
+    if not request.args.get('ref'):
+        return render_template('subscribe-guest.html', no_ref=True)
+    if request.method == 'POST':
+        json_data = request.get_json()
+        subscription = PushSubscription(
+            subscription_json=json_data['subscription_json'],
+        )
+        db.session.add(subscription)
+        db.session.commit()
+        db.session.refresh(subscription)
+        return {"status": "success"}
+    return render_template('subscribe-guest.html')

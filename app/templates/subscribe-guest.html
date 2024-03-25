@@ -1,0 +1,82 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="application-name" content="LaundryMaster">
+    <meta name="apple-mobile-web-app-title" content="LaundryMaster">
+    <title>Guest User Push Subscription - LaundryMaster</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='assets/img/icons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='assets/img/icons/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='assets/img/icons/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='assets/img/icons/safari-pinned-tab.svg') }}" color="#5bbad5">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/img/icons/favicon.ico') }}">
+    <meta name="theme-color" content="#224abe">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/Nunito.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/fonts/fontawesome-all.min.css') }}">
+
+    <link href="{{ url_for('static', filename='assets/js/jquery.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/bs-init.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/theme.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='assets/js/service_worker.js') }}" rel="preload" as="script">
+
+    <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/service_worker.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/bs-init.js') }}"></script>
+
+    <link href="{{ url_for('static', filename='assets/js/service_worker.js') }}" rel="preload" as="script">
+    <script src="{{ url_for('static', filename='assets/js/service_worker.js') }}"></script>
+</head>
+<body>
+    <div class="w-100 h-100 d-flex justify-content-center align-items-center bg-gradient-primary">
+        <div class="row">
+            <div class="col-md-12 d-flex justify-content-center align-items-center">
+                <img src="{{ url_for('static', filename='assets/img/icons/icon-android-homescreen.png') }}" class="img-fluid" style="max-width: 200px;">
+            </div>
+            {% if no_ref %}
+                <div class="col-md-12 mt-5 d-flex flex-column gap-3 justify-content-center align-items-center">
+                    <h1 class="text-danger">Error! Request doesn't follow the correct format.</h1>
+                </div>
+            {% else %}
+                <div class="col-md-12 mt-5 d-flex flex-column gap-3 justify-content-center align-items-center">
+                    <h1 class="text-white">Subscribe to Push Notifications</h1>
+                    <button id="subscribe" class="btn btn-lg btn-primary">Subscribe</button>
+                    <h4 id="success" class="text-success " hidden>Subscribed successfully!</h4>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    document.getElementById('subscribe').addEventListener('click', function() {
+        if(!('Notification' in window)) {
+            console.log('This browser does not support notifications!');
+        }
+        else if(Notification.permission !== "granted") {
+            console.log('User wants to receive notifications. Yay 😊')
+            Notification.requestPermission().then(function(result) {
+                if(result === 'granted') {
+                    registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscriptions", "100");
+                }
+            });
+        }
+        else if(Notification.permission === "granted") {
+            registerServiceWorker("/sw.js", "{{ config['PUSH_PUBLIC_KEY'] }}", "/api/push_subscribe_guest", "")
+            .then(function(result) {
+                    if(result['status'] === 'success') {
+                        console.log('User subscribed successfully');
+                        document.getElementById('subscribe').hidden = true;
+                        document.getElementById('success').hidden = false;
+                    }
+                }
+            );
+        }
+    });
+</script>
