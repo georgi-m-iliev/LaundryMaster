@@ -188,6 +188,9 @@
                                 {% elif code == '5xx' %}
                                     <h1 class="text align-self-center p-2">We are experiencing technical difficulties :((</h1>
                                     <h2 class="text align-self-center p-2">Please try again later</h2>
+                                {% elif code == 'global_shutdown' %}
+                                    <h1 class="text align-self-center p-2">This web app is in global kill mode.</h1>
+                                    <h2 class="text align-self-center p-2">Please check for availability later!</h2>
                                 {% else %}
                                     <h1 class="text align-self-center p-2">Unexpected error has occurred!</h1>
                                     <h2 class="text align-self-center p-2">Please try again</h2>

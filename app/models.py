@@ -98,6 +98,7 @@ class WashingMachine(db.Model):
     candy_api_token = db.Column(db.String(5000), nullable=True)
     candy_api_refresh_token = db.Column(db.String(512), nullable=True)
     candy_appliance_data = db.Column(db.PickleType, nullable=True)
+    global_shutdown = db.Column(db.Boolean(), default=False)
 
 
 class PushSubscription(db.Model):

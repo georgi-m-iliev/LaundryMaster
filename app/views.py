@@ -36,6 +36,10 @@ def handle_cycle_buttons():
                 flash(f'Error! {e}', category='toast-error')
             return redirect(request.path)
 
+    washing_machine_model = WashingMachine.query.first()
+    if washing_machine_model.global_shutdown:
+        return render_template('error.html', code='global_shutdown')
+
 
 @views.context_processor
 def inject_start_program_form():
