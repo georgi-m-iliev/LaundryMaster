@@ -1,5 +1,6 @@
 import logging
 from sqlalchemy.exc import OperationalError
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from flask import Flask, send_from_directory, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -96,6 +97,7 @@ def create_app(test_config=None):
     else:
         app.config['RATELIMIT_ENABLED'] = False
 
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     limiter.init_app(app)
 
     return app
