@@ -90,7 +90,7 @@ def create_app(test_config=None):
 
     moment.init_app(app)
 
-    if not app.debug:
+    if not app.debug and app.config.get('TESTING') is not True:
         app.config['RATELIMIT_STORAGE_URI'] = 'redis://localhost:6379'
         app.config['RATELIMIT_STORAGE_OPTIONS'] = {'socket_connect_timeout': 30}
         app.config['RATELIMIT_KEY_PREFIX'] = 'fl_ratelimiter'

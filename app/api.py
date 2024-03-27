@@ -256,7 +256,7 @@ def schedule_events(event_id: int):
 
 
 @api.route('/push_subscribe_guest', methods=['GET', 'POST'])
-def test():
+def push_subscribe_guest():
     if not request.args.get('ref'):
         return render_template('subscribe-guest.html', no_ref=True)
     if request.method == 'POST':
