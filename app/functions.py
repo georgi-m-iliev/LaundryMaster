@@ -23,6 +23,20 @@ def start_cycle(user: User):
         flash('You already have a cycle running!', category='toast-warning')
         raise ChildProcessError('User already has a cycle running!')
 
+    washing_machine = WashingMachine.query.first()
+
+    if washing_machine.require_scheduling:
+        event = ScheduleEvent.query.filter(
+            ScheduleEvent.start_timestamp <= datetime.datetime.now(),
+            ScheduleEvent.end_timestamp >= datetime.datetime.now(),
+            ScheduleEvent.user_id == user.id
+        ).first()
+
+        if not event:
+            current_app.logger.error(f"User {user.username} tried to start a cycle, but there is no scheduled event.")
+            flash('You did not schedule your washing! Cannot proceed.', category='toast-warning')
+            raise ChildProcessError('User does not have a scheduled event!')
+
     # No cycle running, create new cycle
     current_app.logger.info(f'User {user.username} is starting a new cycle.')
 
