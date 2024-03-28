@@ -1,4 +1,4 @@
-import os, decimal, datetime, json, requests, time
+import os, decimal, datetime, json, requests, time, pytz
 from requests.exceptions import RequestException
 
 from flask import current_app, flash, request, redirect
@@ -526,7 +526,7 @@ def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end
     if event.user != user:
         flash('You can only edit your own events', category='toast-error')
         return redirect(request.path)
-    if event.start_timestamp < datetime.datetime.now():
+    if event.start_timestamp < pytz.utc.localize(datetime.datetime.now()):
         flash('You cannot edit past events', category='toast-error')
         return redirect(request.path)
     event.start_timestamp = start_timestamp
