@@ -6,4 +6,4 @@ INSERT INTO users(id, email, username, password, first_name, last_login, active,
 INSERT INTO user_settings(id, user_id, terminate_cycle_on_usage, launch_candy_on_cycle_start) VALUES(1, 1, FALSE, TRUE);
 INSERT INTO roles(id, name) VALUES (1, 'user'), (2, 'admin'), (3, 'room_owner');
 INSERT INTO roles_users(user_id, role_id) VALUES (1, 1), (2, 1), (2, 3), (3, 1), (3, 2);
-INSERT INTO washing_machine(currentkwh, costperkwh, public_wash_cost, candy_device_id, candy_appliance_id) VALUES(17.0599,0.20,10.00,'b461fca47c039e37','52528914-64ef-4fc8-a851-3006b0360639');
+INSERT INTO washing_machine(currentkwh, costperkwh, public_wash_cost, candy_device_id, candy_appliance_id, global_shutdown, require_scheduling) VALUES(17.0599,0.20,10.00,'b461fca47c039e37','52528914-64ef-4fc8-a851-3006b0360639', false, false);
