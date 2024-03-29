@@ -36,6 +36,46 @@
                     </div>
                 </div>
             </div>
+            <div class="col-auto mb-4">
+                <div class="card shadow border-start-success py-2 h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center no-gutters h-100">
+                            <div class="text-uppercase text-info fw-bold text-xs mb-1">
+                                <span>Platform Settings</span>
+                            </div>
+                            <form method="POST" class="d-flex flex-column flex-md-row gap-3">
+                                <style>
+                                    .form-switch .form-check-input:focus {
+                                        border-color: rgba(0, 0, 0, 0.25);
+                                        outline: 0;
+                                        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+                                        background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(0,0,0,0.25)'/></svg>");
+                                    }
+                                    .form-switch .form-check-input:checked {
+                                        background-color: #ff6b56;
+                                        border: none #ff6b56;
+                                        background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(255,255,255,1.0)'/></svg>");
+                                    }
+                                </style>
+                                {{ admin_settings.csrf_token }}
+                                {{ admin_settings.admin_settings_submit(class_="d-none") }}
+                                <div class="form-check form-switch">
+                                    {{ admin_settings.kill_switch(class_="form-check-input", onchange="document.getElementById('admin-settings-submit').click();") }}
+                                    <label class="form-label mb-0" for="name">
+                                        <strong>Global Kill Switch</strong>
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ admin_settings.require_scheduling(class_="form-check-input", onchange="document.getElementById('admin-settings-submit').click();") }}
+                                    <label class="form-label mb-0" for="name">
+                                        <strong>Require scheduling</strong>
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-l-5 col-xl-6">

@@ -127,3 +127,10 @@ class UpdateWashingMachineForm(FlaskForm):
 class WashingMachineNotesForm(FlaskForm):
     notes = TextAreaField('note', validators=[Optional()])
     notes_submit = SubmitField('Save', id='notes-submit', name='notes-submit')
+
+
+class AdminSettings(FlaskForm):
+    kill_switch = BooleanField('kill_switch')
+    require_scheduling = BooleanField('require_scheduling')
+    admin_settings_submit = SubmitField('Save Admin Settings', id='admin-settings-submit', name='admin-settings-submit')
+

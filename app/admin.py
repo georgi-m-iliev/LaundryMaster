@@ -7,7 +7,7 @@ from flask_security import roles_required, hash_password, current_user
 from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask
-from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm
+from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm, AdminSettings
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
 from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle
 from app.tasks import recalculate_cycles_cost_task
@@ -32,7 +32,7 @@ def index():
     update_wm_form = UpdateWashingMachineForm()
     washing_machine = WashingMachine.query.first()
 
-    if update_wm_form.validate_on_submit():
+    if update_wm_form.update_washing_machine_submit.data and update_wm_form.validate_on_submit():
         if update_wm_form.update_washing_machine_submit.data:
             # Check if data is unchanged
             if update_wm_form.costperkwh.data == washing_machine.costperkwh and \
@@ -95,6 +95,19 @@ def index():
             'relay_wifi_rssi': None,
         }
 
+    admin_settings = AdminSettings()
+
+    if admin_settings.admin_settings_submit.data and admin_settings.validate_on_submit():
+        print('Admin settings update...')
+        washing_machine.global_shutdown = admin_settings.kill_switch.data
+        washing_machine.require_scheduling = admin_settings.require_scheduling.data
+        db.session.commit()
+        flash('Settings updated successfully', 'toast-success')
+        return redirect(request.path)
+    else:
+        admin_settings.kill_switch.data = washing_machine.global_shutdown
+        admin_settings.require_scheduling.data = washing_machine.require_scheduling
+
     return render_template(
         'admin/index.html',
         is_dashboard=True,
@@ -107,6 +120,7 @@ def index():
         current_usage=washing_machine_info['current_usage'],
         relay_temperature=washing_machine_info['relay_temperature'],
         relay_wifi_rssi=washing_machine_info['relay_wifi_rssi'],
+        admin_settings=admin_settings
     )
 
 
