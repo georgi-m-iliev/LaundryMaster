@@ -612,9 +612,9 @@ def admin_stop_cycle(user: User):
 
 @roles_required('admin')
 def admin_start_cycle(user: User):
-    current_app.logger.info(f'Admin {user.username} is start a cycle for user {cycle.user.username}.')
-    start_cycle(cycle.user)
-    send_push_to_user(cycle.user, Notification(
+    current_app.logger.info(f'Admin {user.username} is start a cycle for user {user.username}.')
+    start_cycle(user)
+    send_push_to_user(user, Notification(
         title='Cycle started by admin',
         body='The admin has started a cycle for you.',
         icon='cycle-reminder-icon.png'
