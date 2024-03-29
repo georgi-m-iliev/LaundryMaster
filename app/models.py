@@ -40,12 +40,8 @@ class Role(db.Model, RoleMixin):
 @event.listens_for(User, 'after_insert')
 def create_user_settings(mapper, connection, target):
     settings = UserSettings(user_id=target.id)
-
-    @event.listens_for(Session, 'after_flush', once=True)
-    def receive_after_flush(session, context):
-        session.add(settings)
-
-    event.remove(Session, 'after_flush', receive_after_flush)
+    db.session.add(settings)
+    db.session.commit()
 
 
 class UserSettings(db.Model):
