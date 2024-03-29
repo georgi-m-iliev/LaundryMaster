@@ -74,6 +74,13 @@ def inject_start_program_form():
     return {'start_program_form': start_program_form}
 
 
+@views.route('/set_timezone', methods=['POST'])
+def set_timezone():
+    """Get timezone from the browser and store it in the session object."""
+    session['timezone'] = request.data.decode('utf-8')
+    return ""
+
+
 @views.route('/', methods=['GET', 'POST'])
 @views.route('/index', methods=['GET', 'POST'])
 @login_required
