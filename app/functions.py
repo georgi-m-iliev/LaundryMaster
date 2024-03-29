@@ -1,7 +1,7 @@
 import os, decimal, datetime, json, requests, time, pytz
 from requests.exceptions import RequestException
 
-from flask import current_app, flash, request, redirect
+from flask import current_app, flash, request, redirect, session
 from flask_security import roles_required
 from pywebpush import webpush, WebPushException
 from sqlalchemy import or_, and_
@@ -26,9 +26,10 @@ def start_cycle(user: User):
     washing_machine = WashingMachine.query.first()
 
     if washing_machine.require_scheduling:
+        now = datetime.datetime.now(pytz.timezone(session['timezone']))
         event = ScheduleEvent.query.filter(
-            ScheduleEvent.start_timestamp <= datetime.datetime.now(),
-            ScheduleEvent.end_timestamp >= datetime.datetime.now(),
+            ScheduleEvent.start_timestamp <= now,
+            ScheduleEvent.end_timestamp >= now,
             ScheduleEvent.user_id == user.id
         ).first()
 
@@ -607,3 +608,15 @@ def admin_stop_cycle(user: User):
         icon='cycle-reminder-icon.png'
     ))
     flash('Cycle stopped by admin', category='toast-success')
+
+
+@roles_required('admin')
+def admin_start_cycle(user: User):
+    current_app.logger.info(f'Admin {user.username} is start a cycle for user {cycle.user.username}.')
+    start_cycle(cycle.user)
+    send_push_to_user(cycle.user, Notification(
+        title='Cycle started by admin',
+        body='The admin has started a cycle for you.',
+        icon='cycle-reminder-icon.png'
+    ))
+    flash('Cycle started by admin', category='toast-success')
