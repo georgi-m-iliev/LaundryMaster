@@ -519,7 +519,7 @@ def schedule_create_new_event(start_timestamp: datetime.datetime, end_timestamp:
     db.session.add(event)
     db.session.commit()
 
-    CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp)
+    CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp, session['timezone'])
 
     interested_users = User.query.filter(User.roles.any(name='room_owner')).all()
     for interested_user in interested_users:
@@ -550,7 +550,7 @@ def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end
 
     if event.notification_task:
         event.notification_task.terminate()
-        CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp)
+        CeleryTask.start_schedule_notification_task(user.id, event.id, start_timestamp, session['timezone'])
 
     interested_users = User.query.filter(User.roles.any(name='room_owner')).all()
     for interested_user in interested_users:

@@ -3,7 +3,7 @@ from requests.exceptions import RequestException
 
 from sqlalchemy.exc import OperationalError
 
-from flask import Blueprint, request, make_response, current_app, render_template
+from flask import Blueprint, request, make_response, current_app, render_template, session
 from flask_security import login_required, roles_required, current_user
 from flask_security.utils import hash_password
 from flask_sock import Sock
@@ -218,7 +218,7 @@ def schedule_events_post():
     )
     db.session.add(event)
     db.session.commit()
-    CeleryTask.start_schedule_notification_task(current_user.id, event.id, event.start_timestamp)
+    CeleryTask.start_schedule_notification_task(current_user.id, event.id, event.start_timestamp, session['timezone'])
     return {'action': 'post'}
 
 
@@ -244,7 +244,7 @@ def schedule_events(event_id: int):
         event.end_timestamp = datetime.datetime.strptime(request.form['end_date'], '%Y-%m-%d %H:%M')
         if event.notification_task:
             event.notification_task.terminate()
-            CeleryTask.start_schedule_notification_task(event.user_id, event.id, event.start_timestamp)
+            CeleryTask.start_schedule_notification_task(event.user_id, event.id, event.start_timestamp, session['timezone'])
         db.session.commit()
         return {'action': 'put'}
     elif request.method == 'DELETE':
