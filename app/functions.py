@@ -33,7 +33,7 @@ def start_cycle(user: User):
             ScheduleEvent.user_id == user.id
         ).first()
 
-        if not event:
+        if not event and not (user.has_role('room_owner') or user.has_role('admin')):
             current_app.logger.error(f"User {user.username} tried to start a cycle, but there is no scheduled event.")
             flash('You did not schedule your washing! Cannot proceed.', category='toast-warning')
             raise ChildProcessError('User does not have a scheduled event!')
