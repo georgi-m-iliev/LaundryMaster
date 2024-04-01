@@ -41,7 +41,6 @@ class Role(db.Model, RoleMixin):
 def create_user_settings(mapper, connection, target):
     settings = UserSettings(user_id=target.id)
     db.session.add(settings)
-    db.session.commit()
 
 
 class UserSettings(db.Model):
