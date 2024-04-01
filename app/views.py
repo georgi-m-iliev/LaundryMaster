@@ -102,7 +102,10 @@ def index():
             if checkbox.data:
                 idx = int(checkbox.id.split('-')[1])
                 if mark_cycle_paid(current_user, unpaid_cycles[idx].id, True):
-                    paid_amount += unpaid_cycles[idx].cost
+                    if hasattr(unpaid_cycles[idx], 'split_cost'):
+                        paid_amount += unpaid_cycles[idx].split_cost
+                    else:
+                        paid_amount += unpaid_cycles[idx].cost
         flash('Selected cycles marked as paid', category='toast-success')
         room_owner = User.query.filter(User.roles.any(name='room_owner')).first()
         send_push_to_user(room_owner, Notification(
