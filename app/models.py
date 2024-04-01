@@ -326,3 +326,14 @@ class CeleryTask(db.Model):
         db.session.add(new_task)
         db.session.commit()
         return new_task
+
+
+class WashingCyclePayment(db.Model):
+    __tablename__ = 'payments'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    amount = db.Column(db.Numeric(10, 2))
+    propagated = db.Column(db.Boolean(), default=False)
+
+    user = db.relationship('User', backref=db.backref('payments', lazy=True))

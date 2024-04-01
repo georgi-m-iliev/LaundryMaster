@@ -9,7 +9,7 @@ from requests_cache import CachedSession, RedisCache
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask
+from app.models import User, WashingCycle, WashingCycleSplit, WashingMachine, PushSubscription, CeleryTask, WashingCyclePayment
 from app.models import Notification, SplitRequestNotification, unpaid_cycles_reminder_notification, ScheduleEvent, NotificationURL
 from app.forms import SplitCycleForm
 from app.statistics import calculate_unpaid_cycles_cost
@@ -533,6 +533,7 @@ def schedule_create_new_event(start_timestamp: datetime.datetime, end_timestamp:
 
 def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end_timestamp: datetime.datetime, user: User):
     """ Updates an existing event in the schedule. """
+    # TODO: Fix testing here
     event = ScheduleEvent.query.filter_by(id=event_id).first()
     if event is None:
         flash('Event not found', category='toast-error')
@@ -620,3 +621,18 @@ def admin_start_cycle(user: User):
         icon='cycle-reminder-icon.png'
     ))
     flash('Cycle started by admin', category='toast-success')
+
+
+def record_payment(user: User, amount: decimal.Decimal):
+    """ Records a payment for washing cycles by a user. """
+    record = WashingCyclePayment(user_id=user.id, amount=amount).propagated
+    db.session.add(record)
+    db.session.commit()
+
+    interested_users = User.query.filter(User.roles.any(name='room_owner')).all()
+    for interested_user in interested_users:
+        send_push_to_user(interested_user, Notification(
+            title=f'{user.first_name} marked cycles as paid!',
+            body=f'They marked cycles for {amount} lv. as paid!',
+            icon='paid-cycles-icon.png'
+        ))

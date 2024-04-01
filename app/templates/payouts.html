@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <h3 class="text-dark mb-4">Roommate Payouts Calculator</h3>
+        <div class="card shadow">
+        <!--
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <p class="text-primary m-0 fw-bold">Washing Cycles Info</p>
+                <a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="?items=all&print=1" target="_blank">
+                    <i class="fas fa-download fa-sm text-white-50"></i>
+                    &nbsp;Generate Report
+                </a>
+                {% if request.args.get('print') %}
+                          <script type="text/javascript">
+                             window.onafterprint = window.close;
+                             window.print();
+                          </script>
+                {% endif %}
+            </div>
+            -->
+            <div class="card-body">
+                <div class="row gap-3">
+                    <div class="d-flex flex-column flex-md-row gap-2 justify-content-center align-content-center">
+                        <div class="col-md">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="roommatesCount" min="1" max="3" value="2">
+                                <label class="text-black" for="floatingInput">Number of Roommates</label>
+                            </div>
+                        </div>
+                        <button class="btn text-white btn-success" type="button" title="Mark as propagated"
+                                onclick="window.location.href = '?mark_propagated=all'">
+                            <i class="fas fa-solid fa-money-bill-wave"></i>
+                            &nbsp;Mark All as Propagated
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                    <table class="table my-0" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Propagated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in payment_records %}
+                                <tr>
+                                    <td>{{ record.id }}</td>
+                                    <td>{{ record.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ record.user.username }}</td>
+                                    <td>{{ record.amount }} lv.</td>
+                                    <td>
+                                        {% if record.propagated %}
+                                            <i class="fa fa-check text-success fw-bold"></i>
+                                        {% else %}
+                                            <i class="fa fa-times text-danger fw-bold"></i>
+                                            <button class="btn btn-sm text-white btn-success mx-2" type="button" title="Mark as propagated"
+                                                    onclick="window.location.href = '?mark_propagated={{ record.id }}'">
+                                                <i class="fas fa-solid fa-money-bill-wave"></i>
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% if not payment_records %}
+                                <tr>
+                                    <td class="text-center fw-bold" colspan="5">No records found</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        const tableModel = document.getElementById('dataTable').cloneNode(true);
+
+        function updateTable(roommatesCount) {
+            roommatesCount = parseInt(roommatesCount)
+            const table = tableModel.cloneNode(true);
+            const thead = table.querySelector('thead');
+            const tbody = table.querySelector('tbody');
+            const theadRow = thead.querySelector('tr');
+            for (let i = 0; i < roommatesCount; i++) {
+                const th = document.createElement('th');
+                th.textContent = `Roommate ${i + 1}`;
+                th.classList.add('text-danger');
+                th.id = `roommate${i + 1}`;
+                theadRow.appendChild(th);
+            }
+
+            tbody.querySelectorAll('tr').forEach(row => {
+                const amount = parseFloat(row.querySelector('td:nth-child(4)').textContent);
+                const splitAmount = Math.floor(amount / (roommatesCount + 1) * 100) / 100;
+
+                for (let i = 0; i < roommatesCount; i++) {
+                    const td = document.createElement('td');
+                    td.textContent = `${splitAmount.toFixed(2)}     lv.`;
+                    row.appendChild(td);
+                }
+            });
+
+            document.getElementById('dataTable').replaceWith(table);
+        }
+
+        function sumForEachRoommate() {
+            const table = document.getElementById('dataTable');
+            const tbody = table.querySelector('tbody');
+            const roommatesCount = table.querySelector('thead').querySelectorAll('th').length - 4;
+            const sums = Array.from({ length: roommatesCount }, () => 0);
+
+            tbody.querySelectorAll('tr').forEach(row => {
+                for (let i = 1; i < roommatesCount; i++) {
+                    sums[i - 1] += parseFloat(row.querySelector(`td:nth-child(${5 + i})`).textContent);
+                }
+            });
+
+            // update column name to add the sums
+            const theadRow = table.querySelector('thead').querySelector('tr');
+            for (let i = 1; i < roommatesCount; i++) {
+                theadRow.querySelector(`th:nth-child(${5 + i})`).innerHTML +=
+                    `<span class="text-success"> Total (${sums[i - 1].toFixed(2)}) lv.</span>`;
+            }
+        }
+
+        const roommatesCountInput = document.getElementById('roommatesCount');
+
+        updateTable(roommatesCountInput.value);
+        sumForEachRoommate()
+
+        roommatesCountInput.addEventListener('change', function () {
+            updateTable(parseInt(this.value));
+            sumForEachRoommate();
+        });
+    });
+    </script>
+{% endblock %}

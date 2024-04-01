@@ -93,13 +93,24 @@
                         </li>
                     {% endif %}
                 {% endfor %}
-                    <hr class="sidebar-divider">
-                    <li class="nav-item d-none">
-                        <button class="nav-link" id="notification-allow-button">
-                            <i class="fas fa-envelope-open-text"></i>
-                            <span>Allow Notifications</span>
-                        </button>
-                    </li>
+                {% for role in current_user.roles %}
+                    {% if 'room_owner' == role %}
+                        <hr class="sidebar-divider">
+                        <li class="nav-item">
+                            <a class="nav-link {% if is_payouts %} active {% endif %}" href="/payouts">
+                                <i class="fas fa-calculator"></i>
+                                <span>Roommates Payouts</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <hr class="sidebar-divider">
+                <li class="nav-item d-none">
+                    <button class="nav-link" id="notification-allow-button">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <span>Allow Notifications</span>
+                    </button>
+                </li>
                 <script>
                     if(!('Notification' in window)) {
                         console.log('This browser does not support notifications!');

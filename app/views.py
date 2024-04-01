@@ -107,12 +107,7 @@ def index():
                     else:
                         paid_amount += unpaid_cycles[idx].cost
         flash('Selected cycles marked as paid', category='toast-success')
-        room_owner = User.query.filter(User.roles.any(name='room_owner')).first()
-        send_push_to_user(room_owner, Notification(
-            title=f'{current_user.first_name} marked cycles as paid!',
-            body=f'They marked cycles for {paid_amount} lv. as paid!',
-            icon='paid-cycles-icon.png'
-        ))
+        record_payment(current_user, paid_amount)
         return redirect(request.path)
 
     expected_end = None
@@ -404,4 +399,36 @@ def washing_machine():
         candy_user=os.getenv('CANDY_USER'),
         candy_password=os.getenv('CANDY_PASSWORD'),
         washing_machine_notes_form=washing_machine_notes_form
+    )
+
+
+@views.route('/payouts', methods=['GET', 'POST'])
+@login_required
+@roles_required('room_owner')
+def payouts():
+    payment_records = WashingCyclePayment.query.filter_by(propagated=False).all()
+
+    if request.args.get('mark_propagated'):
+        if request.args.get('mark_propagated') == 'all':
+            WashingCyclePayment.query.filter_by(propagated=False).update({'propagated': True})
+            db.session.commit()
+            flash('Marked all payment records as propagated', category='toast-success')
+        else:
+            try:
+                record_id = int(request.args.get('mark_propagated'))
+                record = WashingCyclePayment.query.filter_by(id=record_id).first()
+                if record is None:
+                    flash('Record not found', category='toast-error')
+                record.propagated = True
+                db.session.commit()
+                flash('Marked payment record as propagated', category='toast-success')
+            except ValueError:
+                flash('Invalid record ID', category='toast-error')
+        return redirect(request.path)
+
+    return render_template(
+        'payouts.html',
+        is_payouts=True,
+        cycle_data=update_cycle(current_user),
+        payment_records=payment_records
     )
