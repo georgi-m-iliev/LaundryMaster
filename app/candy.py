@@ -158,6 +158,7 @@ class CandyWashingMachine:
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             print('Singleton class has no instance yet, creating one...')
+            cls.get_programs()
             cls._instance = super(CandyWashingMachine, cls).__new__(cls)
             cls._instance_initialized = False
         else:
@@ -174,6 +175,7 @@ class CandyWashingMachine:
         self._instance_initialized = True
         self.current_status = None
         self.machine_state: CandyMachineState = CandyMachineState.UNKNOWN
+        self.program_name: str = 'No program'
         self.program_state: CandyWashProgramState = CandyWashProgramState.UNKNOWN
         self.program: int = -1
         self.program_code: Optional[int] = None
@@ -206,7 +208,8 @@ class CandyWashingMachine:
             'current_status': self.current_status,
             'machine_state': self.machine_state.asdict(),
             'program_state': self.program_state.asdict(),
-            'program': self.program,
+            'program_code': self.program,
+            'program_name': self.program_name,
             'program_code': self.program_code,
             'temp': self.temp,
             'spin_speed': self.spin_speed,
@@ -233,6 +236,12 @@ class CandyWashingMachine:
         data = fetch_appliance_data()
         self.current_status = data['appliance']['current_status']
         self.parse_current_status_parameters(data['appliance']['current_status_parameters'])
+
+        try:
+            self.program_name = next(program['name'] for program in self.programs if program['pr_code'] == self.program_code)
+        except StopIteration:
+            self.program_name = 'Unknown'
+
         if self.program_state == CandyWashProgramState.STOPPED:
             self.remaining_minutes = 0
         try:
