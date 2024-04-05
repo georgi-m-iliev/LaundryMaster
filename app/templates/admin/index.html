@@ -148,6 +148,10 @@
                                     <span id="candy-machine-state"></span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
+                                    <label class="fw-bold">Program:</label>
+                                    <span id="candy-program-name"></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
                                     <label class="fw-bold">Program State:</label>
                                     <span id="candy-program-state"></span>
                                 </div>
@@ -181,6 +185,7 @@
                             candyInfoWS.onmessage = (event) => {
                                 const newData = JSON.parse(event.data);
                                 document.getElementById('candy-machine-state').textContent = newData['machine_state']['label'];
+                                document.getElementById('candy-program-name').textContent = newData['program_name'];
                                 document.getElementById('candy-program-state').textContent = newData['program_state']['label'];
                                 document.getElementById('candy-remaining-minutes').textContent = newData['remaining_minutes'];
                                 document.getElementById('candy-washing-temp').textContent = newData['temp'];
