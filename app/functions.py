@@ -625,7 +625,7 @@ def admin_start_cycle(user: User):
 
 def record_payment(user: User, amount: decimal.Decimal):
     """ Records a payment for washing cycles by a user. """
-    record = WashingCyclePayment(user_id=user.id, amount=amount).propagated
+    record = WashingCyclePayment(user_id=user.id, amount=amount)
     db.session.add(record)
     db.session.commit()
 
