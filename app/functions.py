@@ -625,6 +625,9 @@ def admin_start_cycle(user: User):
 
 def record_payment(user: User, amount: decimal.Decimal):
     """ Records a payment for washing cycles by a user. """
+    if user.has_role('room_owner'):
+        # Room owners cannot pay for cycles
+        return
     record = WashingCyclePayment(user_id=user.id, amount=amount)
     db.session.add(record)
     db.session.commit()
