@@ -2,14 +2,14 @@ import datetime, json
 from requests.exceptions import RequestException
 
 from flask import Blueprint, request, render_template, redirect, flash, current_app
-from flask_security import roles_required, hash_password, current_user
+from flask_security import roles_required, hash_password, current_user, login_required
 
 from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm, AdminSettings
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
-from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle
+from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle, admin_start_cycle
 from app.tasks import recalculate_cycles_cost_task
 from app.candy import CandyWashingMachine
 
@@ -27,6 +27,7 @@ def handle_admin_stop():
 
 
 @admin.route('/', methods=['GET', 'POST'])
+@login_required
 @roles_required('admin')
 def index():
     update_wm_form = UpdateWashingMachineForm()
@@ -125,9 +126,10 @@ def index():
 
 
 @admin.route('/users', methods=['GET', 'POST'])
+@login_required
 @roles_required('admin')
 def users_view():
-    if 'delete' in request.args or 'activate' in request.args or 'deactivate' in request.args:
+    if 'delete' in request.args or 'activate' in request.args or 'deactivate' in request.args or 'start_cycle' in request.args:
         if request.args.get('delete'):
             user_id = request.args.get('delete')
             user = User.query.filter_by(id=user_id).first()
@@ -155,6 +157,13 @@ def users_view():
                 return redirect(request.path)
             user_datastore.deactivate_user(user)
             flash(f'Deactivated user {user.username}', category='toast-success')
+        elif request.args.get('start_cycle'):
+            user_id = request.args.get('start_cycle')
+            user = User.query.filter_by(id=user_id).first()
+            if not user:
+                flash('User does not exist', category='toast-error')
+                return redirect(request.path)
+            admin_start_cycle(user)
         db.session.commit()
         return redirect(request.path)
 
@@ -239,6 +248,7 @@ def users_view():
 
 
 @admin.route('/cycles', methods=['GET'])
+@login_required
 @roles_required('admin')
 def cycles_view():
     cycles = WashingCycle.query.order_by(WashingCycle.start_timestamp.desc()).limit(1000).all()
@@ -256,6 +266,7 @@ def cycles_view():
 
 
 @admin.route('/schedule', methods=['GET'])
+@login_required
 @roles_required('admin')
 def schedule_view():
     current_date = datetime.datetime.now()

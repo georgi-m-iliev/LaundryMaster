@@ -15,7 +15,7 @@ from app.forms import SplitCycleForm
 from app.statistics import calculate_unpaid_cycles_cost
 
 
-def start_cycle(user: User):
+def start_cycle(user: User, admin_start: bool = False):
     """ Initiates a new cycle for a user. """
     if WashingCycle.query.filter_by(endkwh=None, end_timestamp=None).all():
         # User has an already running cycle
@@ -25,7 +25,7 @@ def start_cycle(user: User):
 
     washing_machine = WashingMachine.query.first()
 
-    if washing_machine.require_scheduling:
+    if washing_machine.require_scheduling and not admin_start:
         now = datetime.datetime.now(pytz.timezone(session['timezone']))
         event = ScheduleEvent.query.filter(
             ScheduleEvent.start_timestamp <= now,
@@ -614,7 +614,7 @@ def admin_stop_cycle(user: User):
 @roles_required('admin')
 def admin_start_cycle(user: User):
     current_app.logger.info(f'Admin {user.username} is start a cycle for user {user.username}.')
-    start_cycle(user)
+    start_cycle(user, admin_start=True)
     send_push_to_user(user, Notification(
         title='Cycle started by admin',
         body='The admin has started a cycle for you.',

@@ -72,6 +72,10 @@
                                         onclick="window.history.replaceState(document.html, document.pageTitle, window.location.pathname + '?user_id=' + this.parentNode.parentNode.id);">
                                     <i class="fas fa-solid fa-user-tag"></i>
                                 </button>
+                                <button class="btn btn-outline-info" type="button" title="Start Cycle"
+                                        onclick="window.location += '?start_cycle=' + this.parentNode.parentNode.id;">
+                                    <i class="fas fa-solid fa-hourglass-start"></i>
+                                </button>
                             </td>
                         </tr>
                     {% endfor %}
