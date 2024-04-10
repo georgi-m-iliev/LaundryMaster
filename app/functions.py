@@ -606,7 +606,11 @@ def admin_stop_cycle(user: User):
         return redirect(request.path)
 
     current_app.logger.info(f'Admin {user.username} is stopping the cycle for user {cycle.user.username}.')
-    stop_cycle(cycle.user)
+    try:
+        stop_cycle(cycle.user)
+    except ChildProcessError as exc:
+        flash(exc, category='toast-error')
+        return
     send_push_to_user(cycle.user, Notification(
         title='Cycle stopped by admin',
         body='The admin has stopped your cycle.',
@@ -618,7 +622,11 @@ def admin_stop_cycle(user: User):
 @roles_required('admin')
 def admin_start_cycle(user: User):
     current_app.logger.info(f'Admin {user.username} is start a cycle for user {user.username}.')
-    start_cycle(user, admin_start=True)
+    try:
+        start_cycle(user, admin_start=True)
+    except ChildProcessError as exc:
+        flash(exc, category='toast-error')
+        return
     send_push_to_user(user, Notification(
         title='Cycle started by admin',
         body='The admin has started a cycle for you.',
