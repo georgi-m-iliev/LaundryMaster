@@ -337,7 +337,7 @@ class CeleryTask(db.Model):
             raise RuntimeError('There is already a disable guest user task scheduled!')
 
         new_task = CeleryTask(
-            id=disable_guest_after_finish_task.delay().id,
+            id=disable_guest_after_finish_task.delay(user_id).id,
             kind=CeleryTask.TaskKinds.DISABLE_GUEST_USER
         )
         db.session.add(new_task)
