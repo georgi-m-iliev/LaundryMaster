@@ -171,9 +171,7 @@ def users_view():
     edit_user_form = EditProfileForm()
     edit_roles_form = EditRolesForm()
 
-    roles = []
-    for role in Role.query.all():
-        roles.append(role.name)
+    roles = [role.name for role in Role.query.all()]
 
     edit_roles_form.roles_to_add.choices = [(role, role.replace('_', ' ').title()) for role in roles]
     edit_roles_form.roles_to_remove.choices = [(role, role.replace('_', ' ').title()) for role in roles]
