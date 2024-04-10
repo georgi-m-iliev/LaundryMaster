@@ -102,6 +102,10 @@ def stop_cycle(user: User):
                 db.session.delete(cycle)
 
             db.session.commit()
+
+            if user.has_role('guest'):
+                CeleryTask.start_disable_guest_after_finish_task(user.id)
+
             current_app.logger.info(f'User {user.username} successfully stopped their cycle.')
             flash('Cycle successfully terminated!', category='toast-success')
         except RequestException:

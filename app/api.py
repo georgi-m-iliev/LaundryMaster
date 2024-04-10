@@ -2,8 +2,9 @@ import os, json, time, datetime
 from requests.exceptions import RequestException
 
 from sqlalchemy.exc import OperationalError
+from itsdangerous import URLSafeTimedSerializer
 
-from flask import Blueprint, request, make_response, current_app, render_template, session
+from flask import Blueprint, request, make_response, current_app, render_template, session, url_for
 from flask_security import login_required, roles_required, current_user
 from flask_security.utils import hash_password
 from flask_sock import Sock
@@ -255,17 +256,23 @@ def schedule_events(event_id: int):
         return {'action': 'delete'}
 
 
-@api.route('/push_subscribe_guest', methods=['GET', 'POST'])
-def push_subscribe_guest():
-    if not request.args.get('ref'):
-        return render_template('subscribe-guest.html', no_ref=True)
-    if request.method == 'POST':
-        json_data = request.get_json()
-        subscription = PushSubscription(
-            subscription_json=json_data['subscription_json'],
-        )
-        db.session.add(subscription)
-        db.session.commit()
-        db.session.refresh(subscription)
-        return {"status": "success"}
-    return render_template('subscribe-guest.html')
+@api.route('/get_guest_totp_url', methods=['GET'])
+@login_required
+@roles_required('admin')
+def get_guest_totp_url():
+    if not request.args.get('user_id'):
+        return {'error': 'invalid args'}
+
+    user = User.query.filter_by(id=request.args.get('user_id')).first()
+    if not user:
+        return {'error': 'user not found'}
+
+    user.active = True
+    db.session.commit()
+
+    serializer = URLSafeTimedSerializer(os.getenv('FLASK_SECRET_KEY'))
+    token = serializer.dumps(user.id, salt='login-request')
+
+    login_url = url_for('auth.token_login', token=token, _external=True)
+
+    return {'url': login_url}

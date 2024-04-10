@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, render_template, request, redirect, flash
 from flask_security import SQLAlchemyUserDatastore, Security, login_user, verify_password, logout_user, hash_password, current_user
 from flask_mail import Mail, Message
-from itsdangerous import TimedSerializer
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 import itsdangerous.exc
 
 from app.db import db
@@ -45,6 +45,25 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
+@auth.route('/login/<token>', methods=['GET'])
+def token_login(token):
+    serializer = URLSafeTimedSerializer(os.getenv('FLASK_SECRET_KEY'))
+
+    try:
+        user_id = serializer.loads(token, salt='login-request', max_age=3600)
+    except (BadSignature, SignatureExpired):
+        return {'error': 'Invalid or expired token'}
+
+    user = User.query.get(user_id)
+    if not user:
+        return {'error': 'Invalid user_id in token'}
+
+    if login_user(user):
+        return redirect('/')
+    else:
+        return {'error': 'Could not log you in'}
+
+
 @auth.route('/logout')
 def logout():
     logout_user()
@@ -57,7 +76,7 @@ def password_reset():
     if current_user.is_authenticated:
         return redirect('/')
 
-    serializer = TimedSerializer(os.getenv('FLASK_SECRET_KEY'))
+    serializer = URLSafeTimedSerializer(os.getenv('FLASK_SECRET_KEY'))
 
     # Check if token is supplied, is so, process the request and render the password reset form
     if request.args.get('token'):

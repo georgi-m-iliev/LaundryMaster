@@ -8,10 +8,17 @@
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-danger m-0 fw-bold">Alter Users' Data</p>
-            <a class="btn btn-success btn-sm d-none d-sm-inline-block text-light" role="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
-                <i class="fas fa-user-plus fa-sm text-white-50"></i>
-                &nbsp;Add User
-            </a>
+            <div>
+                <a class="btn btn-success btn-sm d-none d-sm-inline-block text-light" role="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                    <i class="fas fa-user-plus fa-sm text-white-50"></i>
+                    &nbsp;Add User
+                </a>
+                <a class="btn btn-secondary btn-sm d-none d-sm-inline-block text-light" role="button" data-bs-toggle="modal" data-bs-target="#newGuestUserModal">
+                    <i class="fas fa-user-plus fa-sm text-white-50"></i>
+                    &nbsp;Add Guest User
+                </a>
+            </div>
+
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
@@ -33,7 +40,36 @@
                         <tr id="{{ user.id }}">
                             <td>{{ user.id }}</td>
                             <td>{{ user.email }}</td>
-                            <td>{{ user.username }}</td>
+                            <td>
+                                {% if user.has_role('guest') %}
+                                    <span class="btn btn-link p-0" onclick="copyTOTP(this.parentNode.parentNode.id)">
+                                        {{ user.username }}
+                                    </span>
+                                    <span class="opacity-0" id="copy-success">Copied !</span>
+                                {% else %}
+                                    {{ user.username }}
+                                {% endif %}
+
+                                <script>
+                                    async function copyTOTP(user_id) {
+                                        try {
+                                            const guest_url_request = await fetch('/api/get_guest_totp_url?user_id=' + user_id);
+                                            const guest_url = (await guest_url_request.json())['url'];
+                                            console.log(guest_url);
+                                            await navigator.clipboard.writeText(guest_url);
+                                            const copySpan = $("#copy-success");
+                                            copySpan.removeClass("opacity-0")
+                                            copySpan.animate({top: -25, opacity: 0}, 700, function () {
+                                                $(this).css({top: 0, opacity: 1});
+                                            });
+                                            setTimeout(() => copySpan.addClass("opacity-0"), 650);
+                                        }
+                                        catch (error) {
+                                            console.error("Failed to copy to clipboard:", error);
+                                        }
+                                    }
+                                </script>
+                            </td>
                             <td>{{ user.first_name }}</td>
                             <td>{{ user.last_login }}</td>
                             <td>
@@ -42,11 +78,22 @@
                                 {% endfor %}
                             </td>
                             {% if user.active %}
-                            <td><i class="fa fa-check"></i></td>
+                                <td><i class="fa fa-check"></i></td>
                             {% else %}
-                            <td><i class="fa fa-times"></i></td>
+                                <td><i class="fa fa-times"></i></td>
                             {% endif %}
+
                             <td class="d-flex flex-wrap gap-2" style="min-width: 21vh;">
+                            {% if user.has_role('guest') %}
+                                <button class="btn btn-outline-danger" type="button" title="Delete"
+                                        onclick="window.location += '?delete=' + this.parentNode.parentNode.id;">
+                                    <i class="fas fa-solid fa-eraser"></i>
+                                </button>
+                                <button class="btn btn-outline-info" type="button" title="Start Cycle"
+                                        onclick="window.location += '?start_cycle=' + this.parentNode.parentNode.id;">
+                                    <i class="fas fa-solid fa-hourglass-start"></i>
+                                </button>
+                            {% else %}
                                 <button class="btn btn-outline-warning" type="button" title="Edit"
                                         data-bs-toggle="modal" data-bs-target="#editUserModal"
                                         onclick="window.history.replaceState(document.html, document.pageTitle, window.location.pathname + '?user_id=' + this.parentNode.parentNode.id);">
@@ -76,6 +123,7 @@
                                         onclick="window.location += '?start_cycle=' + this.parentNode.parentNode.id;">
                                     <i class="fas fa-solid fa-hourglass-start"></i>
                                 </button>
+                            {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -232,6 +280,31 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         {{ edit_user_form.profile_submit(class_="btn btn-success text-light", id="new_user_submit", value="Add") }}
+                    </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newGuestUserModal" tabindex="-1" aria-labelledby="newGuestUserModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">New Guest User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <form method="GET">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="name">
+                                <strong>Name</strong>
+                            </label>
+                            <input type="text" class="form-control" id="new_guest_user_first_name" name="new_guest_name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success text-light" id="new_guest_user_submit">Add</button>
                     </div>
                 </form>
         </div>

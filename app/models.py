@@ -225,6 +225,7 @@ class CeleryTask(db.Model):
         RELEASE_DOOR = 3
         RECALCULATE_CYCLES_COST = 4
         WASH_THEN_DRY = 5
+        DISABLE_GUEST_USER = 6
 
     __tablename__ = 'tasks'
     id = db.Column(db.String(512), primary_key=True)
@@ -322,6 +323,22 @@ class CeleryTask(db.Model):
             id=schedule_program_start_task.delay(wash_command, dry_command, user_id).id,
             kind=CeleryTask.TaskKinds.WASH_THEN_DRY,
             ref_id=user_id
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return new_task
+
+    @staticmethod
+    def start_disable_guest_after_finish_task(user_id: int):
+        from app.tasks import disable_guest_after_finish_task
+
+        disable_user_task = CeleryTask.query.filter_by(kind=CeleryTask.TaskKinds.DISABLE_GUEST_USER, ref_id=user_id).all()
+        if disable_user_task:
+            raise RuntimeError('There is already a disable guest user task scheduled!')
+
+        new_task = CeleryTask(
+            id=disable_guest_after_finish_task.delay().id,
+            kind=CeleryTask.TaskKinds.DISABLE_GUEST_USER
         )
         db.session.add(new_task)
         db.session.commit()

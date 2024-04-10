@@ -134,7 +134,7 @@ def index():
 @views.route('/usage/split/<cycle_id>', methods=['GET', 'POST'])
 @views.route('/usage', methods=['GET', 'POST'])
 @login_required
-@roles_required('user')
+@roles_required('user', 'guest')
 def usage_view(cycle_id=None):
     mark_paid_form = MarkPaidForm()
 
@@ -193,7 +193,7 @@ def usage_view(cycle_id=None):
 
 @views.route('/usage/split/<cycle_id>/<action>', methods=['GET', 'POST'])
 @login_required
-@roles_required('user')
+@roles_required('user', 'guest')
 def split_cycle_actions(cycle_id, action=None):
     cycle = WashingCycle.query.filter_by(id=cycle_id).first()
     split = WashingCycleSplit.query.filter_by(cycle_id=cycle_id, user_id=current_user.id).first()
@@ -351,7 +351,7 @@ def profile():
 
 @views.route('/washing-machine', methods=['GET', 'POST'])
 @login_required
-@roles_required('user')
+@roles_required('user', 'guest')
 @limiter.limit('1 per 10 minutes', methods=['POST'], on_breach=on_washing_machine_notes_limit_breach)
 def washing_machine():
     try:
