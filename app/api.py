@@ -267,6 +267,9 @@ def get_guest_totp_url():
     if not user:
         return {'error': 'user not found'}
 
+    if not user.has_role('guest') and len(user.roles) > 1:
+        return {'error': 'user is not a guest, cannot authenticate this way'}
+
     user.active = True
     db.session.commit()
 
