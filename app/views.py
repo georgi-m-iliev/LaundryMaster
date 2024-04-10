@@ -369,6 +369,9 @@ def washing_machine():
     washing_machine_notes_form = WashingMachineNotesForm()
 
     if washing_machine_notes_form.notes_submit.data and washing_machine_notes_form.validate_on_submit():
+        if not current_user.has_role('user'):
+            flash('You are not allowed to edit notes', category='toast-error')
+            return redirect(request.path), 403
         if washing_machine_notes_form.notes.data != washing_machine_obj.notes:
             washing_machine_obj.notes = washing_machine_notes_form.notes.data
             db.session.commit()

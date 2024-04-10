@@ -160,6 +160,7 @@
                     </script>
                 {% endif %}
             </div>
+            {% if not current_user.has_role('guest') %}
             <div class="col-xl-3">
                 <div class="card shadow mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -198,7 +199,9 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
+        {% if not current_user.has_role('guest') %}
         <div class="row">
             <div class="col-auto">
                <div class="card shadow mb-4">
@@ -225,5 +228,6 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 {% endblock %}
