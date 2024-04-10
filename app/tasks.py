@@ -351,7 +351,7 @@ def schedule_program_start_task(wash_command, dry_command, user_id: int):
 @shared_task()
 def disable_guest_after_finish_task(user_id: int):
     """ Task to disable guest user after they finish with the washing machine. """
-    current_app.logger.info('Disabling guest user {user.username}.')
+    current_app.logger.info(f'Disabling guest user {user.username}.')
     user = User.query.filter_by(id=user_id).first()
     time.sleep(5 * 60)
     user.active = False
