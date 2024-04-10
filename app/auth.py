@@ -59,6 +59,7 @@ def token_login(token):
         return {'error': 'Invalid user_id in token'}
 
     if login_user(user):
+        flash(f'Welcome to LaundryMaster, dear guest {user.first_name}!', 'toast-info')
         return redirect('/')
     else:
         return {'error': 'Could not log you in'}
