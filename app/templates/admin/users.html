@@ -42,9 +42,9 @@
                             <td>{{ user.email }}</td>
                             <td>
                                 {% if user.has_role('guest') %}
-                                    <span class="btn btn-link p-0" onclick="copyTOTP(this.parentNode.parentNode.id)">
+                                    <button class="btn btn-link p-0" onclick="copyTOTP(this.parentNode.parentNode.id)">
                                         {{ user.username }}
-                                    </span>
+                                    </button>
                                     <span class="opacity-0" id="copy-success">Copied !</span>
                                 {% else %}
                                     {{ user.username }}
