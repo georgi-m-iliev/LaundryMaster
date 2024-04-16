@@ -265,6 +265,12 @@ def schedule():
 
     # get events for current week
     today = datetime.datetime.now().date()
+    if request.args.get('date'):
+        try:
+            today = datetime.datetime.strptime(request.args.get('date'), '%Y-%m-%d').date()
+        except ValueError:
+            flash('Invalid date format', category='toast-error')
+            return redirect(request.path)
     navigation = ScheduleNavigationForm()
 
     if navigation.validate_on_submit() and (navigation.previous.data or navigation.next.data or navigation.today.data):
@@ -280,7 +286,7 @@ def schedule():
     events = ScheduleEvent.query.filter(
         ScheduleEvent.start_timestamp >= today - datetime.timedelta(days=day_of_week),
         ScheduleEvent.start_timestamp <= today + datetime.timedelta(days=7 - day_of_week),
-    ).all()
+        ).all()
 
     events_json = []
     for event in events:

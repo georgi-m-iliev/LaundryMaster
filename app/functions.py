@@ -531,7 +531,7 @@ def schedule_create_new_event(start_timestamp: datetime.datetime, end_timestamp:
             title=f'{user.first_name} scheduled washing on {start_timestamp.strftime("%d-%m at %H:%M")}.',
             body='Go check the schedule for more details.',
             icon='cycle-reminder-icon.png',
-            url='/schedule'
+            url=f'/schedule?date={start_timestamp.strftime("%Y-%m-%d")}'
         ))
 
 
@@ -563,7 +563,7 @@ def schedule_update_event(event_id: int, start_timestamp: datetime.datetime, end
             title=f'{user.first_name} rescheduled washing on {start_timestamp.strftime("%d-%m at %H:%M")}.',
             body='Go check the schedule for more details.',
             icon='cycle-reminder-icon.png',
-            url='/schedule'
+            url=f'/schedule?date={start_timestamp.strftime("%Y-%m-%d")}'
         ))
 
 
@@ -588,7 +588,7 @@ def schedule_delete_event(event_id: int, user: User):
             title=f'{user.first_name} canceled washing on {event.start_timestamp.strftime("%d-%m at %H:%M")}.',
             body='Go check the schedule for more details.',
             icon='cycle-reminder-icon.png',
-            url='/schedule'
+            url=f'/schedule?date={event.start_timestamp.strftime("%Y-%m-%d")}'
         ))
 
 
