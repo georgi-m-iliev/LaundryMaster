@@ -376,10 +376,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
+                <div class="modal-footer d-flex justify-content-between align-items-center">
                     <div>
                         {{ start_program_form.stop_program_submit(class="btn btn-danger", value="Stop", id="stop-program-form-submit") }}
                         {{ start_program_form.pause_program_submit(class="btn btn-warning text-light", value="Pause", id="pause-program-form-submit") }}
+                    </div>
+                    <div>
+                        <p class="mb-1 text-primary" id="estimated-duration"></p>
                     </div>
                     <div>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -414,6 +417,7 @@
         const startProgramFormLink = document.getElementById('start-program-form-link');
         const startProgramForm = document.getElementById('start-program-form');
         const startProgramFormSubmit = document.getElementById('start-program-form-submit');
+        const programTypeSelect = document.getElementById('program_type');
 
         if(params.has('candy') == false) {
             showStartForm(launchCandy, startProgramForm, startProgramFormSubmit);
@@ -443,13 +447,12 @@
         const dry = document.getElementById('dry');
         const comb = document.getElementById('comb');
         const dryAfter = document.getElementById('dry_after');
-        document.getElementById('program_type').addEventListener('change', function() {
+        programTypeSelect.addEventListener('change', function() {
             if(this.value === '') {
                 wash.classList.add('d-none');
                 dry.classList.add('d-none');
                 comb.classList.add('d-none');
-            }
-            if(this.value === 'wash') {
+            } else if(this.value === 'wash') {
                 wash.classList.remove('d-none');
                 dry.classList.add('d-none');
                 comb.classList.add('d-none');
@@ -463,6 +466,31 @@
                 comb.classList.remove('d-none');
             }
             dryAfter.checked = false;
+        });
+
+        startProgramForm.addEventListener('change', async function() {
+            let estimatedTime;
+            if(programTypeSelect.value === 'wash') {
+                const washProgram = document.getElementById('wash_program');
+                const washSoilLevel = document.getElementById('wash_soil_level');
+                const washDurationData = await fetch(`/api/get_program_estimated_time?program_id=${washProgram.value}&soil_level=${washSoilLevel.value}`);
+                estimatedTime = parseInt((await washDurationData.json())['estimated_time']);
+                if(dryAfter.checked) {
+                    const dryProgram = document.getElementById('dry_program');
+                    const dryDurationData = await fetch(`/api/get_program_estimated_time?program_id=${dryProgram.value}`);
+                    estimatedTime += parseInt((await dryDurationData.json())['estimated_time']);
+                }
+            } else if(programTypeSelect.value === 'dry') {
+                const dryProgram = document.getElementById('dry_program');
+                const dryDurationData = await fetch(`/api/get_program_estimated_time?program_id=${dryProgram.value}`);
+                estimatedTime = parseInt((await dryDurationData.json())['estimated_time']);
+            } else if(programTypeSelect.value === 'comb') {
+                const combProgram = document.getElementById('comb_program');
+                const combSoilLevel = document.getElementById('comb_soil_level');
+                const combDurationData = await fetch(`/api/get_program_estimated_time?program_id=${combProgram.value}&soil_level=${combSoilLevel.value}`);
+                estimatedTime = parseInt((await combDurationData.json())['estimated_time']);
+            }
+            document.getElementById('estimated-duration').innerText = `${estimatedTime} mins`;
         });
 
         document.getElementById('dry_after').addEventListener('change', function() {

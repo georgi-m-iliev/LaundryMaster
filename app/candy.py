@@ -9,7 +9,7 @@ from flask_wtf import FlaskForm
 from sqlalchemy.exc import OperationalError
 
 from flask import current_app
-from wtforms import SelectField, BooleanField, SubmitField, ValidationError
+from wtforms import SelectField, BooleanField, SubmitField, ValidationError, Label
 
 from app.db import db
 from app.models import WashingMachine, User
@@ -125,6 +125,7 @@ class StartProgramForm(FlaskForm):
     start_program_submit = SubmitField('Start', id='start-program-submit', name='start-program-submit')
     stop_program_submit = SubmitField('Stop', id='stop-program-submit', name='stop-program-submit')
     pause_program_submit = SubmitField('Pause', id='pause-program-submit', name='pause-program-submit')
+    estimated_time = Label('estimated_time', 'Estimated time: 0 minutes')
 
     def __init__(self):
         from app.candy import CandyWashingMachine

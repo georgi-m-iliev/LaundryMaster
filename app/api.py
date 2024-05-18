@@ -279,3 +279,30 @@ def get_guest_totp_url():
     login_url = url_for('auth.token_login', token=token, _external=True)
 
     return {'url': login_url}
+
+
+@api.route('/get_program_estimated_time', methods=['GET'])
+@login_required
+def get_program_estimated_time():
+    machine = CandyWashingMachine()
+    program_id = request.args.get('program_id')
+    soil_level = request.args.get('soil_level')
+    if not program_id:
+        return {'error': 'invalid args'}
+
+    program = [p for p in machine.programs if p['id'] == program_id][0]
+
+    if not soil_level:
+        soil_level = program['default_soil_level']
+    if soil_level == '0':
+        estimated_time = program['remaining_time_soil_medium']
+    elif soil_level == '1':
+        estimated_time = program['remaining_time_soil_min']
+    elif soil_level == '2':
+        estimated_time = program['remaining_time_soil_medium']
+    elif soil_level == '3':
+        estimated_time = program['remaining_time_soil_max']
+    else:
+        return {'error': 'invalid arg for soil level'}
+
+    return {'estimated_time': estimated_time}
