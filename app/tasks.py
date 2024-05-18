@@ -39,8 +39,12 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.conf.beat_schedule = {
         "Send notification to debtors every two days": {
             "task": "send_notification_to_debtors",
-            "schedule": crontab(minute="0", hour="16", day_of_week="*/2")
-        }
+            "schedule": crontab(minute="0", hour="12", day_of_week="*/2")
+        },
+        "Truncate push subscriptions every 10 days": {
+            "task": "truncate_push_subscriptions",
+            "schedule": crontab(minute="0", hour="2", day_of_month="*/10")
+        },
     }
 
     celery_app.flask_app = app
@@ -357,3 +361,15 @@ def disable_guest_after_finish_task(user_id: int):
     user.active = False
     db.session.commit()
     current_app.logger.info('Guest user disabled.')
+
+
+@shared_task(name='truncate_push_subscriptions', ignore_result=True)
+def truncate_push_subscriptions_task():
+    """ Scheduled task to truncate the push subscriptions. """
+    from app.models import PushSubscription, WashingCycle
+    current_app.logger.info("Deleting all push subscription entries...")
+    if WashingCycle.query.filter_by(end_timestamp=None):
+        current_app.logger.warning("There are still active cycles, skipping truncation of push subscriptions.")
+    else:
+        PushSubscription.query.delete()
+        current_app.logger.info("Push subscriptions deleted!. Exiting...")
