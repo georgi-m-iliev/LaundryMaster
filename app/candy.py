@@ -211,7 +211,7 @@ class CandyWashingMachine:
             'current_status': self.current_status,
             'machine_state': self.machine_state.asdict(),
             'program_state': self.program_state.asdict(),
-            'program_code': self.program,
+            'program': self.program,
             'program_name': self.program_name,
             'program_code': self.program_code,
             'temp': self.temp,
