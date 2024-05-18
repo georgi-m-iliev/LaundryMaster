@@ -88,7 +88,9 @@ class ProgramWashSpinSpeed(Enum):
 
 
 class ProgramWashSoilLevel(Enum):
-    ZERO = 0
+    MIN = (1, 'Little')
+    MID = (2, 'Normal')
+    MAX = (3, 'Very')
 
 
 class ProgramDryLevel(Enum):
@@ -394,7 +396,7 @@ def process_start_program_form(start_program_form: StartProgramForm):
             'PrCode': None,  # from 'pr_code' field in programs
             'PrStr': None,  # Program name - human-readable
             'TmpTgt': '0',  # Washing temperature -  0, 20, 30, 40, to max
-            'SLevTgt': '0',
+            'SLevTgt': '0',  # Soil level - 0, 1, 2, 3
             'SpdTgt': '0',  # Washing spin speed - divided by 100
             'OptMsk1': '0',
             'OptMsk2': '0',
@@ -414,6 +416,7 @@ def process_start_program_form(start_program_form: StartProgramForm):
             body_args['PrStr'] = program['name']
             body_args['TmpTgt'] = start_program_form.wash_temp.data
             body_args['SpdTgt'] = start_program_form.wash_spin_speed.data
+            body_args['SLevTgt'] = start_program_form.wash_soil_level.data
         elif type == ProgramType.DRY:
             program_id = start_program_form.dry_program.data
             program = next(program for program in CandyWashingMachine.programs if program['id'] == program_id)
@@ -432,6 +435,7 @@ def process_start_program_form(start_program_form: StartProgramForm):
             body_args['PrStr'] = program['name']
             body_args['TmpTgt'] = start_program_form.comb_temp.data
             body_args['SpdTgt'] = start_program_form.comb_spin_speed.data
+            body_args['SLevTgt'] = start_program_form.comb_soil_level.data
             body_args['Dry'] = start_program_form.comb_dry_level.data
         return '&'.join(f'{key}={value}' for key, value in body_args.items())
 
