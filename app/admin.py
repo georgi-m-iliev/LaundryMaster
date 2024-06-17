@@ -129,7 +129,8 @@ def index():
 @login_required
 @roles_required('admin')
 def users_view():
-    if 'delete' in request.args or 'activate' in request.args or 'deactivate' in request.args or 'start_cycle' in request.args:
+    if ('delete' in request.args or 'activate' in request.args or 'deactivate' in request.args or
+            'start_cycle' in request.args or 'new_guest_name' in request.args):
         if request.args.get('delete'):
             user_id = request.args.get('delete')
             user = User.query.filter_by(id=user_id).first()
@@ -164,6 +165,16 @@ def users_view():
                 flash('User does not exist', category='toast-error')
                 return redirect(request.path)
             admin_start_cycle(user)
+        elif request.args.get('new_guest_name'):
+            new_guest_name = request.args.get('new_guest_name')
+            user_datastore.create_user(
+                first_name=new_guest_name,
+                username=new_guest_name.lower(),
+                active=False
+            )
+            user = User.query.filter_by(first_name=new_guest_name).first()
+            user_datastore.add_role_to_user(user, 'guest')
+            flash(f'Created new guest user {new_guest_name}', category='toast-success')
         db.session.commit()
         return redirect(request.path)
 
