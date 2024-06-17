@@ -50,7 +50,7 @@ def token_login(token):
     serializer = URLSafeTimedSerializer(os.getenv('FLASK_SECRET_KEY'))
 
     try:
-        user_id = serializer.loads(token, salt='login-request', max_age=3600)
+        user_id = serializer.loads(token, salt='login-request', max_age=86400)
     except (BadSignature, SignatureExpired):
         return {'error': 'Invalid or expired token'}
 
