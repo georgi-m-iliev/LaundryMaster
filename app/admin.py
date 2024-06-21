@@ -6,10 +6,11 @@ from flask_security import roles_required, hash_password, current_user, login_re
 
 from app.db import db
 from app.auth import user_datastore
-from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask
+from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask, Notification
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm, AdminSettings
 from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
-from app.functions import delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle, admin_start_cycle
+from app.functions import (delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle,
+                           admin_start_cycle, send_push_to_all)
 from app.tasks import recalculate_cycles_cost_task
 from app.candy import CandyWashingMachine
 
@@ -101,7 +102,21 @@ def index():
     if admin_settings.admin_settings_submit.data and admin_settings.validate_on_submit():
         print('Admin settings update...')
         washing_machine.global_shutdown = admin_settings.kill_switch.data
-        washing_machine.require_scheduling = admin_settings.require_scheduling.data
+        if washing_machine.require_scheduling != admin_settings.require_scheduling.data:
+            washing_machine.require_scheduling = admin_settings.require_scheduling.data
+            if washing_machine.require_scheduling:
+                send_push_to_all(Notification(
+                    title='Scheduling requirement is now active!',
+                    body='Scheduling is now required for washing cycles. Please check the schedule page for available '
+                         'timeslots.',
+                    icon='android-chrome-512x512.png'
+                ))
+            else:
+                send_push_to_all(Notification(
+                    title='Scheduling requirement is now disabled!',
+                    body='Scheduling is no longer required for washing cycles. You can now start a cycle at any time.',
+                    icon='android-chrome-512x512.png'
+                ))
         db.session.commit()
         flash('Settings updated successfully', 'toast-success')
         return redirect(request.path)
