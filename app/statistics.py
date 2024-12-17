@@ -200,3 +200,33 @@ def admin_users_usage_statistics(months: int = 12) -> dict:
         users_usage_stats['datasets'][1]['data'].append(len(cycles))
 
     return users_usage_stats
+
+
+def users_unpaid_cycles_cost_statistics() -> dict:
+    """ Calculates the unpaid cycles cost for each user. """
+
+    def generate_color_by_user(user: User) -> str:
+        """ Generates a random color for a user. """
+        import hashlib
+        hash_object = hashlib.md5(f"{user.id}{user.username}{user.email}".encode())
+        hash_digest = hash_object.hexdigest()
+
+        r = int(hash_digest[11:13], 16) % 128 + 127  # Red component
+        g = int(hash_digest[2:4], 16) % 128 + 127  # Green component
+        b = int(hash_digest[4:6], 16) % 128 + 127  # Blue component
+
+        # Convert to hex format
+        pastel_color = f"#{r:02x}{g:02x}{b:02x}"
+        return pastel_color
+
+    users = User.query.filter_by(active=True).all()
+    users_unpaid_stats = {'labels': [user.first_name for user in users], 'datasets': []}
+
+    users_unpaid_stats['datasets'].append({
+        'label': 'Unpaid cycles cost by user',
+        'fill': True,
+        'data': [float(calculate_unpaid_cycles_cost(user)) for user in users],
+        'backgroundColor': [generate_color_by_user(user) for user in users],
+    })
+
+    return users_unpaid_stats

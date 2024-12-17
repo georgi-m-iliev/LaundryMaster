@@ -8,7 +8,8 @@ from app.db import db
 from app.auth import user_datastore
 from app.models import User, Role, WashingCycle, ScheduleEvent, WashingMachine, CeleryTask, Notification
 from app.forms import EditProfileForm, EditRolesForm, UpdateWashingMachineForm, AdminSettings
-from app.statistics import calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage
+from app.statistics import (calculate_unpaid_cycles_cost, admin_users_usage_statistics, calculate_energy_usage,
+                            users_unpaid_cycles_cost_statistics)
 from app.functions import (delete_user, recalculate_cycles_cost, trigger_relay, get_washer_info, admin_stop_cycle,
                            admin_start_cycle, send_push_to_all)
 from app.tasks import recalculate_cycles_cost_task
@@ -136,7 +137,8 @@ def index():
         current_usage=washing_machine_info['current_usage'],
         relay_temperature=washing_machine_info['relay_temperature'],
         relay_wifi_rssi=washing_machine_info['relay_wifi_rssi'],
-        admin_settings=admin_settings
+        admin_settings=admin_settings,
+        users_unpaid_cycles_cost=json.dumps(users_unpaid_cycles_cost_statistics())
     )
 
 
