@@ -20,12 +20,16 @@ admin = Blueprint('admin', __name__)
 
 @admin.before_request
 def handle_admin_stop():
-    if request.method == 'POST' and request.form.get('admin_stop') is not None:
-        try:
-            admin_stop_cycle(current_user)
-        except ChildProcessError:
-            pass
-        return redirect(request.path)
+    if request.method == 'POST':
+        if request.form.get('admin_stop') is not None:
+            try:
+                admin_stop_cycle(current_user)
+            except ChildProcessError:
+                pass
+            return redirect(request.path)
+        elif request.form.get('admin_start') is not None:
+            recalculate_cycles_cost_task()
+            return redirect(request.path)
 
 
 @admin.route('/', methods=['GET', 'POST'])
